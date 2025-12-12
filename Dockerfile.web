@@ -1,0 +1,30 @@
+FROM python:3.11-slim
+
+# Set working directory inside container
+WORKDIR /app
+
+# Install system dependencies
+RUN apt-get update && apt-get install -y --no-install-recommends \
+    build-essential libpq-dev \
+    && rm -rf /var/lib/apt/lists/*
+
+# Copy requirements from the project root
+COPY requirements.txt .
+
+# Install Python dependencies
+RUN pip install --no-cache-dir -r requirements.txt
+
+# Copy entire Django project into the image
+#COPY . .
+
+# Prepare Django (optional, but recommended)
+RUN python manage.py collectstatic --noinput || true
+
+EXPOSE 8000
+ENV REDIS_URL=redis://host.docker.internal:6379/0
+
+# For prod env
+# CMD ["gunicorn", "AI_backend.wsgi:application", "--bind", "0.0.0.0:8000", "--workers", "4", "--timeout", "120"]
+CMD ["gunicorn", "AI_backend.wsgi:application", "--bind", "0.0.0.0:8000", "--workers", "2", "--reload"]
+
+

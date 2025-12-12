@@ -1,0 +1,193 @@
+import os
+import re
+import signal
+import socket
+from typing import Optional
+
+import django_rq
+from rq.job import Job
+
+from archiver.models import Snapshot, Website
+from archiver.tasks import start_crawl_task
+
+UUID_REGEX = re.compile(r"^[0-9a-fA-F-]{32,36}$")
+redis_conn = django_rq.get_connection("crawls")
+
+# ------------------------
+# INTERNAL HELPERS
+# ------------------------
+def _queue_exists(job_id: str) -> bool:
+    return redis_conn.exists(f"crawl:{job_id}") == 1
+
+
+def _send_control(job_id: str, command: str):
+    redis_conn.set(f"crawl:{job_id}:control", command)
+
+
+
+def resolve_job_or_website(identifier: str) -> Snapshot:
+    """
+    Accepts any of:
+      - Snapshot.id  (integer)
+      - rq_job_id    (UUID string)
+      - website id
+      - website name
+    Returns a Snapshot instance.
+    """
+
+    # ----------------------------------------------------------
+    # 1. If input is integer → treat as Snapshot primary key
+    # ----------------------------------------------------------
+    try:
+        int_id = int(identifier)  # will raise ValueError if not an int
+        return Snapshot.objects.get(id=int_id)
+    except (ValueError, Snapshot.DoesNotExist):
+        pass
+
+    # ----------------------------------------------------------
+    # 2. If UUID-like string → treat as rq_job_id
+    # ----------------------------------------------------------
+    if isinstance(identifier, str) and UUID_REGEX.match(identifier):
+        try:
+            return Snapshot.objects.get(rq_job_id=identifier)
+        except Snapshot.DoesNotExist:
+            pass
+
+    # ----------------------------------------------------------
+    # 3. Try as website-id
+    # ----------------------------------------------------------
+    try:
+        website_id = int(identifier)
+        return Snapshot.objects.filter(website_id=website_id).latest("id")
+    except:
+        pass
+
+    # ----------------------------------------------------------
+    # 4. Try as website-name
+    # ----------------------------------------------------------
+    try:
+        website = Website.objects.get(name=identifier)
+        return Snapshot.objects.filter(website=website).latest("id")
+    except:
+        pass
+
+    # ----------------------------------------------------------
+    # 5. No match → error
+    # ----------------------------------------------------------
+    raise Snapshot.DoesNotExist(f"No Snapshot found for identifier={identifier}")
+
+
+def start_crawl(website_id: int, queue_name: str = "crawls") -> str:
+    """
+    Enqueue a crawl job for the given website.
+    Also creates a Snapshot database entry storing the RQ job ID.
+    """
+
+    # Validate website
+    website = Website.objects.get(id=website_id)
+    crawl_job = Snapshot.objects.create(
+        website=website,
+        status="queued"
+    )
+
+    # Enqueue the RQ job
+    queue = django_rq.get_queue(queue_name)
+    job = queue.enqueue(start_crawl_task, website_id, crawl_job_id=crawl_job.id)
+
+    # Attach the RQ job ID and save
+    crawl_job.rq_job_id = job.id
+    crawl_job.save(update_fields=["rq_job_id"])
+    return job.id
+
+def get_crawl_status(job_id: str, queue_name: str = "crawls") -> dict:
+    """
+    Get the status of a crawl job.
+    Returns dictionary with id, status, and result if finished.
+    """
+    try:
+        job = Job.fetch(job_id, connection=django_rq.get_connection(queue_name))
+    except Exception:
+        return {"error": "Unknown job id"}
+
+    return {
+        "id": job.id,
+        "status": job.get_status(),
+        "result": job.result if job.is_finished else None,
+    }
+
+
+# ------------------------
+# STOP CRAWL
+# ------------------------
+def stop_crawl(identifier: str) -> bool:
+    cj = resolve_job_or_website(identifier)
+    job_id = cj.rq_job_id
+
+    # Prefer redis control (remote-safe)
+    if _queue_exists(job_id):
+        _send_control(job_id, "stop")
+        cj.status = "canceled"
+        cj.save(update_fields=["status"])
+        return True
+
+    # Fallback: local kill if this is the right machine
+    if cj.machine == socket.gethostname() and cj.process_id:
+        try:
+            os.kill(cj.process_id, signal.SIGTERM)
+            cj.status = "canceled"
+            cj.save(update_fields=["status"])
+            return True
+        except ProcessLookupError:
+            return False
+
+    return False
+
+
+# ------------------------
+# SUSPEND CRAWL
+# ------------------------
+def suspend_crawl(identifier: str) -> bool:
+    cj = resolve_job_or_website(identifier)
+    job_id = cj.rq_job_id
+
+    if _queue_exists(job_id):
+        _send_control(job_id, "suspend")
+        cj.status = "suspended"
+        cj.save(update_fields=["status"])
+        return True
+
+    if cj.machine == socket.gethostname() and cj.process_id:
+        try:
+            os.kill(cj.process_id, signal.SIGSTOP)
+            cj.status = "suspended"
+            cj.save(update_fields=["status"])
+            return True
+        except ProcessLookupError:
+            return False
+
+    return False
+
+
+# ------------------------
+# RESUME CRAWL
+# ------------------------
+def resume_crawl(identifier: str) -> bool:
+    cj = resolve_job_or_website(identifier)
+    job_id = cj.rq_job_id
+
+    if _queue_exists(job_id):
+        _send_control(job_id, "resume")
+        cj.status = "running"
+        cj.save(update_fields=["status"])
+        return True
+
+    if cj.machine == socket.gethostname() and cj.process_id:
+        try:
+            os.kill(cj.process_id, signal.SIGCONT)
+            cj.status = "running"
+            cj.save(update_fields=["status"])
+            return True
+        except ProcessLookupError:
+            return False
+
+    return False

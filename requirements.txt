@@ -1,0 +1,20 @@
+Django
+djangorestframework
+psycopg2
+redis
+django-redis
+django-environ
+
+# background tasks
+django_rq
+jwt
+
+# optional utils
+python-dotenv
+drf-spectacular
+
+#auth
+mozilla_django_oidc
+
+#gunicorn
+gunicorn
