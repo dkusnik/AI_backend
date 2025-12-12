@@ -89,10 +89,9 @@ class WebsiteSerializer(serializers.ModelSerializer):
     class Meta:
         model = Website
         fields = [
-            "id", "organisationId", "url", "isDeleted", "name",
+            "id", "organisation_id", "url", "isDeleted", "name",
             "displayName", "shortDescription", "longDescription",
-            "doCrawl", "suspendCrawlUntilTimestamp", "tags",
-            "metadataArchival", "metadataTechnical"
+            "doCrawl", "suspendCrawlUntilTimestamp", "tags"
         ]
 
 
@@ -111,10 +110,10 @@ class SnapshotSerializer(serializers.ModelSerializer):
     class Meta:
         model = Snapshot
         fields = [
-            "id", "websiteId", "url", "isDeleted",
+            "id", "website_id", "url", "isDeleted",
             "status", "publicationStatus", "crawlStartTimestamp",
             "crawlStopTimestamp", "size", "itemCount", "warcPath",
-            "replayCollectionId", "metadataArchival", "metadataTechnical"
+            "replayCollectionId",
         ]
 
 
@@ -122,7 +121,7 @@ class SnapshotSerializer(serializers.ModelSerializer):
 # Task (accepts TaskParameters)
 # -------------------------
 class TaskParametersSerializer(serializers.Serializer):
-    websiteId = serializers.IntegerField(required=False)
+    website = serializers.IntegerField(required=False)
     groupId = serializers.IntegerField(required=False)
     snapshotId = serializers.IntegerField(required=False)
     scheduleId = serializers.IntegerField(required=False)
@@ -156,7 +155,7 @@ class QuestionSerializer(serializers.ModelSerializer):
     questionnaireId = serializers.PrimaryKeyRelatedField(
         source="questionnaire", queryset=Questionnaire.objects.all(), write_only=True, required=False
     )
-    questionnaire_id = serializers.IntegerField(source="questionnaire_id", read_only=True)
+    questionnaire_id = serializers.IntegerField(read_only=True)
     input = serializers.ChoiceField(
         choices=[c[0] for c in Question.INPUT_TYPES]
     )
@@ -200,7 +199,7 @@ class QuestionnaireSerializer(serializers.ModelSerializer):
     category = CategorySerializer(required=False, allow_null=True)
     isDeleted = serializers.BooleanField(source="is_deleted", default=False)
     isPublished = serializers.BooleanField(source="is_published", default=False)
-    questions = QuestionSerializer(source="questions", many=True, read_only=True)
+    questions = QuestionSerializer(many=True, read_only=True)
 
     class Meta:
         model = Questionnaire
@@ -298,5 +297,5 @@ class CommentThreadSerializer(serializers.ModelSerializer):
 class GlobalConfigSerializer(serializers.ModelSerializer):
     class Meta:
         model = GlobalConfig
-        fields = ["key", "value", "entryClass"]
+        fields = ["key", "value"]
 

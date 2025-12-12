@@ -25,6 +25,11 @@ services:
       - "8000"
     environment:
       REDIS_URL: redis://host.docker.internal:6379/0
+      POSTGRES_DB: ai_backend
+      POSTGRES_USER: ai_backend
+      POSTGRES_PASSWORD: password
+      POSTGRES_HOST: host.docker.internal
+      POSTGRES_PORT: 5432
     volumes:
       - ./:/app/    # mounts local code, overrides image
       - static_volume:/app/static
@@ -40,6 +45,11 @@ services:
     container_name: worker_crawl
     environment:
       REDIS_URL: redis://host.docker.internal:6379/0
+      POSTGRES_DB: ai_backend
+      POSTGRES_USER: ai_backend
+      POSTGRES_PASSWORD: password
+      POSTGRES_HOST: host.docker.internal
+      POSTGRES_PORT: 5432
     volumes:
       - ./:/app/    # mounts local code, overrides image
     depends_on:
