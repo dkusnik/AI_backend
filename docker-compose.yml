@@ -23,6 +23,10 @@ services:
     container_name: web
     expose:
       - "8000"
+    env_file:
+      - .env.docker
+    environment:
+      ENV_FILE: .env.docker
     environment:
       REDIS_URL: redis://host.docker.internal:6379/0
       POSTGRES_DB: ai_backend
@@ -43,6 +47,10 @@ services:
       context: .
       dockerfile: Dockerfile.worker_crawl
     container_name: worker_crawl
+    env_file:
+      - .env.docker
+    environment:
+      ENV_FILE: .env.docker
     environment:
       REDIS_URL: redis://host.docker.internal:6379/0
       POSTGRES_DB: ai_backend
@@ -71,6 +79,48 @@ services:
     extra_hosts:
       - "host.docker.internal:host-gateway"
 
+  # =====================
+  # OutbackCDX (CDX server)
+  # =====================
+  outbackcdx:
+    image: nlagovau/outbackcdx:0.12.0
+    container_name: outbackcdx
+    command: >
+      java -jar /outbackcdx/outbackcdx.jar
+      -d /cdx-data
+      -p 8080
+    ports:
+      - "8085:8080"
+    volumes:
+      - outbackcdx_data:/cdx-data
+    restart: unless-stopped
+
+  # =====================
+  # pywb replay service
+  # =====================
+  pywb:
+    image: webrecorder/pywb:latest
+    container_name: pywb
+    depends_on:
+      - outbackcdx
+    ports:
+      - "8081:8080"
+    environment:
+      # Directory inside container where collections live
+      PYWB_COLLECTIONS_DIR: /webarchive/collections
+
+      # Tell pywb to use OutbackCDX
+      CDX_SERVER_URL: http://outbackcdx:8080
+
+      # Optional but recommended
+      PYWB_CONFIG_FILE: /webarchive/config.yaml
+    volumes:
+      # collections directory (host → container)
+      - ./pywb/collections:/webarchive/collections:ro
+
+      # optional global config
+      - ./pywb/config.yaml:/webarchive/config.yaml:ro
+    restart: unless-stopped
 volumes:
   static_volume:
 

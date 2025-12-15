@@ -82,6 +82,7 @@ class Website(models.Model):
     name = models.CharField(max_length=255)
     url = models.URLField()
     isDeleted = models.BooleanField(default=False)
+    auto_publish = models.BooleanField(default=False)
     displayName = models.CharField(max_length=255, blank=True, null=True)
     shortDescription = models.TextField(blank=True, null=True)
     longDescription = models.TextField(blank=True, null=True)
@@ -136,6 +137,7 @@ class Snapshot(models.Model):
         ('finished', 'Finished'),
         ('failed', 'Failed'),
         ('accepted', 'Accepted'),  # accepted into production queue
+        ('published', 'Published')
     ]
 
     STATUS_PUBLICATION = [
@@ -156,9 +158,9 @@ class Snapshot(models.Model):
     progress = models.FloatField(default=0.0)  # 0.0 - 100.0
     stats = models.JSONField(default=dict, blank=True)  # e.g. {'fetched': 123, 'bytes': 45678}
     process_id = models.IntegerField(null=True, blank=True)
-    machine = models.CharField(max_length=255, null=True, blank=True)   # 👈 NEW
+    machine = models.CharField(max_length=255, null=True, blank=True)  
     error = models.TextField(null=True, blank=True)
-    accepted = models.BooleanField(default=False)
+    pubslished = models.BooleanField(default=False)
     result = models.JSONField(default=dict, blank=True)
     rq_job_id = models.CharField(max_length=255, null=True, blank=True)
 
@@ -229,86 +231,6 @@ class ScheduleConfig(models.Model):
     status = models.CharField(max_length=32, choices=ScheduleConfigStatus.choices)
     yamlConfig = models.TextField()
 
-
-# --------------------------------------------------------------------
-#  COMMENTS
-# --------------------------------------------------------------------
-
-class CommentEntryClass(models.TextChoices):
-    PUBLIC = "public"
-    PRIVATE = "private"
-    HISTORY = "history"
-    HISTORY_HIDDEN = "history_hidden"
-    SYSTEM = "system"
-    LOG = "log"
-
-
-class CommentEntryLevel(models.TextChoices):
-    NONE = "none"
-    DEBUG = "debug"
-    INFO = "info"
-    WARNING = "warning"
-    ERROR = "error"
-    ALERT = "alert"
-
-
-class CommentThread(models.Model):
-    accessMode = models.CharField(max_length=20)
-    entityType = models.CharField(max_length=32)
-    entityId = models.IntegerField()
-    messages = models.IntegerField(default=0)
-    lastTimestamp = models.DateTimeField(null=True, blank=True)
-    lastAuthor = models.IntegerField(null=True, blank=True)
-    lastMessage = models.TextField(blank=True, null=True)
-    lastType = models.CharField(max_length=32, blank=True, null=True)
-
-
-class Comment(models.Model):
-    threadId = models.IntegerField()
-    createdAt = models.DateTimeField(default=timezone.now)
-    userId = models.IntegerField()
-    body = models.TextField()
-    entryClass = models.CharField(max_length=20, choices=CommentEntryClass.choices)
-    entryLevel = models.CharField(max_length=20, choices=CommentEntryLevel.choices)
-
-# --------------------------------------------------------------------
-#  METADATA KEYS
-# --------------------------------------------------------------------
-
-class MetadataEntryString(models.Model):
-    key = models.CharField(max_length=255)
-    value = models.TextField()
-
-
-class MetadataTechnicalOrganisation(models.Model):
-    extra = models.ManyToManyField(MetadataEntryString, blank=True)
-
-
-class MetadataTechnicalWebsite(models.Model):
-    extra = models.ManyToManyField(MetadataEntryString, blank=True)
-
-
-class MetadataTechnicalSnapshot(models.Model):
-    crawler = models.CharField(max_length=255, blank=True, null=True)
-    crawlerConfiguration = models.CharField(max_length=255, blank=True, null=True)
-    crawlerOutput = models.TextField(blank=True, null=True)
-    crawlWarcSize = models.BigIntegerField(null=True, blank=True)
-    warehousePointer = models.CharField(max_length=255, blank=True, null=True)
-    extra = models.ManyToManyField(MetadataEntryString, blank=True)
-
-
-class MetadataArchivalOrganisation(models.Model):
-    extra = models.ManyToManyField(MetadataEntryString, blank=True)
-
-
-class MetadataArchivalWebsite(models.Model):
-    extra = models.ManyToManyField(MetadataEntryString, blank=True)
-
-
-class MetadataArchivalSnapshot(models.Model):
-    extra = models.ManyToManyField(MetadataEntryString, blank=True)
-
-
 # --------------------------------------------------------------------
 #  TASKS
 # --------------------------------------------------------------------
@@ -342,115 +264,24 @@ class Task(models.Model):
     taskParameters = models.JSONField(null=True, blank=True)
     taskResponse = models.JSONField(null=True, blank=True)
 
-
-class Category(models.Model):
-    """
-    Category model (from YAML).
-    """
-
-    name = models.CharField(max_length=255)
-
-    def __str__(self):
-        return self.name
-
-
-class Questionnaire(models.Model):
-    """
-    YAML: components.schemas.Questionnaire
-    """
-
-    title = models.CharField(max_length=500)
-    header = models.TextField(blank=True, null=True)
-    footer = models.TextField(blank=True, null=True)
-
-    category = models.ForeignKey(
-        Category,
-        null=True,
-        blank=True,
-        on_delete=models.SET_NULL,
-        related_name="questionnaires"
-    )
-
-    is_deleted = models.BooleanField(default=False)
-    is_published = models.BooleanField(default=False)
-
-    def __str__(self):
-        return f"Questionnaire {self.id}: {self.title}"
-
-
-class Question(models.Model):
-    """
-    YAML: components.schemas.Question
-    """
-
-    INPUT_TYPES = [
-        ("text", "Text"),
-        ("textarea", "Textarea"),
-        ("radio", "Radio"),
-        ("checkbox", "Checkbox"),
-        ("select", "Select"),
-        ("date", "Date"),
-        ("number", "Number"),
-    ]
-
-    questionnaire = models.ForeignKey(
-        Questionnaire,
+class Warc(models.Model):
+    snapshot = models.ForeignKey(
+        "Snapshot",
         on_delete=models.CASCADE,
-        related_name="questions"
+        related_name="warcs",
     )
+    filename = models.CharField(max_length=512)
+    path = models.TextField()  # full production path
+    size_bytes = models.BigIntegerField()
+    created_at = models.DateTimeField()
 
-    title = models.CharField(max_length=500)
-    body = models.TextField(blank=True, null=True)
-
-    input = models.CharField(max_length=20, choices=INPUT_TYPES)
-
-    # newline-separated values for radio/select/checkbox
-    values = models.TextField(
-        blank=True,
-        null=True,
-        help_text="Possible values (newline-separated)",
-    )
-
-    def get_values_list(self):
-        if not self.values:
-            return []
-        return [v.strip() for v in self.values.split("\n") if v.strip()]
-
-    def __str__(self):
-        return f"Q{self.id} ({self.input})"
-
-
-class QuestionnaireResponse(models.Model):
-    """
-    YAML: components.schemas.QuestionnaireResponse
-
-    - organisationId
-    - questionnaireId
-    - response: [string]
-    """
-
-    organisation_id = models.BigIntegerField()
-    questionnaire = models.ForeignKey(
-        Questionnaire,
-        on_delete=models.CASCADE,
-        related_name="responses",
-    )
-
-    # YAML: array of strings
-    response = ArrayField(
-        base_field=models.TextField(),
-        default=list,
-        blank=True,
-    )
-
-    updated_at = models.DateTimeField(auto_now=True)
+    created = models.DateTimeField(auto_now_add=True)
 
     class Meta:
-        unique_together = ("organisation_id", "questionnaire")
+        unique_together = ("snapshot", "filename")
 
     def __str__(self):
-        return f"Response org={self.organisation_id} q={self.questionnaire_id}"
-
+        return f"{self.filename} ({self.size_bytes} bytes)"
 
 class GlobalConfig(models.Model):
     ENTRY_CLASS_CHOICES = [

@@ -24,7 +24,7 @@ env = environ.Env(
 )
 
 # Path to .env
-ENV_FILE = os.path.join(BASE_DIR, ".env")
+ENV_FILE = os.path.join(BASE_DIR, os.environ.get("ENV_FILE", ".env"))
 
 # Load .env
 if os.path.exists(ENV_FILE):
@@ -60,6 +60,10 @@ RQ_QUEUES = {
     "crawls": {
         "URL": env("REDIS_URL"),
         "DEFAULT_TIMEOUT": 86400,  # long for full crawls
+    },
+    "maintance": {
+        "URL": env("REDIS_URL"),
+        "DEFAULT_TIMEOUT": 86400,  # long for big crawls
     }
 }
 
@@ -184,7 +188,7 @@ STATIC_URL = 'static/'
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
 AUTHENTICATION_BACKENDS = (
-    "archiver.auth_backend.OIDCKeycloakBackend",
+    "archiver.auth.OIDCKeycloakBackend",
     "django.contrib.auth.backends.ModelBackend",
 )
 # -----------------------------------------------------

@@ -5,18 +5,14 @@ from rest_framework.decorators import action, api_view, permission_classes
 from rest_framework.permissions import AllowAny, IsAuthenticated
 from rest_framework.response import Response
 
-from archiver.models import (Category, Comment, CommentThread, CrawlConfig,
-                             GlobalConfig, Organisation, Question,
-                             Questionnaire, QuestionnaireResponse,
+from archiver.models import (CrawlConfig,
+                             GlobalConfig, Organisation,
                              ScheduleConfig, Snapshot, Task,
                              Website, WebsiteGroup)
 
 from archiver.permissions import IsAdmin, IsAPIClient, IsArchivist, IsModerator
-from .serializers import (CategorySerializer, CommentSerializer,
-                          CommentThreadSerializer, CrawlConfigSerializer,
+from .serializers import (CrawlConfigSerializer,
                           GlobalConfigSerializer, OrganisationSerializer,
-                          QuestionnaireResponseSerializer,
-                          QuestionnaireSerializer, QuestionSerializer,
                           ScheduleConfigSerializer, SnapshotSerializer,
                           TaskSerializer,
                           WebsiteGroupSerializer, WebsiteSerializer)
@@ -83,22 +79,6 @@ class ScheduleConfigViewSet(viewsets.ModelViewSet):
     queryset = ScheduleConfig.objects.all().order_by("id")
     serializer_class = ScheduleConfigSerializer
     permission_classes = [IsArchivist]
-
-
-# --------------------------
-# CommentThread & Comment
-# --------------------------
-class CommentThreadViewSet(viewsets.ModelViewSet):
-    queryset = CommentThread.objects.all().order_by("id")
-    serializer_class = CommentThreadSerializer
-    permission_classes = [IsArchivist]
-
-
-class CommentViewSet(viewsets.ModelViewSet):
-    queryset = Comment.objects.all().order_by("-createdAt")
-    serializer_class = CommentSerializer
-    permission_classes = [IsArchivist]
-
 
 # --------------------------
 # GlobalConfig
@@ -192,58 +172,3 @@ class TaskCancelView(APIView):
             return Response(TaskSerializer(t).data)
         return Response({"detail":"Cannot cancel"}, status=409)
 
-
-# -- Category (simple)
-class CategoryViewSet(viewsets.ModelViewSet):
-    queryset = Category.objects.all().order_by("id")
-    serializer_class = CategorySerializer
-    permission_classes = [IsAuthenticated]
-
-
-class QuestionnaireViewSet(viewsets.ModelViewSet):
-    queryset = Questionnaire.objects.all().order_by("id")
-    serializer_class = QuestionnaireSerializer
-    permission_classes = [IsAuthenticated]
-    filter_backends = [filters.SearchFilter]
-    search_fields = ["title", "header", "footer"]
-
-    @action(detail=True, methods=["get"], url_path="questions")
-    def list_questions(self, request, pk=None):
-        q = self.get_object()
-        qs = q.questions.all().order_by("id")
-        serializer = QuestionSerializer(qs, many=True)
-        return Response(serializer.data)
-
-
-class QuestionViewSet(viewsets.ModelViewSet):
-    queryset = Question.objects.all().order_by("id")
-    serializer_class = QuestionSerializer
-    permission_classes = [IsAuthenticated]
-
-    def get_queryset(self):
-        qs = super().get_queryset()
-        questionnaire_id = self.request.query_params.get("questionnaireId")
-        if questionnaire_id:
-            qs = qs.filter(questionnaire_id=questionnaire_id)
-        return qs
-
-
-class QuestionnaireResponseViewSet(viewsets.ModelViewSet):
-    queryset = QuestionnaireResponse.objects.all().order_by("-updated_at")
-    serializer_class = QuestionnaireResponseSerializer
-    permission_classes = [IsAuthenticated]
-
-    def get_queryset(self):
-        qs = super().get_queryset()
-        qid = self.request.query_params.get("questionnaireId")
-        org = self.request.query_params.get("organisationId")
-        if qid:
-            qs = qs.filter(questionnaire_id=qid)
-        if org:
-            qs = qs.filter(organisation_id=org)
-        return qs
-
-    # Upsert via PUT to /questionnaire-response/{id}/ or POST to create (create does upsert by serializer)
-    def create(self, request, *args, **kwargs):
-        # delegate to serializer.create which does upsert
-        return super().create(request, *args, **kwargs)

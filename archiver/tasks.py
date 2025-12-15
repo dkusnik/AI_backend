@@ -129,28 +129,300 @@ def queue_crawl(website_id):
     job = queue.enqueue(run_crawl, website_id)
     return job.id
 
-def move_crawl_to_production(job_id: str):
+import os
+import shutil
+import requests
+from datetime import datetime
+from django.conf import settings
+from archiver.models import Snapshot, Warc
+
+
+import os
+import shutil
+from django.conf import settings
+from archiver.models import Snapshot
+
+
+def move_snapshot_to_longterm(snapshot_id: str):
     """
-    Trigger production saving for an accepted job.
-    Could:
-      - copy files to production storage
-      - call a remote job to import WARC into an archival system
+    Copy WARCs and CDXJ indexes from production storage
+    to long-term archival storage.
     """
-    try:
-        job_obj = Snapshot.objects.get(pk=job_id)
-        # example: call production API
-        production_api = getattr(settings, 'PRODUCTION_IMPORT_API', None)
-        if production_api:
-            r = requests.post(f"{production_api}/import", json={"crawl_job_id": str(job_id)})
-            if r.status_code not in (200,201):
-                job_obj.error = f"production import failed: {r.status_code}"
-                job_obj.save(update_fields=['error'])
-                return
-        # mark accepted already done in view; optionally update more
-    except Exception as e:
-        job_obj.error = str(e)
-        job_obj.save(update_fields=['error'])
-        raise
+
+    snapshot = Snapshot.objects.get(pk=snapshot_id)
+
+    src_base = os.path.join(
+        settings.BROWSERTIX_VOLUME,
+        str(snapshot_id),
+    )
+
+    src_archive = os.path.join(src_base, "archive")
+    src_indexes = os.path.join(src_base, "indexes")
+
+    if not os.path.isdir(src_archive):
+        raise FileNotFoundError(f"Production archive missing: {src_archive}")
+
+    if not os.path.isdir(src_indexes):
+        raise FileNotFoundError(f"Production indexes missing: {src_indexes}")
+
+    dst_base = os.path.join(
+        settings.LONGTERM_VOLUME,
+        str(snapshot_id),
+    )
+
+    dst_archive = os.path.join(dst_base, "archive")
+    dst_indexes = os.path.join(dst_base, "indexes")
+
+    os.makedirs(dst_archive, exist_ok=True)
+    os.makedirs(dst_indexes, exist_ok=True)
+
+    # --------------------------------
+    # Copy WARCs
+    # --------------------------------
+    for fname in os.listdir(src_archive):
+        if not fname.endswith((".warc", ".warc.gz")):
+            continue
+
+        src = os.path.join(src_archive, fname)
+        dst = os.path.join(dst_archive, fname)
+
+        # overwrite-safe copy
+        shutil.copy2(src, dst)
+
+    # --------------------------------
+    # Copy CDXJ indexes
+    # --------------------------------
+    for fname in os.listdir(src_indexes):
+        if not fname.endswith(".cdxj"):
+            continue
+
+        src = os.path.join(src_indexes, fname)
+        dst = os.path.join(dst_indexes, fname)
+
+        shutil.copy2(src, dst)
+
+
+import os
+import shutil
+import requests
+from datetime import datetime
+from django.conf import settings
+from archiver.models import Snapshot, Warc
+
+
+def move_snapshot_to_production(snapshot_id: str):
+    """
+    Use pre-generated CDXJ from Browsertrix, ingest into OutbackCDX,
+    move WARCs to production, and register them in DB.
+    """
+
+    snapshot = Snapshot.objects.get(pk=snapshot_id)
+
+    base_path = os.path.join(
+        settings.BROWSERTIX_VOLUME,
+        "collections",
+        str(snapshot_id),
+    )
+
+    src_archive = os.path.join(base_path, "archive")
+    src_indexes = os.path.join(base_path, "indexes")
+
+    if not os.path.isdir(src_archive):
+        raise FileNotFoundError(f"Archive dir missing: {src_archive}")
+
+    if not os.path.isdir(src_indexes):
+        raise FileNotFoundError(f"Indexes dir missing: {src_indexes}")
+
+    # Production target
+    dst_archive = os.path.join(
+        settings.PRODUCTION_VOLUME,
+        str(snapshot_id),
+        "archive",
+    )
+    os.makedirs(dst_archive, exist_ok=True)
+
+    # OutbackCDX endpoint (index per snapshot)
+    outbackcdx_url = settings.OUTBACKCDX_URL.rstrip("/")
+    cdx_endpoint = f"{outbackcdx_url}/{snapshot_id}?badLines=skip"
+
+    # --------------------------------------------------
+    # 1. Load CDXJ into OutbackCDX (per file)
+    # --------------------------------------------------
+    for fname in sorted(os.listdir(src_indexes)):
+        if not fname.endswith(".cdxj"):
+            continue
+
+        cdxj_path = os.path.join(src_indexes, fname)
+
+        with open(cdxj_path, "rb") as fh:
+            r = requests.post(
+                cdx_endpoint,
+                data=fh,
+                headers={"Content-Type": "text/plain"},
+                timeout=120,
+            )
+
+        if r.status_code not in (200, 201):
+            raise RuntimeError(
+                f"OutbackCDX ingest failed for {fname}: "
+                f"{r.status_code} {r.text}"
+            )
+
+    # --------------------------------------------------
+    # 2. Move WARCs + persist metadata
+    # --------------------------------------------------
+    for fname in os.listdir(src_archive):
+        if not fname.endswith((".warc", ".warc.gz")):
+            continue
+
+        src_warc = os.path.join(src_archive, fname)
+        dst_warc = os.path.join(dst_archive, fname)
+
+        shutil.move(src_warc, dst_warc)
+
+        stat = os.stat(dst_warc)
+
+        Warc.objects.update_or_create(
+            snapshot=snapshot,
+            filename=fname,
+            defaults={
+                "path": dst_warc,
+                "size_bytes": stat.st_size,
+                "created_at": datetime.fromtimestamp(stat.st_mtime),
+            },
+        )
+
 
 def trigger_website_cleanup(website_id: int):
     pass
+
+def replay_publish_task(snapshot_id: int):
+    snap = Snapshot.objects.get(id=snapshot_id)
+    snap.published = True
+    snap.save(update_fields=["published"])
+    return {"published": snapshot_id}
+
+
+def replay_unpublish_task(snapshot_id: int):
+    snap = Snapshot.objects.get(id=snapshot_id)
+    snap.published = False
+    snap.save(update_fields=["published"])
+    return {"unpublished": snapshot_id}
+
+
+def replay_repopulate_task(website_id: int | None = None):
+    qs = Snapshot.objects.all()
+    if website_id:
+        qs = qs.filter(website_id=website_id)
+
+    for snap in qs.iterator():
+        redis_management.rpush("replay:repopulate", snap.id)
+
+    return {"snapshots": qs.count()}
+
+def website_group_run_crawl_task(group_id: int):
+    """
+    For a website group:
+    - fetch all websites
+    - filter by enabled / doCrawl / suspendCrawlUntilTimestamp
+    - enqueue separate crawl tasks per website
+    """
+    group = WebsiteGroup.objects.get(id=group_id)
+    crawl_queue = django_rq.get_queue("crawls")
+
+    now = timezone.now()
+    enqueued = []
+
+    websites = group.websites.filter(
+        enabled=True,
+        doCrawl=True,
+        isDeleted=False,
+    )
+
+    for website in websites:
+        if website.suspendCrawlUntilTimestamp and website.suspendCrawlUntilTimestamp > now:
+            continue
+
+        # Create Snapshot first (same pattern as single crawl)
+        snapshot = Snapshot.objects.create(
+            website=website,
+            status="queued"
+        )
+
+        job = crawl_queue.enqueue(
+            start_crawl_task,
+            website.id,
+            crawl_job_id=snapshot.id
+        )
+
+        snapshot.rq_job_id = job.id
+        snapshot.save(update_fields=["rq_job_id"])
+
+        enqueued.append({
+            "website_id": website.id,
+            "snapshot_id": snapshot.id,
+            "job_id": job.id,
+        })
+
+    return {
+        "group_id": group_id,
+        "enqueued": len(enqueued),
+        "jobs": enqueued,
+    }
+
+
+def website_publish_all_task(website_id: int):
+    """
+    Enqueue replay_publish_task for EACH snapshot of a website.
+    """
+    website = Website.objects.get(id=website_id)
+    website.auto_publish = False
+    website.save(update_fields=["auto_publish"])
+
+    queue = django_rq.get_queue("management")
+
+    jobs = []
+    # snapshot selected ONLY via website -> snapshot relation
+    for snapshot in website.snapshot_set.all().order_by("id"):
+        job = queue.enqueue(
+            replay_unpublish_task,
+            snapshot.id
+        )
+        jobs.append({
+            "snapshot_id": snapshot.id,
+            "job_id": job.id,
+        })
+
+    return {
+        "website_id": website_id,
+        "snapshots_enqueued": len(jobs),
+        "jobs": jobs,
+    }
+
+def website_unpublish_all_task(website_id: int):
+    """
+    Enqueue replay_publish_task for EACH snapshot of a website.
+    """
+    website = Website.objects.get(id=website_id)
+    website.auto_publish = True
+    website.save(update_fields=["auto_publish"])
+
+    queue = django_rq.get_queue("management")
+
+    jobs = []
+    # snapshot selected ONLY via website -> snapshot relation
+    for snapshot in website.snapshot_set.all().order_by("id"):
+        job = queue.enqueue(
+            replay_publish_task,
+            snapshot.id
+        )
+        jobs.append({
+            "snapshot_id": snapshot.id,
+            "job_id": job.id,
+        })
+
+    return {
+        "website_id": website_id,
+        "snapshots_enqueued": len(jobs),
+        "jobs": jobs,
+    }

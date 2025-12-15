@@ -191,3 +191,118 @@ def resume_crawl(identifier: str) -> bool:
             return False
 
     return False
+
+
+# ------------------------
+# PLATFORM ADMINISTRATION (QUEUE: management)
+# ------------------------
+
+def admin_platform_lock() -> str:
+    queue = django_rq.get_queue("management")
+    job = queue.enqueue(admin_platform_lock_task)
+    return job.id
+
+
+def admin_platform_unlock() -> str:
+    queue = django_rq.get_queue("management")
+    job = queue.enqueue(admin_platform_unlock_task)
+    return job.id
+
+# ------------------------
+# GLOBAL CRAWL MANAGEMENT (QUEUE: management)
+# ------------------------
+
+def crawl_throttle() -> str:
+    queue = django_rq.get_queue("management")
+    job = queue.enqueue(crawl_throttle_task)
+    return job.id
+
+
+def crawl_unthrottle() -> str:
+    queue = django_rq.get_queue("management")
+    job = queue.enqueue(crawl_unthrottle_task)
+    return job.id
+
+# ------------------------
+# WEBSITE OPERATIONS (QUEUE: management)
+# ------------------------
+
+def website_publish_all(website_id: int) -> str:
+    queue = django_rq.get_queue("management")
+    job = queue.enqueue(website_publish_all_task, website_id)
+    return job.id
+
+
+def website_unpublish_all(website_id: int) -> str:
+    queue = django_rq.get_queue("management")
+    job = queue.enqueue(website_unpublish_all_task, website_id)
+    return job.id
+
+# ------------------------
+# WEBSITE GROUP OPERATIONS (QUEUE: management)
+# ------------------------
+
+def website_group_set_schedule(group_id: int, schedule_id: int) -> str:
+    queue = django_rq.get_queue("management")
+    job = queue.enqueue(
+        website_group_set_schedule_task,
+        group_id,
+        schedule_id
+    )
+    return job.id
+
+
+def website_group_set_crawl_config(group_id: int, crawl_config_id: int) -> str:
+    queue = django_rq.get_queue("management")
+    job = queue.enqueue(
+        website_group_set_crawl_config_task,
+        group_id,
+        crawl_config_id
+    )
+    return job.id
+
+
+def website_group_priority_crawl(group_id: int) -> str:
+    queue = django_rq.get_queue("management")
+    job = queue.enqueue(
+        website_group_priority_crawl_task,
+        group_id
+    )
+    return job.id
+
+# ------------------------
+# REPLAY OPERATIONS (QUEUE: management)
+# ------------------------
+
+def replay_publish(snapshot_id: int) -> str:
+    queue = django_rq.get_queue("management")
+    job = queue.enqueue(replay_publish_task, snapshot_id)
+    return job.id
+
+
+def replay_unpublish(snapshot_id: int) -> str:
+    queue = django_rq.get_queue("management")
+    job = queue.enqueue(replay_unpublish_task, snapshot_id)
+    return job.id
+
+
+def replay_repopulate(website_id: Optional[int] = None) -> str:
+    queue = django_rq.get_queue("management")
+    job = queue.enqueue(replay_repopulate_task, website_id)
+    return job.id
+
+# ------------------------
+# EXPORT OPERATIONS (QUEUE: management)
+# ------------------------
+
+def export_zosia(
+    website_id: Optional[int] = None,
+    schedule: Optional[str] = None
+) -> str:
+    queue = django_rq.get_queue("management")
+    job = queue.enqueue(
+        export_zosia_task,
+        website_id,
+        schedule
+    )
+    return job.id
