@@ -201,7 +201,6 @@ def start_crawl_task(task_id, crawl_job_id):
             container.reload()
             status = container.status  # running, exited, paused
             # update stats
-            update_snapshot_process_stats(container, crawl_job_id)
 
             # -------------------------------
             # Control commands
@@ -257,10 +256,9 @@ def start_crawl_task(task_id, crawl_job_id):
                     "js_heavy": derived.crawler_running_no_cdx,
                 }
             }
-
-            print(snapshot)
             crawl_job.update_snapshot_stats(stats, derived)
-            print("RUNNING")
+            update_snapshot_process_stats(container, crawl_job_id)
+
             if status == "exited":
                 exit_code = container.attrs["State"]["ExitCode"]
                 crawl_job.status = "finished" if exit_code == 0 else "failed"
@@ -269,13 +267,9 @@ def start_crawl_task(task_id, crawl_job_id):
                     "container_id": container.id,
                 }
                 crawl_job.save(update_fields=["status", "result"])
-                print("EXITED")
-                container.remove()
-                break
-
 
             # SEND Task status
-
+            # TODO: optimise to sent an aggregated status PUT
             task.update_task_response()
             delivery = task.send_task_response()
             if not delivery.success:
@@ -287,6 +281,10 @@ def start_crawl_task(task_id, crawl_job_id):
                         "error": delivery.error_message,
                     },
                 )
+            if status == "exited":
+                # we have to split it, so the final message will be send as well
+                container.remove()
+                break
 
             time.sleep(5)  # TODO: check if this is not too much computation expensive
 

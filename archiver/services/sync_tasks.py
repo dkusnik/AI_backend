@@ -1,3 +1,13 @@
+import requests
+from django.conf import settings
+from django.db import transaction
+from django.utils.dateparse import parse_datetime
+
+from archiver.models import Task, Website, Snapshot
+from archiver.auth import get_keycloak_access_token
+from archiver.services.crawl_manager import queue_crawl
+
+
 API_TO_MODEL_FIELD_MAP = {
     "action": "action",
     "uid": "uid",
@@ -17,13 +27,43 @@ API_TO_MODEL_FIELD_MAP = {
     "taskResponse": "taskResponse",
 }
 
-import requests
-from django.conf import settings
-from django.db import transaction
-from django.utils.dateparse import parse_datetime
 
-from archiver.models import Task
-from archiver.auth import get_keycloak_access_token
+def dispatch_task(task: Task) -> None:
+    """
+            Defined task actions:
+
+        Platform administration:
+
+            admin_platform_lock / admin_platform_unlock - force scheduled maintenance landing page
+
+        Crawl management:
+
+            crawl_throttle / crawl_unthrottle - disable crawl scheduling, allow completing ongoing crawls
+            crawl_run / crawl_suspend / crawl_stop - actions on specific websites/crawls
+
+        Website operations:
+
+            website_publish_all - publish all snapshots of a website and set autoPublish=true
+            website_unpublish_all - unpublish all snapshots of a website and set autoPublish=false
+
+        Website group operations:
+
+            website_group_set_schedule - apply schedule config to all websites in group
+            website_group_set_crawl_config - apply crawl config to all websites in group
+            website_group_priority_crawl - mark all websites in group for priority crawl
+
+        Replay operations:
+
+            replay_publish / replay_unpublish - operations on single WARC
+            replay_repopulate - batch recreation of replay collections
+
+        Export:
+
+            export_zosia - trigger / define scheduled ZoSIA export
+    """
+    if task.action == "crawl_run":
+        website = Website.create_from_task_parameters(task_data)
+        queue_crawl(website.id, task)
 
 
 def fetch_tasks_from_api(start=0, limit=50, where_status=None):
@@ -54,16 +94,13 @@ def fetch_tasks_from_api(start=0, limit=50, where_status=None):
     return response.json()
 
 
-def upsert_task_from_api(task_data: dict) -> Task | None:
+def upsert_task_from_api(task_data: dict) -> Task:
     """
-    Create a Task only if UID does not already exist.
-    If UID exists, do nothing and return None.
+    Get existing Task by UID or create it if missing.
+    Always returns a Task instance.
     """
-    uid = task_data["uid"]
 
-    # Fast existence check (cheap)
-    if Task.objects.filter(uid=uid).exists():
-        return None
+    uid = task_data["uid"]
 
     fields = {}
 
@@ -76,11 +113,13 @@ def upsert_task_from_api(task_data: dict) -> Task | None:
 
         fields[model_field] = value
 
-    # Ensure uid is set explicitly
-    fields["uid"] = uid
+    # uid must not be duplicated in defaults
+    fields.pop("uid", None)
 
-    with transaction.atomic():
-        task = Task.objects.create(**fields)
+    task, _created = Task.objects.get_or_create(
+        uid=uid,
+        defaults=fields,
+    )
 
     return task
 
@@ -108,7 +147,8 @@ def sync_tasks_from_cluster(where_status=None, page_limit=50, dry_run=False) -> 
         for task_data in items:
             processed += 1
             if not dry_run:
-                upsert_task_from_api(task_data)
+                task = upsert_task_from_api(task_data)
+                dispatch_task(task)
 
         if len(items) < page_limit:
             break

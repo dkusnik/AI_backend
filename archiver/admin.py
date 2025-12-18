@@ -1,10 +1,12 @@
-from django.contrib import admin
+from django.contrib import admin, messages
 from django.contrib.auth.admin import UserAdmin
 
 from .admin_actions import admin_start_crawl
 from .models import (Organisation,
-                     Snapshot, Task, User, Website,
-                     WebsiteCrawlParameters, WebsiteGroup)
+                     Snapshot, Task, User, Website, Warc,
+                     WebsiteCrawlParameters, WebsiteGroup,
+                     TaskResponseDelivery)
+from archiver.services.crawl_manager import queue_crawl
 
 
 class ReadOnlyAdmin(admin.ModelAdmin):
@@ -17,46 +19,61 @@ class ReadOnlyAdmin(admin.ModelAdmin):
 
 #admin.site.register(User, UserAdmin)
 admin.site.register(Organisation)
-admin.site.register(Website)
 admin.site.register(WebsiteCrawlParameters)
 admin.site.register(WebsiteGroup)
-admin.site.register(Task)
+
+
+@admin.register(Website)
+class WebsiteAdmin(admin.ModelAdmin):
+    list_display = ("id", "name", "organisation")
+    actions = ["queue_crawl_action"]
+
+    @admin.action(description="Queue crawl for selected websites")
+    def queue_crawl_action(self, request, queryset):
+        """
+        Admin action: enqueue crawl jobs for selected websites.
+        """
+        success = 0
+        failures = 0
+
+        for website in queryset:
+            try:
+                job_id = queue_crawl(website.id)
+                success += 1
+            except Exception as exc:
+                failures += 1
+                self.message_user(
+                    request,
+                    f"Failed to queue crawl for {website}: {exc}",
+                    level=messages.ERROR,
+                )
+
+        if success:
+            self.message_user(
+                request,
+                f"Successfully queued {success} crawl job(s).",
+                level=messages.SUCCESS,
+            )
+
+        if failures:
+            self.message_user(
+                request,
+                f"{failures} crawl job(s) failed.",
+                level=messages.WARNING,
+            )
 
 @admin.register(Snapshot)
 class SnapshotAdmin(ReadOnlyAdmin):
     pass
-# @admin.register(Website)
-# class WebsiteAdmin(admin.ModelAdmin):
-#     list_display = ("name", "url", "enabled")
-#     list_filter = ("enabled", "scope_type")
-#     search_fields = ("name", "url")
-#     fieldsets = (
-#         ("Basic info", {"fields": ("name", "url", "institution", "enabled")}),
-#         ("Crawler Parameters (optional overrides)", {
-#             "fields": (
-#                 "scope_type",
-#                 "generate_cdx",
-#                 "workers",
-#                 "page_load_timeout",
-#                 "disk_utilization",
-#                 "time_limit",
-#             )
-#         }),
-#     )
-#     actions = [admin_start_crawl]
-#
-#
-# @admin.register(WebsiteCrawlParameters)
-# class WebsiteCrawlParametersAdmin(admin.ModelAdmin):
-#     fieldsets = (
-#         ("Default Browsertrix Parameters", {
-#             "fields": (
-#                 "scope_type",
-#                 "generate_cdx",
-#                 "workers",
-#                 "page_load_timeout",
-#                 "disk_utilization",
-#                 "time_limit",
-#             )
-#         }),
-#     )
+
+@admin.register(Task)
+class TaskAdmin(ReadOnlyAdmin):
+    pass
+
+@admin.register(Warc)
+class WarcAdmin(ReadOnlyAdmin):
+    pass
+
+@admin.register(TaskResponseDelivery)
+class TaskResponseDeliveryAdmin(ReadOnlyAdmin):
+    pass

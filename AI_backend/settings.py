@@ -50,6 +50,7 @@ INSTALLED_APPS = [
     # OIDC app:
     'mozilla_django_oidc',
     'drf_spectacular',
+    'django_extensions'
 ]
 
 # Redis / django-rq

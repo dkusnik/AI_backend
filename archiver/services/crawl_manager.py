@@ -39,10 +39,6 @@ def _send_control(job_id: str, command: str):
     redis_conn.set(f"crawl:{job_id}:control", command)
 
 
-
-
-
-
 def resolve_job_or_website(identifier: str) -> Snapshot:
     """
     Accepts any of:
@@ -95,7 +91,7 @@ def resolve_job_or_website(identifier: str) -> Snapshot:
     raise Snapshot.DoesNotExist(f"No Snapshot found for identifier={identifier}")
 
 
-def queue_crawl(website_id: int, queue_name: str = "crawls") -> str:
+def queue_crawl(website_id: int, task: Task = None, queue_name: str = "crawls") -> str:
     """
     Enqueue a crawl job for the given website.
     Also creates a Snapshot database entry storing the RQ job ID.
@@ -103,10 +99,11 @@ def queue_crawl(website_id: int, queue_name: str = "crawls") -> str:
 
     # Validate website
     website = Website.objects.get(id=website_id)
-    task = Task.create_for_website(
-        website_id=website_id,
-        action="crawl_run",
-    )
+    if not task:
+        task = Task.create_for_website(
+            website_id=website_id,
+            action="crawl_run",
+        )
     crawl_job = Snapshot.objects.create(
         website=website,
         status="queued",
@@ -151,7 +148,7 @@ def stop_crawl(identifier: str) -> bool:
     # Prefer redis control (remote-safe)
     if _queue_exists(job_id):
         _send_control(job_id, "stop")
-        cj.status = "canceled"
+        cj.status = "cancelled"
         cj.save(update_fields=["status"])
         return True
 
@@ -159,7 +156,7 @@ def stop_crawl(identifier: str) -> bool:
     if cj.machine == socket.gethostname() and cj.process_id:
         try:
             os.kill(cj.process_id, signal.SIGTERM)
-            cj.status = "canceled"
+            cj.status = "cancelled"
             cj.save(update_fields=["status"])
             return True
         except ProcessLookupError:

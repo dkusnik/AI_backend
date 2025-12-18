@@ -7,9 +7,10 @@ import yaml
 from django.conf import settings
 from django.contrib.auth.models import User
 from django.contrib.postgres.fields import ArrayField
-from django.core.exceptions import ObjectDoesNotExist
+from django.core.exceptions import ObjectDoesNotExist, ValidationError
 from django.db import models
 from django.utils import timezone
+from django.utils.dateparse import parse_datetime
 
 from archiver.stats import CrawlDerivedMetrics, CrawlStats
 from archiver.auth import get_keycloak_access_token
@@ -198,96 +199,13 @@ class WebsiteCrawlParameters(DefaultWebsiteCrawlParameters):
     def __str__(self):
         return self.name
 
-    # def to_browsertrix_yaml(self, crawl_job_id: int) -> dict:
-    #     yaml_cfg = {
-    #         "seeds": self.start_urls,
-    #         "scopeType": self.scope_type,
-    #         "generateCDX": self.generate_cdx,
-    #         "collection": str(crawl_job_id),
-    #         "cwd": "/crawls",
-    #     }
-    #
-    #     # ---- scope ----
-    #     if self.max_depth is not None:
-    #         yaml_cfg["depth"] = self.max_depth
-    #
-    #     if self.include_linked:
-    #         yaml_cfg["includeLinked"] = True
-    #
-    #     if self.url_prefixes:
-    #         yaml_cfg["scopeIncludeRx"] = self.url_prefixes
-    #
-    #     if self.additional_pages:
-    #         yaml_cfg["extraPages"] = self.additional_pages
-    #
-    #     # ---- exclusions ----
-    #
-    #     exclude = []
-    #     for text in self.exclude_text_matches:
-    #         exclude.append(text)
-    #
-    #     for regex in self.exclude_regex_matches:
-    #         exclude.append(regex)
-    #
-    #     if exclude:
-    #         yaml_cfg["exclude"] = exclude
-    #
-    #     #  This has to be in form:
-    #     #  https://crawler.docs.browsertrix.com/user-guide/crawl-scope/#page-resource-block-rules
-    #     block_rules = []
-    #
-    #     if block_rules:
-    #         yaml_cfg["blockRules"] = block_rules
-    #
-    #     # ---- limits ----
-    #     if self.max_pages:
-    #         yaml_cfg["pageLimit"] = self.max_pages
-    #
-    #     if self.time_limit:
-    #         yaml_cfg["timeLimit"] = self.time_limit
-    #
-    #     if self.size_limit_gb:
-    #         yaml_cfg["sizeLimit"] = int(self.size_limit_gb * 1024 ** 3)
-    #
-    #     # ---- behaviors ----
-    #     behaviors = []
-    #     if self.auto_scroll:
-    #         behaviors.append("autoscroll")
-    #     if self.auto_click:
-    #         behaviors.append("autoclick")
-    #
-    #     if behaviors:
-    #         yaml_cfg["behaviors"] = behaviors
-    #
-    #     if self.post_load_delay_ms:
-    #         yaml_cfg["postLoadDelay"] = self.post_load_delay_ms // 1000
-    #
-    #     if self.page_extra_delay_ms:
-    #         yaml_cfg["pageExtraDelay"] = self.page_extra_delay_ms // 1000
-    #
-    #     # ---- browser ----
-    #     if self.user_agent:
-    #         yaml_cfg["userAgent"] = self.user_agent
-    #
-    #     if self.language:
-    #         yaml_cfg["lang"] = self.language
-    #
-    #     if self.proxy_server:
-    #         yaml_cfg["proxyServer"] = self.proxy_server
-    #
-    #     # ---- forward-compatible ----
-    #     if self.extra_config:
-    #         yaml_cfg.update(self.extra_config)
-    #
-    #     return yaml_cfg
-
     def to_browsertrix_crawl_config(self) -> dict:
         """
-        Generate BrowsertrixCrawlConfig JSON structure
-        according to the defined YAML schema.
+        Generate TaskParameters-compatible crawlConfig.engineConfig
+        structure according to the new schema.
         """
 
-        config: dict = {}
+        engine_config: dict = {}
 
         # -------------------------------------------------
         # crawlScope
@@ -320,7 +238,7 @@ class WebsiteCrawlParameters(DefaultWebsiteCrawlParameters):
         if exclude_pages:
             crawl_scope["excludePages"] = exclude_pages
 
-        config["crawlScope"] = crawl_scope
+        engine_config["crawlScope"] = crawl_scope
 
         # -------------------------------------------------
         # crawlLimits
@@ -337,7 +255,7 @@ class WebsiteCrawlParameters(DefaultWebsiteCrawlParameters):
             crawl_limits["sizeLimitGB"] = self.size_limit_gb
 
         if crawl_limits:
-            config["crawlLimits"] = crawl_limits
+            engine_config["crawlLimits"] = crawl_limits
 
         # -------------------------------------------------
         # pageBehavior
@@ -357,7 +275,7 @@ class WebsiteCrawlParameters(DefaultWebsiteCrawlParameters):
             page_behavior["delayBeforeNextPageMs"] = self.page_extra_delay_ms
 
         if page_behavior:
-            config["pageBehavior"] = page_behavior
+            engine_config["pageBehavior"] = page_behavior
 
         # -------------------------------------------------
         # browserSettings
@@ -374,17 +292,24 @@ class WebsiteCrawlParameters(DefaultWebsiteCrawlParameters):
             browser_settings["proxyServer"] = self.proxy_server
 
         if browser_settings:
-            config["browserSettings"] = browser_settings
+            engine_config["browserSettings"] = browser_settings
 
         # -------------------------------------------------
         # forward-compatible extensions
         # -------------------------------------------------
         if self.extra_config:
-            # last-wins merge (explicit override)
             for key, value in self.extra_config.items():
-                config[key] = value
+                engine_config[key] = value
 
-        return config
+        # -------------------------------------------------
+        # wrap into crawlConfig (WITH crawlEngine)
+        # -------------------------------------------------
+        return {
+            "crawlConfig": {
+                "crawlEngine": "browsertrix",
+                "engineConfig": engine_config,
+            }
+        }
 
 
 class Website(models.Model):
@@ -437,6 +362,62 @@ class Website(models.Model):
         if not params.start_urls:
             params.start_urls = [self.url]
         return params.to_browsertrix_crawl_config()
+
+    @classmethod
+    def create_from_task_parameters(cls, task_parameters: dict) -> "Website":
+        """
+        Create or resolve a Website instance from TaskParameters JSON.
+        Prefers embedded `website` object, falls back to `websiteId`.
+        """
+
+        if not isinstance(task_parameters, dict):
+            raise ValidationError("TaskParameters must be a JSON object")
+
+        # -------------------------------------------------
+        # 1️⃣ Preferred path: embedded website object
+        # -------------------------------------------------
+        website_data = task_parameters.get("website")
+        if website_data:
+            website_id = website_data.get("id")
+
+            defaults = {
+                "name": website_data.get("name"),
+                "url": website_data.get("url"),
+                "displayName": website_data.get("displayName"),
+                "shortDescription": website_data.get("shortDescription"),
+                "longDescription": website_data.get("longDescription"),
+                "doCrawl": website_data.get("doCrawl", True),
+                "isDeleted": website_data.get("isDeleted", False),
+                "suspendCrawlUntilTimestamp": (
+                    parse_datetime(website_data["suspendCrawlUntilTimestamp"])
+                    if website_data.get("suspendCrawlUntilTimestamp")
+                    else None
+                ),
+                "enabled": not website_data.get("isDeleted", False),
+            }
+
+            # Remove empty values (important for partial payloads)
+            defaults = {k: v for k, v in defaults.items() if v is not None}
+
+            website, _created = cls.objects.update_or_create(
+                id=website_id,
+                defaults=defaults,
+            )
+
+            return website
+
+        website_id = task_parameters.get("websiteId")
+        if website_id:
+            try:
+                return cls.objects.get(id=website_id)
+            except cls.DoesNotExist:
+                raise ValidationError(
+                    f"Website with id={website_id} does not exist"
+                )
+
+        raise ValidationError(
+            f"TaskParameters must contain either 'website' or 'websiteId': {task_parameters}"
+        )
 
 
 class WebsiteGroup(models.Model):
@@ -600,7 +581,6 @@ class ScheduleConfig(models.Model):
 # --------------------------------------------------------------------
 
 class TaskStatus(models.TextChoices):
-    PENDING = "pending"
     CREATED = "created"
     SCHEDULED = "scheduled"
     CANCELLED = "cancelled"
@@ -665,7 +645,7 @@ class Task(models.Model):
             uid=str(uuid.uuid4()),
             user=user,
 
-            status=TaskStatus.PENDING,
+            status=TaskStatus.SCHEDULED,
 
             priority=priority,
             schedule=schedule,
@@ -684,16 +664,26 @@ class Task(models.Model):
         """
 
         yaml_config = {}
+        task_params = self.taskParameters or {}
 
-        config = self.taskParameters
-        print("config", config)
+        # -------------------------------------------------
+        # Resolve crawlScope from TaskParameters
+        # -------------------------------------------------
+        try:
+            crawl_config = task_params["crawlConfig"]
+            engine_config = crawl_config["engineConfig"]
+            scope = engine_config["crawlScope"]
+        except KeyError as exc:
+            raise ValueError(
+                f"Invalid TaskParameters structure, missing {exc}"
+            ) from exc
+
         # -----------------
         # Seeds / scope
         # -----------------
-        scope = config["crawlScope"]
 
-        yaml_config["seeds"] = scope["startUrls"]
-        yaml_config["scopeType"] = scope["type"]
+        yaml_config["seeds"] = scope.get("startUrls", [])
+        yaml_config["scopeType"] = scope.get("type", "site")
 
         if "maxDepth" in scope:
             yaml_config["depth"] = scope["maxDepth"]
@@ -723,7 +713,7 @@ class Task(models.Model):
         # -----------------
         # Crawl limits
         # -----------------
-        limits = config.get("crawlLimits", {})
+        limits = engine_config.get("crawlLimits", {})
         if limits.get("maxPages"):
             yaml_config["pageLimit"] = limits["maxPages"]
 
@@ -736,7 +726,7 @@ class Task(models.Model):
         # -----------------
         # Page behavior
         # -----------------
-        behavior = config.get("pageBehavior", {})
+        behavior = engine_config.get("pageBehavior", {})
         if behavior.get("autoScroll"):
             yaml_config.setdefault("behaviors", []).append("autoscroll")
         if behavior.get("autoClick"):
@@ -754,7 +744,7 @@ class Task(models.Model):
         # -----------------
         # Browser settings
         # -----------------
-        browser = config.get("browserSettings", {})
+        browser = engine_config.get("browserSettings", {})
         if browser.get("userAgent"):
             yaml_config["userAgent"] = browser["userAgent"]
         if browser.get("language"):
@@ -814,6 +804,29 @@ class Task(models.Model):
 
         return response
 
+    def _build_task_api_payload(self) -> dict:
+        """
+        Build a payload matching the Task schema defined in OpenAPI YAML.
+        """
+        return {
+            "action": self.action,
+            "uid": self.uid,
+            "user": self.user,
+            "scheduleTime": self.scheduleTime.isoformat() if self.scheduleTime else None,
+            "startTime": self.startTime.isoformat() if self.startTime else None,
+            "updateTime": self.updateTime.isoformat() if self.updateTime else None,
+            "updateMessage": self.updateMessage,
+            "finishTime": self.finishTime.isoformat() if self.finishTime else None,
+            "status": self.status,
+            "result": self.result,
+            "resultDescription": self.resultDescription,
+            "runData": self.runData,
+            "priority": self.priority,
+            "schedule": self.schedule,
+            "taskParameters": self.taskParameters,
+            "taskResponse": self.taskResponse,
+        }
+
     def send_task_response(self) -> "TaskResponseDelivery":
         """
         Send Task.taskResponse JSON to TASK_RESPONSE_URL via PUT.
@@ -825,7 +838,7 @@ class Task(models.Model):
 
         delivery = TaskResponseDelivery.objects.create(
             task=self,
-            payload=self.taskResponse,
+            payload=[self.taskResponse],
             target_url=settings.TASK_RESPONSE_URL,
             http_method="PUT",
         )
@@ -835,7 +848,7 @@ class Task(models.Model):
         try:
             response = requests.put(
                 settings.TASK_RESPONSE_URL,
-                json=self.taskResponse,
+                json=[self._build_task_api_payload()],
                 timeout=getattr(settings, "TASK_RESPONSE_TIMEOUT", 10),
                 headers={
                     "Authorization": f"Bearer {token}",
