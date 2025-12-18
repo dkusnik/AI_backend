@@ -116,3 +116,6 @@ def sync_tasks_from_cluster(where_status=None, page_limit=50, dry_run=False) -> 
         start += page_limit
 
     return processed
+
+def sync_tasks_scheduler() -> int:
+    return sync_tasks_from_cluster("scheduled")

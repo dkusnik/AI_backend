@@ -64,6 +64,45 @@ services:
     extra_hosts:
       - "host.docker.internal:host-gateway"
 
+  worker_default:
+    build:
+      context: .
+      dockerfile: Dockerfile.worker_default
+    env_file:
+      - .env.docker
+    volumes:
+      - ./:/app/    # mounts local code, overrides image
+ #   depends_on:
+ #     - web
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
+
+  worker_task_sync:
+    build:
+      context: .
+      dockerfile: Dockerfile.worker_task_sync
+    env_file:
+      - .env.docker
+    volumes:
+      - ./:/app/    # mounts local code, overrides image
+ #   depends_on:
+ #     - web
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
+
+  worker_cron:
+    build:
+      context: .
+      dockerfile: Dockerfile.worker_cron
+    env_file:
+      - .env.docker
+    volumes:
+      - ./:/app/    # mounts local code, overrides image
+ #   depends_on:
+ #     - web
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
+
 
   nginx:
     build:
