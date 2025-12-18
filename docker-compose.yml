@@ -1,44 +1,34 @@
 services:
-  keycloak:
-    image: quay.io/keycloak/keycloak:23.0
-    container_name: keycloak
-    command: ["start-dev"]
-    environment:
-      KEYCLOAK_ADMIN: keycloak
-      KEYCLOAK_ADMIN_PASSWORD: keycloak_pass
-      KC_DB: postgres
-      KC_DB_URL: jdbc:postgresql://host.docker.internal:5432/keycloak
-      KC_DB_USERNAME: keycloak
-      KC_DB_PASSWORD: keycloak_pass
-      KC_PROXY: edge
-    ports:
-      - "8080:8080"
-    extra_hosts:
-      - "host.docker.internal:host-gateway"
+  #keycloak:
+  #  image: quay.io/keycloak/keycloak:23.0
+  #  container_name: keycloak
+  #  command: ["start-dev"]
+  #  environment:
+  #    KEYCLOAK_ADMIN: keycloak
+  #    KEYCLOAK_ADMIN_PASSWORD: keycloak_pass
+  #    KC_DB: postgres
+  #    KC_DB_URL: jdbc:postgresql://host.docker.internal:5432/keycloak
+  #    KC_DB_USERNAME: keycloak
+  #    KC_DB_PASSWORD: keycloak_pass
+  #    KC_PROXY: edge
+  #  ports:
+  #    - "8080:8080"
+  #  extra_hosts:
+  #    - "host.docker.internal:host-gateway"
 
   web:
     build:
       context: .
       dockerfile: Dockerfile.web
-    container_name: web
     expose:
       - "8000"
     env_file:
       - .env.docker
-    environment:
-      ENV_FILE: .env.docker
-    environment:
-      REDIS_URL: redis://host.docker.internal:6379/0
-      POSTGRES_DB: ai_backend
-      POSTGRES_USER: ai_backend
-      POSTGRES_PASSWORD: password
-      POSTGRES_HOST: host.docker.internal
-      POSTGRES_PORT: 5432
     volumes:
       - ./:/app/    # mounts local code, overrides image
       - static_volume:/app/static
-    depends_on:
-      - keycloak
+    #depends_on:
+    #  - keycloak
     extra_hosts:
       - "host.docker.internal:host-gateway"
 
@@ -46,36 +36,45 @@ services:
     build:
       context: .
       dockerfile: Dockerfile.worker_crawl
-    container_name: worker_crawl
     env_file:
       - .env.docker
     environment:
-      ENV_FILE: .env.docker
-    environment:
-      REDIS_URL: redis://host.docker.internal:6379/0
-      POSTGRES_DB: ai_backend
-      POSTGRES_USER: ai_backend
-      POSTGRES_PASSWORD: password
-      POSTGRES_HOST: host.docker.internal
-      POSTGRES_PORT: 5432
+      - PYTHONUNBUFFERED=1
     volumes:
       - ./:/app/    # mounts local code, overrides image
-    depends_on:
-      - web
+      - static_volume:/app/static
+      - /var/run/docker.sock:/var/run/docker.sock
+      - /srv/ai/browsertrix/configs:/srv/ai/browsertrix/configs:rw
+#    depends_on:
+#      - web
     extra_hosts:
       - "host.docker.internal:host-gateway"
+
+  worker_management:
+    build:
+      context: .
+      dockerfile: Dockerfile.worker_management
+    env_file:
+      - .env.docker
+    volumes:
+      - ./:/app/    # mounts local code, overrides image
+      - /srv/ai/:/srv/ai/:rw
+ #   depends_on:
+ #     - web
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
+
 
   nginx:
     build:
       context: .
       dockerfile: Dockerfile.nginx
-    container_name: nginx
     ports:
       - "80:80"
     depends_on:
       - web
     volumes:
-      - static_volume:/static/
+      - static_volume:/static
     extra_hosts:
       - "host.docker.internal:host-gateway"
 
@@ -83,44 +82,55 @@ services:
   # OutbackCDX (CDX server)
   # =====================
   outbackcdx:
-    image: nlagovau/outbackcdx:0.12.0
-    container_name: outbackcdx
-    command: >
-      java -jar /outbackcdx/outbackcdx.jar
-      -d /cdx-data
-      -p 8080
+    image: ukwa/outbackcdx:latest
     ports:
       - "8085:8080"
     volumes:
-      - outbackcdx_data:/cdx-data
+      - /srv/ai/outbackCDX:/cdx-data
     restart: unless-stopped
 
   # =====================
   # pywb replay service
   # =====================
-  pywb:
+  pywb_work:
     image: webrecorder/pywb:latest
-    container_name: pywb
+    ports:
+      - "9080:8080"
+    environment:
+      PYWB_COLLECTIONS_DIR: /webarchive/collections
+    volumes:
+      - /srv/ai/browsertrix/collections:/webarchive/collections:ro
+    restart: unless-stopped
+
+  # =====================
+  # pywb – PRODUCTION (with OutbackCDX)
+  # =====================
+  pywb_prod:
+    image: webrecorder/pywb:latest
     depends_on:
       - outbackcdx
     ports:
-      - "8081:8080"
+      - "9081:8080"
     environment:
-      # Directory inside container where collections live
       PYWB_COLLECTIONS_DIR: /webarchive/collections
-
-      # Tell pywb to use OutbackCDX
       CDX_SERVER_URL: http://outbackcdx:8080
-
-      # Optional but recommended
-      PYWB_CONFIG_FILE: /webarchive/config.yaml
     volumes:
-      # collections directory (host → container)
-      - ./pywb/collections:/webarchive/collections:ro
-
-      # optional global config
-      - ./pywb/config.yaml:/webarchive/config.yaml:ro
+      - /srv/ai/production_collection:/webarchive/collections:ro
     restart: unless-stopped
+
+  # =====================
+  # pywb – LONG-TERM (preservation)
+  # =====================
+  pywb_longterm:
+    image: webrecorder/pywb:latest
+    ports:
+      - "9082:8080"
+    environment:
+      PYWB_COLLECTIONS_DIR: /webarchive/collections
+    volumes:
+      - /srv/ai/long_term_collections:/webarchive/collections:ro
+    restart: unless-stopped
+
 volumes:
   static_volume:
-
+  outbackcdx_data:

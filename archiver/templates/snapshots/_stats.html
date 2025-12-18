@@ -1,0 +1,133 @@
+<div class="stats-grid">
+{% if snapshot.crawl_stats %}
+
+  <div class="card">
+    <h3>Progress</h3>
+    <p>Crawled: {{ snapshot.crawl_stats.crawled }}</p>
+    <p>Pending: {{ snapshot.crawl_stats.pending }}</p>
+    <p>Success ratio: {{ snapshot.crawl_stats.success_ratio }}</p>
+  </div>
+
+  <div class="card">
+    <h3>Health</h3>
+
+    {% if snapshot.crawl_stats.health.js_heavy %}
+      <span class="badge warning">JS-heavy</span>
+    {% endif %}
+    {% if snapshot.crawl_stats.health.cdx_stalled %}
+      <span class="badge danger">CDX stalled</span>
+    {% endif %}
+    {% if snapshot.crawl_stats.health.log_stalled %}
+      <span class="badge danger">Logs stalled</span>
+    {% endif %}
+  </div>
+
+  <div class="card">
+    <h3>Throughput</h3>
+    <p>CDX entries/sec: {{ snapshot.crawl_stats.cdx_entries_per_sec }}</p>
+    <p>CDX bytes/sec: {{ snapshot.crawl_stats.cdx_bytes_per_sec }}</p>
+  </div>
+{% endif %}
+
+  {% if process.container %}
+  <div class="card">
+    <h3>Container</h3>
+
+    <div class="kv">
+      <span>Name</span>
+      <strong>{{ process.container.name }}</strong>
+    </div>
+
+    <div class="kv">
+      <span>Image</span>
+      <code>{{ process.container.image }}</code>
+    </div>
+
+    <div class="kv">
+      <span>Status</span>
+      <strong>{{ process.state.status }}</strong>
+    </div>
+
+    <div class="kv">
+      <span>Restart count</span>
+      <strong>{{ process.state.restart_count }}</strong>
+    </div>
+  </div>
+  {% endif %}
+{% if process.resources %}
+<div class="card">
+  <h3>Resources</h3>
+
+  <div class="kv">
+    <span>CPU</span>
+    <strong>{{ process.resources.cpu_percent }}%</strong>
+  </div>
+
+  <div class="kv">
+    <span>Memory</span>
+    <strong>
+      {{ process.resources.memory.percent }}%
+      ({{ process.resources.memory.usage_bytes|filesizeformat }}
+      /
+      {{ process.resources.memory.limit_bytes|filesizeformat }})
+    </strong>
+  </div>
+
+  <div class="kv">
+    <span>PIDs</span>
+    <strong>{{ process.resources.pids }}</strong>
+  </div>
+</div>
+{% endif %}
+{% if process.io %}
+<div class="card">
+  <h3>I/O</h3>
+
+  <table class="compact">
+    <tr>
+      <td>Network RX</td>
+      <td>{{ process.io.network.rx_bytes|filesizeformat }}</td>
+    </tr>
+    <tr>
+      <td>Network TX</td>
+      <td>{{ process.io.network.tx_bytes|filesizeformat }}</td>
+    </tr>
+    <tr>
+      <td>Block read</td>
+      <td>{{ process.io.block.read_bytes|filesizeformat }}</td>
+    </tr>
+    <tr>
+      <td>Block write</td>
+      <td>{{ process.io.block.write_bytes|filesizeformat }}</td>
+    </tr>
+  </table>
+</div>
+{% endif %}
+
+{% if process.timestamps %}
+<div class="card">
+  <h3>Process state</h3>
+
+  <div class="kv">
+    <span>Started</span>
+    <strong>{{ process.state.started_at }}</strong>
+  </div>
+
+  {% if process.state.finished_at %}
+  <div class="kv">
+    <span>Finished</span>
+    <strong>{{ process.state.finished_at }}</strong>
+  </div>
+  {% endif %}
+
+  {% if process.state.error %}
+  <div class="alert danger">
+    {{ process.state.error }}
+  </div>
+  {% endif %}
+</div>
+
+{% include "snapshots/_charts.html" %}
+
+{% endif %}
+</div>

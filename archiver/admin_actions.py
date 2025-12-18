@@ -1,7 +1,7 @@
 from django.contrib import messages
 from django.utils.translation import gettext_lazy as _
 
-from archiver.services.crawl_manager import start_crawl
+from archiver.services.crawl_manager import queue_crawl
 
 
 def admin_start_crawl(modeladmin, request, queryset):
@@ -15,7 +15,7 @@ def admin_start_crawl(modeladmin, request, queryset):
         if not website.enabled:
             skipped += 1
             continue
-        job_id = start_crawl(website.id)
+        job_id = queue_crawl(website.id)
         started += 1
 
     messages.success(

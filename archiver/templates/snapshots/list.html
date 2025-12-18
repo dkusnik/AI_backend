@@ -1,0 +1,76 @@
+{% extends "base.html" %}
+{% block content %}
+
+<h1>Snapshots</h1>
+
+<div class="snapshot-grid">
+  {% for s in snapshots %}
+    <div class="snapshot-card">
+
+      <div class="snapshot-header">
+        <a href="{% url 'snapshot_detail' s.id %}">
+          <strong>Snapshot #{{ s.id }}</strong>
+        </a>
+        <span class="date">{{ s.created_at }}</span>
+      </div>
+
+      {% if s.crawl_stats %}
+        <div class="stats-row">
+          <span>Crawled:</span>
+          <strong>{{ s.crawl_stats.crawled }}</strong>
+        </div>
+
+        <div class="stats-row">
+          <span>Pending:</span>
+          <strong>{{ s.crawl_stats.pending }}</strong>
+        </div>
+
+        <div class="stats-row">
+          <span>Success ratio:</span>
+          <strong>{{ s.crawl_stats.success_ratio }}</strong>
+        </div>
+
+        <div class="health">
+          {% if s.crawl_stats.health.js_heavy %}
+            <span class="badge warning">JS-heavy</span>
+          {% endif %}
+          {% if s.crawl_stats.health.cdx_stalled %}
+            <span class="badge danger">CDX stalled</span>
+          {% endif %}
+          {% if s.crawl_stats.health.log_stalled %}
+            <span class="badge danger">Logs stalled</span>
+          {% endif %}
+        </div>
+
+        <details>
+          <summary>HTTP status</summary>
+          <table>
+            {% for code, count in s.crawl_stats.http_status.items %}
+              <tr>
+                <td>{{ code }}</td>
+                <td>{{ count }}</td>
+              </tr>
+            {% endfor %}
+          </table>
+        </details>
+
+        <details>
+          <summary>MIME types</summary>
+          <table>
+            {% for mime, count in s.crawl_stats.mime_distribution.items %}
+              <tr>
+                <td>{{ mime }}</td>
+                <td>{{ count }}</td>
+              </tr>
+            {% endfor %}
+          </table>
+        </details>
+
+      {% else %}
+        <em>No crawl statistics yet</em>
+      {% endif %}
+    </div>
+  {% endfor %}
+</div>
+
+{% endblock %}

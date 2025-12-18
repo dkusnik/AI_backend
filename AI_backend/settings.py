@@ -61,9 +61,16 @@ RQ_QUEUES = {
         "URL": env("REDIS_URL"),
         "DEFAULT_TIMEOUT": 86400,  # long for full crawls
     },
-    "maintance": {
+    "management": {
         "URL": env("REDIS_URL"),
         "DEFAULT_TIMEOUT": 86400,  # long for big crawls
+    }
+}
+
+CACHES = {
+    "default": {
+        "BACKEND": "django.core.cache.backends.redis.RedisCache",
+        "LOCATION": env("REDIS_CACHE_URL", default=env("REDIS_URL"))
     }
 }
 
@@ -97,15 +104,6 @@ REST_FRAMEWORK = {
     "ALLOWED_VERSIONS": ["1",],
     "DEFAULT_SCHEMA_CLASS": "drf_spectacular.openapi.AutoSchema",
 }
-# Brief OIDC example (mozilla-django-oidc)
-OIDC_RP_CLIENT_ID = 'your-client-id'
-OIDC_RP_CLIENT_SECRET = 'your-secret'
-OIDC_OP_AUTHORIZATION_ENDPOINT = 'https://idp.example.com/authorize'
-OIDC_OP_TOKEN_ENDPOINT = 'https://idp.example.com/token'
-OIDC_OP_USER_ENDPOINT = 'https://idp.example.com/userinfo'
-
-# TODO: tutaj zrobimy API w aplikacji, zeby sie odpytywac, mozna bedzie to rozdzielic na osobny serwer
-BROWSERTRIX_API = 'http://localhost:8080'  # example
 
 ROOT_URLCONF = 'AI_backend.urls'
 
@@ -164,6 +162,19 @@ AUTH_PASSWORD_VALIDATORS = [
     },
 ]
 
+LOGGING = {
+    "version": 1,
+    "disable_existing_loggers": False,
+    "handlers": {
+        "console": {
+            "class": "logging.StreamHandler",
+        },
+    },
+    "root": {
+        "handlers": ["console"],
+        "level": "INFO",
+    },
+}
 
 # Internationalization
 # https://docs.djangoproject.com/en/5.2/topics/i18n/
@@ -181,6 +192,7 @@ USE_TZ = True
 # https://docs.djangoproject.com/en/5.2/howto/static-files/
 
 STATIC_URL = 'static/'
+STATIC_ROOT = env('STATIC_ROOT', default='static/')   # IMPORTANT: absolute path inside container
 
 # Default primary key field type
 # https://docs.djangoproject.com/en/5.2/ref/settings/#default-auto-field
@@ -188,23 +200,22 @@ STATIC_URL = 'static/'
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
 AUTHENTICATION_BACKENDS = (
-    "archiver.auth.OIDCKeycloakBackend",
     "django.contrib.auth.backends.ModelBackend",
 )
-# -----------------------------------------------------
-# Keycloak / OIDC
-# -----------------------------------------------------
-OIDC_RP_CLIENT_ID = os.getenv("KEYCLOAK_CLIENT_ID")
-OIDC_RP_CLIENT_SECRET = os.getenv("KEYCLOAK_CLIENT_SECRET")
-OIDC_OP_REALM = os.getenv("KEYCLOAK_REALM")
 
-KEYCLOAK_BASE = os.getenv("KEYCLOAK_BASE").rstrip("/")
+# -----------------------------
+# Keycloak OAuth (Client Credentials)
+# -----------------------------
+KEYCLOAK_BASE_URL = env("KEYCLOAK_BASE_URL")
+KEYCLOAK_REALM = env("KEYCLOAK_REALM")
 
-# Endpointy discovery
-OIDC_OP_AUTHORIZATION_ENDPOINT = f"{KEYCLOAK_BASE}/realms/{OIDC_OP_REALM}/protocol/openid-connect/auth"
-OIDC_OP_TOKEN_ENDPOINT         = f"{KEYCLOAK_BASE}/realms/{OIDC_OP_REALM}/protocol/openid-connect/token"
-OIDC_OP_USER_ENDPOINT          = f"{KEYCLOAK_BASE}/realms/{OIDC_OP_REALM}/protocol/openid-connect/userinfo"
-OIDC_OP_JWKS_ENDPOINT          = f"{KEYCLOAK_BASE}/realms/{OIDC_OP_REALM}/protocol/openid-connect/certs"
+KEYCLOAK_CLIENT_ID = env("KEYCLOAK_CLIENT_ID")
+KEYCLOAK_CLIENT_SECRET = env("KEYCLOAK_CLIENT_SECRET")
+KEYCLOAK_TOKEN_EXPIRES = 300
+
+KEYCLOAK_TOKEN_URL = (
+    f"{KEYCLOAK_BASE_URL}/realms/{KEYCLOAK_REALM}/protocol/openid-connect/token"
+)
 
 LOGIN_URL = "/oidc/authenticate/"
 LOGIN_REDIRECT_URL = "/"
@@ -215,3 +226,9 @@ OIDC_CREATE_USER = True
 OIDC_VERIFY_SSL = False  
 
 BROWSERTIX_VOLUME = env("BROWSERTIX_VOLUME")
+LONGTERM_VOLUME = os.environ.get("LONGTERM_VOLUME", '/srv/ai/long_term_collections')
+PRODUCTION_VOLUME = os.environ.get("PRODUCTION_VOLUME", '/srv/ai/production_collection')
+
+TASK_RESPONSE_URL = os.environ.get("TASK_RESPONSE_URL", 'http://192.168.50.4/dummy/PUT_collector')
+
+#http://10.2.17.37/api/v1/task/api

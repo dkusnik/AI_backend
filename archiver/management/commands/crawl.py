@@ -4,7 +4,7 @@ from django.core.management.base import BaseCommand
 from archiver.models import Website
 from archiver.services.crawl_manager import (get_crawl_status,
                                              resolve_job_or_website,
-                                             resume_crawl, start_crawl,
+                                             resume_crawl, queue_crawl,
                                              stop_crawl, suspend_crawl)
 
 
@@ -44,7 +44,7 @@ class Command(BaseCommand):
                     return
 
             # Now website_id is guaranteed to be valid
-            job_id = start_crawl(website_id)
+            job_id = queue_crawl(website_id)
             self.stdout.write(f"Started crawl job for website {website_id}: {job_id}")
 
         if action == "status":

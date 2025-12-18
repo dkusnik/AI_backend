@@ -17,12 +17,18 @@ Including another URLconf
 from django.contrib import admin
 from django.urls import path, include
 from drf_spectacular.views import SpectacularAPIView, SpectacularSwaggerView, SpectacularRedocView
+from archiver.views import snapshot_list, snapshot_detail, snapshot_stats_partial, dummy_put_collector
 
 urlpatterns = [
+    path("", snapshot_list, name="snapshot_list"),
+    path("snapshots/<int:snapshot_id>/", snapshot_detail, name="snapshot_detail"),
+    path("snapshots/<int:snapshot_id>/stats/", snapshot_stats_partial, name="snapshot_stats_partial"),
     path('admin/', admin.site.urls),
     path("archiver/api/v1/", include(("archiver.api.v1.urls", "archiver_v1"), namespace="v1")),
     path('django-rq/', include('django_rq.urls')),  # worker monitoring UI (optional)
     path("api/schema/", SpectacularAPIView.as_view(), name="schema"),
     path("api/docs/", SpectacularSwaggerView.as_view(url_name="schema")),
     path("api/docs/redoc/", SpectacularRedocView.as_view(url_name="schema"), name="redoc"),
+
+    path("dummy/PUT_collector", dummy_put_collector, name="dummy_put_collector"),
 ]

@@ -1,0 +1,16 @@
+{% extends "base.html" %}
+{% block content %}
+
+<h1>Snapshot #{{ snapshot.id }}</h1>
+
+<a href="{% url 'snapshot_list' %}">← Back to list</a>
+
+<div
+  hx-get="{% url 'snapshot_stats_partial' snapshot.id %}"
+  hx-trigger="load, every 5s"
+  hx-swap="innerHTML"
+>
+  Loading statistics…
+</div>
+
+{% endblock %}

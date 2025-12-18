@@ -18,10 +18,15 @@ RUN pip install --no-cache-dir -r requirements.txt
 #COPY . .
 
 # Prepare Django (optional, but recommended)
-RUN python manage.py collectstatic --noinput || true
+#RUN python manage.py collectstatic --noinput || true
 
-EXPOSE 8000
-ENV REDIS_URL=redis://host.docker.internal:6379/0
+# entrypoint
+COPY web_entrypoint.sh /entrypoint.sh
+RUN chmod +x /entrypoint.sh
+
+ENTRYPOINT ["/entrypoint.sh"]
+
+#EXPOSE 8000
 
 # For prod env
 # CMD ["gunicorn", "AI_backend.wsgi:application", "--bind", "0.0.0.0:8000", "--workers", "4", "--timeout", "120"]

@@ -1,0 +1,43 @@
+<canvas id="httpChart" height="120"></canvas>
+<canvas id="mimeChart" height="120"></canvas>
+
+<script>
+(function () {
+  const httpData = {{ snapshot.crawl_stats.http_status|safe }};
+  const mimeData = {{ snapshot.crawl_stats.mime_distribution|safe }};
+
+  function makeChart(ctxId, labels, values, label) {
+    const ctx = document.getElementById(ctxId);
+    if (!ctx) return;
+
+    new Chart(ctx, {
+      type: 'bar',
+      data: {
+        labels: labels,
+        datasets: [{
+          label: label,
+          data: values,
+        }]
+      },
+      options: {
+        responsive: true,
+        animation: false
+      }
+    });
+  }
+
+  makeChart(
+    "httpChart",
+    Object.keys(httpData),
+    Object.values(httpData),
+    "HTTP status codes"
+  );
+
+  makeChart(
+    "mimeChart",
+    Object.keys(mimeData),
+    Object.values(mimeData),
+    "MIME types"
+  );
+})();
+</script>

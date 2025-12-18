@@ -1,9 +1,18 @@
+import json
 import uuid
+import requests
+from pathlib import Path
 
-from django.contrib.auth.models import AbstractUser, User
-from django.contrib.postgres.fields import ArrayField, JSONField
+import yaml
+from django.conf import settings
+from django.contrib.auth.models import User
+from django.contrib.postgres.fields import ArrayField
+from django.core.exceptions import ObjectDoesNotExist
 from django.db import models
 from django.utils import timezone
+
+from archiver.stats import CrawlDerivedMetrics, CrawlStats
+from archiver.auth import get_keycloak_access_token
 
 
 class Tag(models.Model):
@@ -27,6 +36,7 @@ class UserStatus(models.TextChoices):
     SUSPENDED = "suspended"
     CLOSED = "closed"
 
+
 class UserProfile(models.Model):
     user = models.OneToOneField(User, on_delete=models.CASCADE)
     organisation = models.ForeignKey(
@@ -46,11 +56,6 @@ class UserProfile(models.Model):
     def __str__(self):
         return f"{self.user.username} profile"
 
-# TODO: dla OpenID
-#class User(AbstractUser):
-#    # users are authenticated externally; we still persist a record linking to institution
-#    institution = models.ForeignKey(Organization, null=True, blank=True, on_delete=models.SET_NULL, related_name='users')
-#    external_id = models.CharField(max_length=512, blank=True, null=True, help_text="ID from external identity provider")
 
 CRAWL_SCOPE_CHOICES = [
     ("prefix", "Prefix (URL prefix)"),
@@ -59,7 +64,7 @@ CRAWL_SCOPE_CHOICES = [
 ]
 
 
-class WebsiteCrawlParameters(models.Model):
+class DefaultWebsiteCrawlParameters(models.Model):
     """Global default parameters for Browsertrix crawler."""
 
     scope_type = models.CharField(
@@ -76,9 +81,318 @@ class WebsiteCrawlParameters(models.Model):
     def __str__(self):
         return "Global Browsertrix Default Parameters"
 
+    class Meta:
+        abstract = True
+
+
+class WebsiteCrawlParameters(DefaultWebsiteCrawlParameters):
+    """
+    Concrete Browsertrix crawl configuration.
+    Maps directly to Browsertrix YAML (--config).
+    """
+
+    name = models.CharField(max_length=128)
+    description = models.TextField(blank=True)
+    is_default = models.BooleanField(default=False)
+
+    # --------------------
+    # Crawl scope
+    # --------------------
+    start_urls = ArrayField(
+        models.URLField(),
+        default=list,
+        help_text="Seed URLs (Browsertrix: seeds)",
+        null=True,
+        blank=True
+    )
+
+    include_linked = models.BooleanField(
+        default=False,
+        help_text="Include linked pages (Page List crawls)",
+    )
+
+    max_depth = models.PositiveIntegerField(
+        null=True,
+        blank=True,
+        help_text="Crawl depth",
+    )
+
+    url_prefixes = ArrayField(
+        models.CharField(max_length=512),
+        default=list,
+        blank=True,
+        help_text="Regex URL prefixes to include",
+    )
+
+    additional_pages = ArrayField(
+        models.URLField(),
+        default=list,
+        blank=True,
+        help_text="Extra pages outside crawl scope",
+    )
+
+    # --------------------
+    # Exclusions
+    # --------------------
+    exclude_text_matches = ArrayField(
+        models.CharField(max_length=256),
+        default=list,
+        blank=True,
+        help_text="Exclude URLs containing text",
+    )
+
+    exclude_regex_matches = ArrayField(
+        models.CharField(max_length=512),
+        default=list,
+        blank=True,
+        help_text="Exclude URLs matching regex",
+    )
+
+    # --------------------
+    # Crawl limits
+    # --------------------
+    max_pages = models.PositiveIntegerField(
+        null=True,
+        blank=True,
+        help_text="Maximum number of pages",
+    )
+
+    size_limit_gb = models.FloatField(
+        null=True,
+        blank=True,
+        help_text="Maximum crawl size (GB)",
+    )
+
+    # --------------------
+    # Page behavior
+    # --------------------
+    auto_scroll = models.BooleanField(default=True)
+    auto_click = models.BooleanField(default=False)
+
+    post_load_delay_ms = models.PositiveIntegerField(default=0)
+    page_extra_delay_ms = models.PositiveIntegerField(default=0)
+
+    # --------------------
+    # Browser settings
+    # --------------------
+    user_agent = models.CharField(max_length=256, blank=True)
+    language = models.CharField(
+        max_length=32,
+        blank=True,
+        help_text="ISO 639[-country] code",
+    )
+    proxy_server = models.CharField(max_length=256, blank=True)
+
+    # --------------------
+    # Advanced / future
+    # --------------------
+    extra_config = models.JSONField(
+        default=dict,
+        blank=True,
+        help_text="Raw Browsertrix YAML extensions (use only if needed)",
+    )
+
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
+
+    def __str__(self):
+        return self.name
+
+    # def to_browsertrix_yaml(self, crawl_job_id: int) -> dict:
+    #     yaml_cfg = {
+    #         "seeds": self.start_urls,
+    #         "scopeType": self.scope_type,
+    #         "generateCDX": self.generate_cdx,
+    #         "collection": str(crawl_job_id),
+    #         "cwd": "/crawls",
+    #     }
+    #
+    #     # ---- scope ----
+    #     if self.max_depth is not None:
+    #         yaml_cfg["depth"] = self.max_depth
+    #
+    #     if self.include_linked:
+    #         yaml_cfg["includeLinked"] = True
+    #
+    #     if self.url_prefixes:
+    #         yaml_cfg["scopeIncludeRx"] = self.url_prefixes
+    #
+    #     if self.additional_pages:
+    #         yaml_cfg["extraPages"] = self.additional_pages
+    #
+    #     # ---- exclusions ----
+    #
+    #     exclude = []
+    #     for text in self.exclude_text_matches:
+    #         exclude.append(text)
+    #
+    #     for regex in self.exclude_regex_matches:
+    #         exclude.append(regex)
+    #
+    #     if exclude:
+    #         yaml_cfg["exclude"] = exclude
+    #
+    #     #  This has to be in form:
+    #     #  https://crawler.docs.browsertrix.com/user-guide/crawl-scope/#page-resource-block-rules
+    #     block_rules = []
+    #
+    #     if block_rules:
+    #         yaml_cfg["blockRules"] = block_rules
+    #
+    #     # ---- limits ----
+    #     if self.max_pages:
+    #         yaml_cfg["pageLimit"] = self.max_pages
+    #
+    #     if self.time_limit:
+    #         yaml_cfg["timeLimit"] = self.time_limit
+    #
+    #     if self.size_limit_gb:
+    #         yaml_cfg["sizeLimit"] = int(self.size_limit_gb * 1024 ** 3)
+    #
+    #     # ---- behaviors ----
+    #     behaviors = []
+    #     if self.auto_scroll:
+    #         behaviors.append("autoscroll")
+    #     if self.auto_click:
+    #         behaviors.append("autoclick")
+    #
+    #     if behaviors:
+    #         yaml_cfg["behaviors"] = behaviors
+    #
+    #     if self.post_load_delay_ms:
+    #         yaml_cfg["postLoadDelay"] = self.post_load_delay_ms // 1000
+    #
+    #     if self.page_extra_delay_ms:
+    #         yaml_cfg["pageExtraDelay"] = self.page_extra_delay_ms // 1000
+    #
+    #     # ---- browser ----
+    #     if self.user_agent:
+    #         yaml_cfg["userAgent"] = self.user_agent
+    #
+    #     if self.language:
+    #         yaml_cfg["lang"] = self.language
+    #
+    #     if self.proxy_server:
+    #         yaml_cfg["proxyServer"] = self.proxy_server
+    #
+    #     # ---- forward-compatible ----
+    #     if self.extra_config:
+    #         yaml_cfg.update(self.extra_config)
+    #
+    #     return yaml_cfg
+
+    def to_browsertrix_crawl_config(self) -> dict:
+        """
+        Generate BrowsertrixCrawlConfig JSON structure
+        according to the defined YAML schema.
+        """
+
+        config: dict = {}
+
+        # -------------------------------------------------
+        # crawlScope
+        # -------------------------------------------------
+        crawl_scope: dict = {
+            "type": self.scope_type,
+            "startUrls": self.start_urls,
+        }
+
+        if self.include_linked:
+            crawl_scope["includeLinked"] = True
+
+        if self.max_depth is not None:
+            crawl_scope["maxDepth"] = self.max_depth
+
+        if self.url_prefixes:
+            crawl_scope["urlPrefixes"] = self.url_prefixes
+
+        if self.additional_pages:
+            crawl_scope["additionalPages"] = self.additional_pages
+
+        exclude_pages: dict = {}
+
+        if self.exclude_text_matches:
+            exclude_pages["textMatches"] = self.exclude_text_matches
+
+        if self.exclude_regex_matches:
+            exclude_pages["regexMatches"] = self.exclude_regex_matches
+
+        if exclude_pages:
+            crawl_scope["excludePages"] = exclude_pages
+
+        config["crawlScope"] = crawl_scope
+
+        # -------------------------------------------------
+        # crawlLimits
+        # -------------------------------------------------
+        crawl_limits: dict = {}
+
+        if self.max_pages:
+            crawl_limits["maxPages"] = self.max_pages
+
+        if self.time_limit:
+            crawl_limits["timeLimitSeconds"] = self.time_limit
+
+        if self.size_limit_gb is not None:
+            crawl_limits["sizeLimitGB"] = self.size_limit_gb
+
+        if crawl_limits:
+            config["crawlLimits"] = crawl_limits
+
+        # -------------------------------------------------
+        # pageBehavior
+        # -------------------------------------------------
+        page_behavior: dict = {
+            "autoScroll": self.auto_scroll,
+            "autoClick": self.auto_click,
+        }
+
+        if self.page_load_timeout:
+            page_behavior["pageLoadLimitMs"] = self.page_load_timeout * 1000
+
+        if self.post_load_delay_ms:
+            page_behavior["delayAfterPageLoadMs"] = self.post_load_delay_ms
+
+        if self.page_extra_delay_ms:
+            page_behavior["delayBeforeNextPageMs"] = self.page_extra_delay_ms
+
+        if page_behavior:
+            config["pageBehavior"] = page_behavior
+
+        # -------------------------------------------------
+        # browserSettings
+        # -------------------------------------------------
+        browser_settings: dict = {}
+
+        if self.user_agent:
+            browser_settings["userAgent"] = self.user_agent
+
+        if self.language:
+            browser_settings["language"] = self.language
+
+        if self.proxy_server:
+            browser_settings["proxyServer"] = self.proxy_server
+
+        if browser_settings:
+            config["browserSettings"] = browser_settings
+
+        # -------------------------------------------------
+        # forward-compatible extensions
+        # -------------------------------------------------
+        if self.extra_config:
+            # last-wins merge (explicit override)
+            for key, value in self.extra_config.items():
+                config[key] = value
+
+        return config
+
 
 class Website(models.Model):
-    organisation = models.ForeignKey(Organisation, on_delete=models.CASCADE, related_name='websites')
+    organisation = models.ForeignKey(Organisation, on_delete=models.CASCADE,
+                                     related_name='websites', null=True, blank=True)
+    website_crawl_parameters = models.ForeignKey(WebsiteCrawlParameters, on_delete=models.SET_NULL,
+                                                 related_name='website_crawl_parameters', null=True,
+                                                 blank=True)
     name = models.CharField(max_length=255)
     url = models.URLField()
     isDeleted = models.BooleanField(default=False)
@@ -89,7 +403,7 @@ class Website(models.Model):
     doCrawl = models.BooleanField(default=True)
     suspendCrawlUntilTimestamp = models.DateTimeField(null=True, blank=True)
     tags = models.ManyToManyField(Tag, blank=True)
-    created_by = models.ForeignKey(User, on_delete=models.SET_NULL, null=True)
+    created_by = models.ForeignKey(User, on_delete=models.SET_NULL, null=True, blank=True)
     created_at = models.DateTimeField(auto_now_add=True)
 
     scope_type = models.CharField(
@@ -107,21 +421,22 @@ class Website(models.Model):
 
     enabled = models.BooleanField(default=True)
 
-
     def __str__(self):
-        return f"{self.url} ({self.institution})"
+        return f"{self.url} ({self.organisation})"
 
     def get_final_params(self):
         """Return final parameters: override → fallback defaults."""
-        defaults = WebsiteCrawlParameters.objects.first()
-        return {
-            "scope_type": self.scope_type or defaults.scope_type,
-            "generate_cdx": self.generate_cdx if self.generate_cdx is not None else defaults.generate_cdx,
-            "workers": self.workers or defaults.workers,
-            "page_load_timeout": self.page_load_timeout or defaults.page_load_timeout,
-            "disk_utilization": self.disk_utilization or defaults.disk_utilization,
-            "time_limit": self.time_limit or defaults.time_limit,
-        }
+        params = self.website_crawl_parameters
+
+        if not params:
+            params = WebsiteCrawlParameters()
+        if not params:
+            raise RuntimeError(
+                "No WebsiteCrawlParameters found (no website-specific and no default)"
+            )
+        if not params.start_urls:
+            params.start_urls = [self.url]
+        return params.to_browsertrix_crawl_config()
 
 
 class WebsiteGroup(models.Model):
@@ -143,7 +458,7 @@ class Snapshot(models.Model):
     STATUS_PUBLICATION = [
         ('INTERNAL', "internal"),
         ('PUBLIC', "public")
-        ]
+    ]
 
     # PENDING = "pending"
     # CRAWLING = "crawling"
@@ -151,16 +466,16 @@ class Snapshot(models.Model):
     # FAILED = "failed"
     # DELETED = "deleted"
 
-    website = models.ForeignKey(Website, on_delete=models.CASCADE, related_name='crawl_jobs')
+    website = models.ForeignKey(Website, on_delete=models.CASCADE, related_name='snapshots')
     created_by = models.ForeignKey(User, on_delete=models.SET_NULL, null=True)
     created_at = models.DateTimeField(auto_now_add=True)
     status = models.CharField(max_length=20, choices=STATUS_CHOICES, default='queued')
     progress = models.FloatField(default=0.0)  # 0.0 - 100.0
     stats = models.JSONField(default=dict, blank=True)  # e.g. {'fetched': 123, 'bytes': 45678}
-    process_id = models.IntegerField(null=True, blank=True)
     machine = models.CharField(max_length=255, null=True, blank=True)  
     error = models.TextField(null=True, blank=True)
-    pubslished = models.BooleanField(default=False)
+    published = models.BooleanField(default=False)
+    auto_update = models.BooleanField(default=False)
     result = models.JSONField(default=dict, blank=True)
     rq_job_id = models.CharField(max_length=255, null=True, blank=True)
 
@@ -174,6 +489,19 @@ class Snapshot(models.Model):
     itemCount = models.BigIntegerField(null=True, blank=True)
     warcPath = models.CharField(max_length=512, blank=True, null=True)
     replayCollectionId = models.CharField(max_length=255, blank=True, null=True)
+
+    process_id = models.CharField(max_length=64, null=True, blank=True)
+    process_stats = models.JSONField(
+        default=dict,
+        blank=True,
+        help_text="Docker-level runtime statistics for the crawl container",
+    )
+
+    crawl_stats = models.JSONField(
+        null=True,
+        blank=True,
+        help_text="Aggregated crawl statistics and health metrics"
+    )
 
     def mark_running(self):
         self.status = 'running'
@@ -196,6 +524,42 @@ class Snapshot(models.Model):
 
     def __str__(self):
         return f"CrawlJob {self.id} for {self.website.name}"
+
+    def update_snapshot_stats(self, stats: CrawlStats, derived: CrawlDerivedMetrics):
+        self.crawl_stats = {
+            # ---- control-plane ----
+            "crawled": stats.crawled,
+            "total": stats.total,
+            "pending": stats.pending,
+
+            # ---- parsing volume (diagnostic) ----
+            "log_mb_parsed": round(stats.log_bytes_parsed / 1e6, 2),
+            "cdx_mb_parsed": round(stats.cdx_bytes_parsed / 1e6, 2),
+
+            # ---- archival truth (CDX) ----
+            "http_status": dict(stats.by_http_status),
+            "mime_distribution": dict(stats.by_mime),
+            "url_extensions": dict(stats.by_url_extension),
+
+            # ---- derived metrics ----
+            "cdx_entries_per_sec": round(derived.cdx_entries_per_sec, 2),
+            "cdx_bytes_per_sec": round(derived.cdx_bytes_per_sec, 1),
+            "success_ratio": round(derived.success_ratio, 3),
+
+            # ---- health ----
+            "health": {
+                "log_stalled": derived.log_stalled,
+                "cdx_stalled": derived.cdx_stalled,
+                "js_heavy": derived.crawler_running_no_cdx,
+            },
+
+            # ---- metadata ----
+            "updated_at": timezone.now().isoformat(),
+            "last_page": stats.last_page,
+        }
+
+        self.save(update_fields=["crawl_stats"])
+
 
 # --------------------------------------------------------------------
 #  CRAWL CONFIG
@@ -236,20 +600,25 @@ class ScheduleConfig(models.Model):
 # --------------------------------------------------------------------
 
 class TaskStatus(models.TextChoices):
+    PENDING = "pending"
+    CREATED = "created"
     SCHEDULED = "scheduled"
     CANCELLED = "cancelled"
     RUNNING = "running"
     SUCCESS = "success"
     FAILED = "failed"
+    PAUSED = "paused"
 
 
 class Task(models.Model):
+    snapshot = models.ForeignKey(Snapshot, on_delete=models.SET_NULL, related_name='task',
+                                 null=True, blank=True)
     action = models.CharField(max_length=64)
     uid = models.CharField(max_length=128)
-    user = models.CharField(max_length=128)
+    user = models.CharField(max_length=128, null=True, blank=True)
     scheduleTime = models.DateTimeField(null=True, blank=True)
-    startTime = models.DateTimeField(null=True, blank=True)
-    updateTime = models.DateTimeField(null=True, blank=True)
+    startTime = models.DateTimeField(auto_now_add=True)
+    updateTime = models.DateTimeField(auto_now=True)
     updateMessage = models.TextField(blank=True, null=True)
     finishTime = models.DateTimeField(null=True, blank=True)
     status = models.CharField(max_length=32, choices=TaskStatus.choices)
@@ -263,6 +632,251 @@ class Task(models.Model):
     # JSON fields (PostgreSQL)
     taskParameters = models.JSONField(null=True, blank=True)
     taskResponse = models.JSONField(null=True, blank=True)
+
+    @classmethod
+    def create_for_website(
+            cls,
+            *,
+            website_id: int,
+            action: str,
+            user: str | None = None,
+            priority: str = "normal",
+            schedule: str | None = None,
+            schedule_time=None,
+    ) -> "Task":
+        """
+        Create a new Task for a given website.
+        """
+        try:
+            website = Website.objects.get(id=website_id)
+        except ObjectDoesNotExist:
+            raise ValueError(f"Website with id={website_id} does not exist")
+
+        # -------------------------------------------------
+        # Build BrowsertrixCrawlConfig JSON
+        # -------------------------------------------------
+        crawl_config = website.get_final_params()
+
+        # -------------------------------------------------
+        # Create task
+        # -------------------------------------------------
+        task = cls.objects.create(
+            action=action,
+            uid=str(uuid.uuid4()),
+            user=user,
+
+            status=TaskStatus.PENDING,
+
+            priority=priority,
+            schedule=schedule,
+            scheduleTime=schedule_time,
+
+            taskParameters=crawl_config,
+
+            updateTime=timezone.now(),
+        )
+
+        return task
+
+    def build_browsertrix_yaml_config(self, crawl_job_id: int) -> Path:
+        """
+        Write Browsertrix YAML config compatible with `browsertrix-crawler crawl --config`.
+        """
+
+        yaml_config = {}
+
+        config = self.taskParameters
+        print("config", config)
+        # -----------------
+        # Seeds / scope
+        # -----------------
+        scope = config["crawlScope"]
+
+        yaml_config["seeds"] = scope["startUrls"]
+        yaml_config["scopeType"] = scope["type"]
+
+        if "maxDepth" in scope:
+            yaml_config["depth"] = scope["maxDepth"]
+
+        if scope.get("includeLinked"):
+            yaml_config["includeLinked"] = True
+
+        if scope.get("urlPrefixes"):
+            yaml_config["scopeIncludeRx"] = scope["urlPrefixes"]
+
+        # -----------------
+        # Additional / exclude pages
+        # -----------------
+        if scope.get("additionalPages"):
+            yaml_config["extraPages"] = scope["additionalPages"]
+
+        exclude = scope.get("excludePages", {})
+        if exclude.get("textMatches"):
+            yaml_config.setdefault("exclude", []).extend(
+                [t for t in exclude["textMatches"]]
+            )
+        if exclude.get("regexMatches"):
+            yaml_config.setdefault("exclude", []).extend(
+                [r for r in exclude["regexMatches"]]
+            )
+
+        # -----------------
+        # Crawl limits
+        # -----------------
+        limits = config.get("crawlLimits", {})
+        if limits.get("maxPages"):
+            yaml_config["pageLimit"] = limits["maxPages"]
+
+        if limits.get("timeLimitSeconds"):
+            yaml_config["timeLimit"] = limits["timeLimitSeconds"]
+
+        if limits.get("sizeLimitGB"):
+            yaml_config["sizeLimit"] = int(limits["sizeLimitGB"] * 1024 * 1024 * 1024)
+
+        # -----------------
+        # Page behavior
+        # -----------------
+        behavior = config.get("pageBehavior", {})
+        if behavior.get("autoScroll"):
+            yaml_config.setdefault("behaviors", []).append("autoscroll")
+        if behavior.get("autoClick"):
+            yaml_config.setdefault("behaviors", []).append("autoclick")
+
+        if behavior.get("pageLoadLimitMs"):
+            yaml_config["pageLoadTimeout"] = behavior["pageLoadLimitMs"] // 1000
+
+        if behavior.get("delayAfterPageLoadMs"):
+            yaml_config["postLoadDelay"] = behavior["delayAfterPageLoadMs"] // 1000
+
+        if behavior.get("delayBeforeNextPageMs"):
+            yaml_config["pageExtraDelay"] = behavior["delayBeforeNextPageMs"] // 1000
+
+        # -----------------
+        # Browser settings
+        # -----------------
+        browser = config.get("browserSettings", {})
+        if browser.get("userAgent"):
+            yaml_config["userAgent"] = browser["userAgent"]
+        if browser.get("language"):
+            yaml_config["lang"] = browser["language"]
+        if browser.get("proxyServer"):
+            yaml_config["proxyServer"] = browser["proxyServer"]
+
+        # -----------------
+        # Output & indexing
+        # -----------------
+        yaml_config["generateCDX"] = True
+        yaml_config["collection"] = str(crawl_job_id)
+        yaml_config["cwd"] = "/crawls"
+
+        # -----------------
+        # Write file
+        # -----------------
+        config_dir = Path(settings.BROWSERTIX_VOLUME) / "configs"
+        config_dir.mkdir(parents=True, exist_ok=True)
+
+        path = config_dir / f"browsertrix_{crawl_job_id}.yaml"
+        path.write_text(yaml.dump(yaml_config, sort_keys=False))
+        print(yaml.dump(yaml_config, sort_keys=False))
+        return path
+
+    def build_task_response(self) -> dict:
+        """
+        Build TaskResponse JSON according to Swagger schema.
+        Snapshot is optional.
+        """
+
+        snapshot = self.snapshot
+
+        response = {
+            # ---- identity ----
+            "task_id": self.uid,
+            "snapshot_id": snapshot.id if snapshot else None,
+            "status": self.status,
+            "updated_at": timezone.now().isoformat(),
+
+            # ---- uniqueness / idempotency ----
+            "uuid": str(uuid.uuid4()),
+
+            # ---- archival artifacts ----
+            "warcs": (
+                snapshot.crawl_stats.get("warcs", [])
+                if snapshot and snapshot.crawl_stats
+                else []
+            ),
+
+            # ---- crawl stats ----
+            "crawl_stats": snapshot.crawl_stats if snapshot else {},
+
+            # ---- container / process stats ----
+            "container_stats": snapshot.process_stats if snapshot else {},
+        }
+
+        return response
+
+    def send_task_response(self) -> "TaskResponseDelivery":
+        """
+        Send Task.taskResponse JSON to TASK_RESPONSE_URL via PUT.
+        Stores every delivery attempt.
+        """
+
+        if not self.taskResponse:
+            raise ValueError("Task.taskResponse is empty – nothing to send")
+
+        delivery = TaskResponseDelivery.objects.create(
+            task=self,
+            payload=self.taskResponse,
+            target_url=settings.TASK_RESPONSE_URL,
+            http_method="PUT",
+        )
+
+        token = get_keycloak_access_token()
+
+        try:
+            response = requests.put(
+                settings.TASK_RESPONSE_URL,
+                json=self.taskResponse,
+                timeout=getattr(settings, "TASK_RESPONSE_TIMEOUT", 10),
+                headers={
+                    "Authorization": f"Bearer {token}",
+                    "Content-Type": "application/json",
+                    # Idempotency / traceability
+                    # "X-Delivery-UUID": str(delivery.id),
+                },
+            )
+
+            delivery.http_status = response.status_code
+            delivery.response_body = response.text
+            delivery.success = response.ok
+
+        except Exception as exc:
+            delivery.success = False
+            delivery.error_message = str(exc)
+
+        delivery.save(update_fields=[
+            "http_status",
+            "response_body",
+            "success",
+            "error_message",
+        ])
+
+        return delivery
+
+
+    def update_task_response(self, save=True) -> dict:
+        """
+        Build and persist TaskResponse JSON into task.taskResponse.
+        """
+
+        response = self.build_task_response()
+
+        self.taskResponse = response
+        self.updateTime = timezone.now()
+
+        if save:
+            self.save(update_fields=["taskResponse", "updateTime"])
+
+        return response
 
 class Warc(models.Model):
     snapshot = models.ForeignKey(
@@ -300,3 +914,64 @@ class GlobalConfig(models.Model):
 
     def __str__(self):
         return f"{self.key} = {self.value}"
+
+
+class TaskResponseDelivery(models.Model):
+    """
+    Persistent audit log of TaskResponse deliveries.
+    Each row = one PUT attempt.
+    """
+
+    id = models.UUIDField(
+        primary_key=True,
+        default=uuid.uuid4,
+        editable=False,
+        help_text="Unique delivery UUID (idempotency key)",
+    )
+
+    task = models.ForeignKey(
+        "Task",
+        on_delete=models.CASCADE,
+        related_name="response_deliveries",
+    )
+
+    # ---- payload ----
+    payload = models.JSONField(
+        help_text="Exact Task.taskResponse JSON sent",
+    )
+
+    # ---- target ----
+    target_url = models.URLField()
+    http_method = models.CharField(max_length=8, default="PUT")
+
+    # ---- result ----
+    http_status = models.PositiveIntegerField(
+        null=True,
+        blank=True,
+        help_text="HTTP status returned by receiver",
+    )
+
+    response_body = models.TextField(
+        blank=True,
+        help_text="Raw response body (if any)",
+    )
+
+    success = models.BooleanField(default=False)
+
+    error_message = models.TextField(
+        blank=True,
+        help_text="Network / exception error (if any)",
+    )
+
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        ordering = ["-created_at"]
+        indexes = [
+            models.Index(fields=["task"]),
+            models.Index(fields=["success"]),
+        ]
+
+    def __str__(self):
+        return f"TaskResponseDelivery {self.id} task={self.task_id}"
+

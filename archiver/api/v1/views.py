@@ -17,8 +17,8 @@ from .serializers import (CrawlConfigSerializer,
                           TaskSerializer,
                           WebsiteGroupSerializer, WebsiteSerializer)
 # For tasks
-from archiver.services.crawl_manager import (resume_crawl, start_crawl, stop_crawl,
-                                     suspend_crawl)
+from archiver.services.crawl_manager import (resume_crawl, queue_crawl, stop_crawl,
+                                             suspend_crawl)
 
 
 # --------------------------
@@ -41,7 +41,7 @@ class WebsiteViewSet(viewsets.ModelViewSet):
     @action(detail=True, methods=["post"], permission_classes=[IsArchivist])
     def start_crawl(self, request, pk=None):
         site = self.get_object()
-        job_id = start_crawl(site.id)
+        job_id = queue_crawl(site.id)
         return Response({"job_id": job_id}, status=status.HTTP_202_ACCEPTED)
 
 
@@ -119,7 +119,7 @@ class TaskCreateView(APIView):
             website_id = params.get("websiteId")
             if not website_id:
                 return Response({"error": "websiteId required"}, status=400)
-            job_uuid = start_crawl(website_id)
+            job_uuid = queue_crawl(website_id)
             task_obj = Task.objects.create(action=action, uid=job_uuid, user=request.user.username, status="scheduled", taskParameters=params)
             headers = {"X-Task-Operation-Status": "created"}
             return Response(TaskSerializer(task_obj).data, status=200, headers=headers)

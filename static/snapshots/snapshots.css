@@ -1,0 +1,48 @@
+/* Layout */
+.snapshot-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(360px, 1fr));
+  gap: 16px;
+}
+
+/* Cards */
+.snapshot-card,
+.card {
+  background: #fff;
+  border: 1px solid #ddd;
+  border-radius: 8px;
+  padding: 12px;
+}
+
+/* Header */
+.snapshot-header {
+  display: flex;
+  justify-content: space-between;
+  margin-bottom: 8px;
+}
+
+/* Stats */
+.stats-row {
+  display: flex;
+  justify-content: space-between;
+}
+
+/* Badges */
+.badge {
+  padding: 4px 8px;
+  border-radius: 6px;
+  font-size: 0.8em;
+}
+
+.badge.warning {
+  background: #ffe08a;
+}
+
+.badge.danger {
+  background: #ffb3b3;
+}
+
+/* Charts */
+canvas {
+  margin-top: 16px;
+}

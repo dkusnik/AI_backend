@@ -1,0 +1,6 @@
+collections:
+  default:
+    index: cdx
+    cdx_url: http://outbackcdx:8080
+    archive_paths:
+      - archive

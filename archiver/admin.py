@@ -6,13 +6,25 @@ from .models import (Organisation,
                      Snapshot, Task, User, Website,
                      WebsiteCrawlParameters, WebsiteGroup)
 
+
+class ReadOnlyAdmin(admin.ModelAdmin):
+    def has_add_permission(self, request):
+        return False
+    def has_change_permission(self, request, obj=None):
+        return False
+    def has_delete_permission(self, request, obj=None):
+        return False
+
 #admin.site.register(User, UserAdmin)
 admin.site.register(Organisation)
 admin.site.register(Website)
+admin.site.register(WebsiteCrawlParameters)
 admin.site.register(WebsiteGroup)
-admin.site.register(Snapshot)
 admin.site.register(Task)
 
+@admin.register(Snapshot)
+class SnapshotAdmin(ReadOnlyAdmin):
+    pass
 # @admin.register(Website)
 # class WebsiteAdmin(admin.ModelAdmin):
 #     list_display = ("name", "url", "enabled")

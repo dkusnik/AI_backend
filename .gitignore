@@ -1,5 +1,6 @@
 #sqlite db
 db.sqlite3
+redis
 
 # Byte-compiled / optimized / DLL files
 __pycache__/

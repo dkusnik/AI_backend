@@ -1,146 +1,319 @@
-import json
+import logging
 import os
-import signal
-import socket
-import subprocess
+import shutil
 import time
-from subprocess import PIPE, Popen
+from datetime import datetime
+from pathlib import Path
 
 import django_rq
+import docker
 import requests
 from django.conf import settings
-from django.contrib.auth import get_user_model
-from rq import get_current_job
+from django.utils import timezone
 
-from archiver.models import Snapshot, Website
-from archiver.services.crawl_runner import build_docker_command, run_crawl
+from archiver.models import Snapshot, Warc, Website, WebsiteGroup, Task
+from archiver.stats import (BrowsertrixLogParser, CDXParser,
+                            CrawlMetricsCalculator, CrawlStats,
+                            get_browsertrix_container_stats)
 
-from .models import Snapshot, Website
+
+
+logger = logging.getLogger(__name__)
 
 redis_conn = django_rq.get_connection("crawls")
 
 
-def start_crawl_task(website_id, crawl_job_id=None):
+def update_snapshot_process_stats(container, snapshot_id: int) -> dict:
+    """
+    Collect Docker stats for the Snapshot's container and
+    persist them into Snapshot.process_stats as JSON.
+
+    :param snapshot_id: Snapshot PK
+    :return: stats dict (same as stored)
+    """
+    snapshot = Snapshot.objects.get(pk=snapshot_id)
+
+    if not snapshot.process_id:
+        raise ValueError("Snapshot has no associated container (process_id is empty)")
+
+    # Collect stats from Docker
+    stats = get_browsertrix_container_stats(container)
+
+    # Optional: enrich with Snapshot-level metadata
+    stats["snapshot"] = {
+        "id": snapshot.id,
+        "website_id": snapshot.website_id,
+        "status": snapshot.status,
+        "updated_at": timezone.now().isoformat(),
+    }
+
+    # Persist JSON atomically
+    snapshot.process_stats = stats
+    snapshot.save(update_fields=["process_stats"])
+
+    return stats
+
+
+def build_browsertrix_container_args(crawl_job_id: int, task: Task):
+    """
+    Build Docker SDK args for Browsertrix crawler using --config.
+    """
+
+    config_path = task.build_browsertrix_yaml_config(
+        crawl_job_id=crawl_job_id,
+    )
+
+    command = [
+        "crawl",
+        "--config", f"/crawls/configs/{config_path.name}",
+        "--collection", str(crawl_job_id),
+        "--generateCDX",
+    ]
+
+    return {
+        "image": "webrecorder/browsertrix-crawler",
+
+        "command": command,
+
+        "detach": True,
+        "remove": False,
+        "tty": False,
+
+        "volumes": {
+            settings.BROWSERTIX_VOLUME: {
+                "bind": "/crawls",
+                "mode": "rw",
+            }
+        },
+
+        "name": f"crawl_{crawl_job_id}",
+
+        "labels": {
+            "app": "browsertrix",
+            "crawl_job_id": str(crawl_job_id),
+        },
+    }
+
+def _old_build_browsertrix_container_args(website, crawl_job_id, params=None):
+    """
+    Build Docker SDK arguments to run:
+    webrecorder/browsertrix-crawler crawl ...
+    """
+    if not params:
+        params = website.get_final_params()
+
+    # This exactly replaces:
+    # docker run IMAGE crawl --text ...
+    command = [
+        "crawl",
+        "--text",
+        "--scopeType", params["scope_type"],
+        "--generateCDX",
+        "--workers", str(params["workers"]),
+        "--url", website.url,
+        "--collection", str(crawl_job_id),
+        "--pageLoadTimeout", str(params["page_load_timeout"]),
+        "--diskUtilization", str(params["disk_utilization"]),
+        #"--timeLimit", str(params["time_limit"]),
+    ]
+
+    return {
+        # EXACT image you use on CLI
+        "image": "webrecorder/browsertrix-crawler",
+
+        # Equivalent of `docker run … crawl …`
+        "command": command,
+
+        # Run in background
+        "detach": True,
+
+        # Do NOT auto-remove (we want logs, exit code, control)
+        "remove": False,
+
+        # Volume mount: -v BROWSERTIX_VOLUME:/crawls
+        "volumes": {
+            settings.BROWSERTIX_VOLUME: {
+                "bind": "/crawls",
+                "mode": "rw",
+            }
+        },
+
+        # Optional but useful metadata
+        "name": f"crawl_{crawl_job_id}",
+
+        # -it replacement:
+        # Browsertrix does NOT need an interactive TTY
+        # Setting tty=False is correct and safe
+        "tty": False,
+
+        # Labels for tracking / cleanup
+        "labels": {
+            "app": "browsertrix",
+            "crawl_job_id": str(crawl_job_id),
+            "website_id": str(website.id),
+        },
+    }
+
+
+def start_crawl_task(task_id, crawl_job_id):
+    task = Task.objects.get(id=task_id)
     crawl_job = Snapshot.objects.get(id=crawl_job_id)
-
-    # mark job as running
+    # -------------------------------
+    # Mark job as running
+    # -------------------------------
     crawl_job.status = "running"
-
-    # determine machine name
-    machine_name = getattr(settings, "CRAWL_MACHINE_NAME", socket.gethostname())
-    crawl_job.machine = machine_name
+    crawl_job.machine = getattr(
+        settings, "CRAWL_MACHINE_NAME", "docker"
+    )
     crawl_job.save(update_fields=["status", "machine"])
 
     # -------------------------------
-    # build Browsertrix command
+    # Docker client
     # -------------------------------
-    website = Website.objects.get(id=website_id)
-    cmd = build_docker_command(website, crawl_job_id)
-
-    # -------------------------------
-    # run Browsertrix in BACKGROUND
-    # -------------------------------
-    #proc = Popen(
-    #    cmd,
-    #    stdout=PIPE,
-    #    stderr=PIPE,
-    #    text=True,
-    #)
-    proc = Popen(
-        cmd,
-        stdout=None,
-        stderr=None,
-        text=True,
-        stdin=None,
-        close_fds=True,
-        start_new_session=True,
+    client = docker.from_env()
+    container_args = build_browsertrix_container_args(
+        crawl_job_id, task
     )
-    # save PID
-    crawl_job.process_id = proc.pid
+    container = client.containers.run(**container_args)
+
+    # store container id (NOT PID)
+    crawl_job.process_id = container.id
     crawl_job.save(update_fields=["process_id"])
 
-    # -----------------------------------------------------
-    # CREATE ephemeral worker queue:
-    # crawl:<rq_job_id> shows this job is running
-    # -----------------------------------------------------
+    # -------------------------------
+    # Redis control keys
+    # -------------------------------
     job_id = crawl_job.rq_job_id
     queue_key = f"crawl:{job_id}"
     control_key = f"{queue_key}:control"
 
-    redis_conn.set(queue_key, "running") # set ex for expiration in seconds
+    redis_conn.set(queue_key, "running")
 
-    # -----------------------------------------------------
-    # Background monitor loop
-    # -----------------------------------------------------
+    stats = CrawlStats()
+
+    base_path = Path(settings.BROWSERTIX_VOLUME) / "collections" / str(crawl_job_id)
+    log_parser = BrowsertrixLogParser(base_path / "logs")
+    cdx_parser = CDXParser(Path(base_path / "warc-cdx"))
+    metrics_calc = CrawlMetricsCalculator(stall_threshold_seconds=60)
+
     try:
         while True:
-            # Check if process finished
-            #print(proc.pid, "before proc.poll()")
-            ret = proc.poll()
-            #print(ret, "cheking controls")
-            if ret is not None:
-                crawl_job.result = {
-                    "stdout": "",
-                    "stderr": "",
-                    "cmd": cmd,
-                }
-                crawl_job.status = "finished" if ret == 0 else "failed"
-                crawl_job.save(update_fields=["result", "status"])
-                break
+            container.reload()
+            status = container.status  # running, exited, paused
+            # update stats
+            update_snapshot_process_stats(container, crawl_job_id)
 
-            # Check for control commands from Redis
+            # -------------------------------
+            # Control commands
+            # -------------------------------
             control = redis_conn.get(control_key)
             if control:
                 control_cmd = control.decode()
+
                 if control_cmd == "stop":
-                    print("GOT STOP")
+                    container.stop(timeout=10)
                     crawl_job.status = "stopped"
-                    os.kill(proc.pid, signal.SIGTERM)
+
                 elif control_cmd == "suspend":
-                    print("GOT SUSPEND")
-                    os.kill(proc.pid, signal.SIGSTOP)
+                    container.pause()
                     crawl_job.status = "suspended"
+
                 elif control_cmd == "resume":
-                    print("GOT RESUME")
-                    os.kill(proc.pid, signal.SIGCONT)
+                    container.unpause()
                     crawl_job.status = "running"
+
                 crawl_job.save(update_fields=["status"])
                 redis_conn.delete(control_key)
 
-            # Sleep to reduce CPU usage
-            time.sleep(1)
+            stats = log_parser.parse(stats)
+            stats = cdx_parser.parse(stats)
+
+            # ---- compute derived metrics ----
+            derived = metrics_calc.calculate(stats)
+
+            # ---- reporting / debugging / persistence ----
+            snapshot = {
+                # control-plane (logs)
+                "crawled": stats.crawled,
+                "total": stats.total,
+                "pending": stats.pending,
+
+                # volume (parser-level, NOT archive size)
+                "log_MB_parsed": round(stats.log_bytes_parsed / 1e6, 2),
+                "cdx_MB_parsed": round(stats.cdx_bytes_parsed / 1e6, 2),
+
+                # archival truth (CDX)
+                "top_mime": stats.by_mime.most_common(5),
+                "http_status": dict(stats.by_http_status),
+
+                # derived metrics
+                "cdx_entries_per_sec": round(derived.cdx_entries_per_sec, 2),
+                "cdx_bytes_per_sec": round(derived.cdx_bytes_per_sec, 1),
+
+                # health
+                "health": {
+                    "log_stalled": derived.log_stalled,
+                    "cdx_stalled": derived.cdx_stalled,
+                    "js_heavy": derived.crawler_running_no_cdx,
+                }
+            }
+
+            print(snapshot)
+            crawl_job.update_snapshot_stats(stats, derived)
+            print("RUNNING")
+            if status == "exited":
+                exit_code = container.attrs["State"]["ExitCode"]
+                crawl_job.status = "finished" if exit_code == 0 else "failed"
+                crawl_job.result = {
+                    "exit_code": exit_code,
+                    "container_id": container.id,
+                }
+                crawl_job.save(update_fields=["status", "result"])
+                print("EXITED")
+                container.remove()
+                break
+
+
+            # SEND Task status
+
+            task.update_task_response()
+            delivery = task.send_task_response()
+            if not delivery.success:
+                logger.error(
+                    f"TaskResponse delivery failed - {delivery.error_message}",
+                    extra={
+                        "task_id": task.uid,
+                        "delivery_uuid": str(delivery.id),
+                        "error": delivery.error_message,
+                    },
+                )
+
+            time.sleep(5)  # TODO: check if this is not too much computation expensive
 
     finally:
-        # Remove ephemeral queue keys
         redis_conn.delete(queue_key)
         redis_conn.delete(control_key)
+
+    # TODO: check if snapshot is okay
+    if crawl_job.status == 'finished':
+        queue = django_rq.get_queue("management")
+        queue.enqueue(
+            move_snapshot_to_longterm,
+            crawl_job.id
+        )
+        if crawl_job.auto_update:
+            queue.enqueue(
+                move_snapshot_to_production,
+                crawl_job.id
+            )
 
     # Return final result
     return {
         "pid": crawl_job.process_id,
         "status": crawl_job.status,
-        "cmd": cmd,
+        "cmd": container_args,
         "result": crawl_job.result,
     }
-
-
-def queue_crawl(website_id):
-    queue = django_rq.get_queue("crawls")
-    job = queue.enqueue(run_crawl, website_id)
-    return job.id
-
-import os
-import shutil
-import requests
-from datetime import datetime
-from django.conf import settings
-from archiver.models import Snapshot, Warc
-
-
-import os
-import shutil
-from django.conf import settings
-from archiver.models import Snapshot
 
 
 def move_snapshot_to_longterm(snapshot_id: str):
@@ -153,6 +326,7 @@ def move_snapshot_to_longterm(snapshot_id: str):
 
     src_base = os.path.join(
         settings.BROWSERTIX_VOLUME,
+        "collections",
         str(snapshot_id),
     )
 
@@ -202,14 +376,6 @@ def move_snapshot_to_longterm(snapshot_id: str):
         shutil.copy2(src, dst)
 
 
-import os
-import shutil
-import requests
-from datetime import datetime
-from django.conf import settings
-from archiver.models import Snapshot, Warc
-
-
 def move_snapshot_to_production(snapshot_id: str):
     """
     Use pre-generated CDXJ from Browsertrix, ingest into OutbackCDX,
@@ -219,8 +385,7 @@ def move_snapshot_to_production(snapshot_id: str):
     snapshot = Snapshot.objects.get(pk=snapshot_id)
 
     base_path = os.path.join(
-        settings.BROWSERTIX_VOLUME,
-        "collections",
+        settings.LONGTERM_VOLUME,
         str(snapshot_id),
     )
 
@@ -278,7 +443,7 @@ def move_snapshot_to_production(snapshot_id: str):
         src_warc = os.path.join(src_archive, fname)
         dst_warc = os.path.join(dst_archive, fname)
 
-        shutil.move(src_warc, dst_warc)
+        shutil.copy2(src_warc, dst_warc)
 
         stat = os.stat(dst_warc)
 
@@ -426,3 +591,34 @@ def website_unpublish_all_task(website_id: int):
         "snapshots_enqueued": len(jobs),
         "jobs": jobs,
     }
+
+def admin_platform_lock_task(*args, **kwargs):
+    raise NotImplementedError("admin_platform_lock_task is not implemented yet")
+
+
+def admin_platform_unlock_task(*args, **kwargs):
+    raise NotImplementedError("admin_platform_unlock_task is not implemented yet")
+
+
+def crawl_throttle_task(*args, **kwargs):
+    raise NotImplementedError("crawl_throttle_task is not implemented yet")
+
+
+def crawl_unthrottle_task(*args, **kwargs):
+    raise NotImplementedError("crawl_unthrottle_task is not implemented yet")
+
+
+def website_group_set_schedule_task(*args, **kwargs):
+    raise NotImplementedError("website_group_set_schedule_task is not implemented yet")
+
+
+def website_group_set_crawl_config_task(*args, **kwargs):
+    raise NotImplementedError("website_group_set_crawl_config_task is not implemented yet")
+
+
+def website_group_priority_crawl_task(*args, **kwargs):
+    raise NotImplementedError("website_group_priority_crawl_task is not implemented yet")
+
+
+def export_zosia_task(*args, **kwargs):
+    raise NotImplementedError("export_zosia_task is not implemented yet")

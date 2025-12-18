@@ -7,8 +7,23 @@ from typing import Optional
 import django_rq
 from rq.job import Job
 
-from archiver.models import Snapshot, Website
-from archiver.tasks import start_crawl_task
+from archiver.models import Snapshot, Website, Task
+from archiver.tasks import (
+    start_crawl_task,
+    admin_platform_lock_task,
+    admin_platform_unlock_task,
+    crawl_throttle_task,
+    crawl_unthrottle_task,
+    website_publish_all_task,
+    website_unpublish_all_task,
+    website_group_set_schedule_task,
+    website_group_set_crawl_config_task,
+    website_group_priority_crawl_task,
+    replay_publish_task,
+    replay_unpublish_task,
+    replay_repopulate_task,
+    export_zosia_task,
+)
 
 UUID_REGEX = re.compile(r"^[0-9a-fA-F-]{32,36}$")
 redis_conn = django_rq.get_connection("crawls")
@@ -22,6 +37,9 @@ def _queue_exists(job_id: str) -> bool:
 
 def _send_control(job_id: str, command: str):
     redis_conn.set(f"crawl:{job_id}:control", command)
+
+
+
 
 
 
@@ -77,7 +95,7 @@ def resolve_job_or_website(identifier: str) -> Snapshot:
     raise Snapshot.DoesNotExist(f"No Snapshot found for identifier={identifier}")
 
 
-def start_crawl(website_id: int, queue_name: str = "crawls") -> str:
+def queue_crawl(website_id: int, queue_name: str = "crawls") -> str:
     """
     Enqueue a crawl job for the given website.
     Also creates a Snapshot database entry storing the RQ job ID.
@@ -85,19 +103,26 @@ def start_crawl(website_id: int, queue_name: str = "crawls") -> str:
 
     # Validate website
     website = Website.objects.get(id=website_id)
+    task = Task.create_for_website(
+        website_id=website_id,
+        action="crawl_run",
+    )
     crawl_job = Snapshot.objects.create(
         website=website,
-        status="queued"
+        status="queued",
     )
+    task.snapshot = crawl_job
+    task.save()
 
     # Enqueue the RQ job
     queue = django_rq.get_queue(queue_name)
-    job = queue.enqueue(start_crawl_task, website_id, crawl_job_id=crawl_job.id)
+    job = queue.enqueue(start_crawl_task, task_id=task.id, crawl_job_id=crawl_job.id)
 
     # Attach the RQ job ID and save
     crawl_job.rq_job_id = job.id
     crawl_job.save(update_fields=["rq_job_id"])
     return job.id
+
 
 def get_crawl_status(job_id: str, queue_name: str = "crawls") -> dict:
     """
@@ -208,10 +233,10 @@ def admin_platform_unlock() -> str:
     job = queue.enqueue(admin_platform_unlock_task)
     return job.id
 
+
 # ------------------------
 # GLOBAL CRAWL MANAGEMENT (QUEUE: management)
 # ------------------------
-
 def crawl_throttle() -> str:
     queue = django_rq.get_queue("management")
     job = queue.enqueue(crawl_throttle_task)
@@ -223,10 +248,10 @@ def crawl_unthrottle() -> str:
     job = queue.enqueue(crawl_unthrottle_task)
     return job.id
 
+
 # ------------------------
 # WEBSITE OPERATIONS (QUEUE: management)
 # ------------------------
-
 def website_publish_all(website_id: int) -> str:
     queue = django_rq.get_queue("management")
     job = queue.enqueue(website_publish_all_task, website_id)
@@ -238,10 +263,10 @@ def website_unpublish_all(website_id: int) -> str:
     job = queue.enqueue(website_unpublish_all_task, website_id)
     return job.id
 
+
 # ------------------------
 # WEBSITE GROUP OPERATIONS (QUEUE: management)
 # ------------------------
-
 def website_group_set_schedule(group_id: int, schedule_id: int) -> str:
     queue = django_rq.get_queue("management")
     job = queue.enqueue(
@@ -270,10 +295,10 @@ def website_group_priority_crawl(group_id: int) -> str:
     )
     return job.id
 
+
 # ------------------------
 # REPLAY OPERATIONS (QUEUE: management)
 # ------------------------
-
 def replay_publish(snapshot_id: int) -> str:
     queue = django_rq.get_queue("management")
     job = queue.enqueue(replay_publish_task, snapshot_id)

@@ -8,6 +8,7 @@ django-environ
 # background tasks
 django_rq
 jwt
+docker
 
 # optional utils
 python-dotenv

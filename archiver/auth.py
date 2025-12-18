@@ -1,68 +1,55 @@
-# archiver/auth.py
-from mozilla_django_oidc.auth import OIDCAuthenticationBackend
-from django.contrib.auth.models import User
-from archiver.models import UserProfile, Organisation
+import requests
+import time
+import requests
+from django.conf import settings
+from django.core.cache import cache
 
 
-class OIDCKeycloakBackend(OIDCAuthenticationBackend):
+TOKEN_CACHE_KEY = "keycloak:cluster-service:access-token"
+TOKEN_EXP_CACHE_KEY = "keycloak:cluster-service:access-token-exp"
 
-    def create_user(self, claims):
-        """Tworzy nowego użytkownika Django na podstawie claimów z Keycloak."""
 
-        user = User.objects.create_user(
-            username=claims.get("preferred_username"),
-            email=claims.get("email", ""),
-            first_name=claims.get("given_name", ""),
-            last_name=claims.get("family_name", ""),
-        )
-        user.save()
+def get_keycloak_access_token() -> str:
+    """
+    Get cached OAuth token for cluster-service.
+    Refresh automatically if expired or missing.
+    """
 
-        # user profile + organisation mapping
-        self.update_user_profile(user, claims)
+    token = cache.get(TOKEN_CACHE_KEY)
+    expires_at = cache.get(TOKEN_EXP_CACHE_KEY)
 
-        return user
+    now = int(time.time())
 
-    def update_user(self, user, claims):
-        """Aktualizuje użytkownika Django po każdym logowaniu."""
-        changed = False
+    # ----------------------------
+    # Return cached token if valid
+    # ----------------------------
+    if token and expires_at and now < expires_at:
+        return token
 
-        # aktualizacja standardowych pól Django
-        mappings = {
-            "email": "email",
-            "first_name": "given_name",
-            "last_name": "family_name",
-        }
-        for django_field, claim_field in mappings.items():
-            new_value = claims.get(claim_field, "")
-            if new_value and getattr(user, django_field) != new_value:
-                setattr(user, django_field, new_value)
-                changed = True
+    # ----------------------------
+    # Fetch new token from Keycloak
+    # ----------------------------
+    response = requests.post(
+        settings.KEYCLOAK_TOKEN_URL,
+        data={
+            "grant_type": "client_credentials",
+            "client_id": settings.KEYCLOAK_CLIENT_ID,
+            "client_secret": settings.KEYCLOAK_CLIENT_SECRET,
+        },
+        timeout=10,
+    )
 
-        if changed:
-            user.save()
+    response.raise_for_status()
 
-        # aktualizacja profilu/organizacji
-        self.update_user_profile(user, claims)
+    data = response.json()
 
-        return user
+    token = data["access_token"]
+    expires_in = data.get("expires_in", settings.KEYCLOAK_TOKEN_EXPIRES)
 
-    def update_user_profile(self, user, claims):
-        """Mapowanie dodatkowych danych z Keycloak do UserProfile."""
-        profile, _ = UserProfile.objects.get_or_create(user=user)
+    # Refresh token a bit early (safety margin)
+    expires_at = now + expires_in - 30
 
-        organisation_id = claims.get("organisationId")
-        if organisation_id:
-            try:
-                org = Organisation.objects.get(id=organisation_id)
-                profile.organisation = org
-            except Organisation.DoesNotExist:
-                pass  # ignorujemy brak zgodności
+    cache.set(TOKEN_CACHE_KEY, token, timeout=expires_in)
+    cache.set(TOKEN_EXP_CACHE_KEY, expires_at, timeout=expires_in)
 
-        profile.save()
-
-    #
-    # Kluczowe: identyfikator użytkownika z Keycloak
-    #
-    def get_username(self, claims):
-        """Używamy preferred_username jako username Django."""
-        return claims.get("preferred_username")
+    return token
