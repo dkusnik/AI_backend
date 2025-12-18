@@ -4,6 +4,7 @@ psycopg2
 redis
 django-redis
 django-environ
+django-rq-scheduler
 
 # background tasks
 django_rq
