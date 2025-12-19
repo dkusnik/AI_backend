@@ -68,6 +68,7 @@ def build_browsertrix_container_args(crawl_job_id: int, task: Task):
         "--config", f"/crawls/configs/{config_path.name}",
         "--collection", str(crawl_job_id),
         "--generateCDX",
+        "--combineWARC"
     ]
 
     return {
@@ -162,6 +163,7 @@ def start_crawl_task(task_id, crawl_job_id):
     # Mark job as running
     # -------------------------------
     crawl_job.status = "running"
+
     crawl_job.machine = getattr(
         settings, "CRAWL_MACHINE_NAME", "docker"
     )
@@ -178,6 +180,8 @@ def start_crawl_task(task_id, crawl_job_id):
 
     # store container id (NOT PID)
     crawl_job.process_id = container.id
+    task.status = "running"
+    task.save(update_fields=["status"])
     crawl_job.save(update_fields=["process_id"])
 
     # -------------------------------
@@ -262,10 +266,14 @@ def start_crawl_task(task_id, crawl_job_id):
             if status == "exited":
                 exit_code = container.attrs["State"]["ExitCode"]
                 crawl_job.status = "finished" if exit_code == 0 else "failed"
+                task.status = "success" if exit_code == 0 else "failed"
+                task.finishTime = timezone.now()
+                task.result = "success" if exit_code == 0 else "failed"
                 crawl_job.result = {
                     "exit_code": exit_code,
                     "container_id": container.id,
                 }
+                task.save(update_fields=["status", "finishTime", "result"])
                 crawl_job.save(update_fields=["status", "result"])
 
             # SEND Task status
@@ -434,6 +442,7 @@ def move_snapshot_to_production(snapshot_id: str):
     # --------------------------------------------------
     # 2. Move WARCs + persist metadata
     # --------------------------------------------------
+    warc_list = []
     for fname in os.listdir(src_archive):
         if not fname.endswith((".warc", ".warc.gz")):
             continue
@@ -454,6 +463,23 @@ def move_snapshot_to_production(snapshot_id: str):
                 "created_at": datetime.fromtimestamp(stat.st_mtime),
             },
         )
+        warc_list.append(dst_warc)
+
+        # TODO: jak z lista warcow
+        snapshot.warcPath=warc_list[0]
+        snapshot.save()
+
+
+        delivery = snapshot.task.send_task_response()
+        if not delivery.success:
+            logger.error(
+                f"TaskResponse delivery failed - {delivery.error_message}",
+                extra={
+                    "task_id": task.uid,
+                    "delivery_uuid": str(delivery.id),
+                    "error": delivery.error_message,
+                },
+            )
 
 
 def trigger_website_cleanup(website_id: int):

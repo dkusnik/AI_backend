@@ -11,6 +11,7 @@ from django.core.exceptions import ObjectDoesNotExist, ValidationError
 from django.db import models
 from django.utils import timezone
 from django.utils.dateparse import parse_datetime
+from django.utils.timezone import is_aware
 
 from archiver.stats import CrawlDerivedMetrics, CrawlStats
 from archiver.auth import get_keycloak_access_token
@@ -355,6 +356,8 @@ class Website(models.Model):
 
         if not params:
             params = WebsiteCrawlParameters()
+            self.website_crawl_parameters = params
+            save()
         if not params:
             raise RuntimeError(
                 "No WebsiteCrawlParameters found (no website-specific and no default)"
@@ -541,6 +544,43 @@ class Snapshot(models.Model):
 
         self.save(update_fields=["crawl_stats"])
 
+    def build_json_response(self) -> dict:
+        """
+        Serialize Snapshot to API-compatible 'snapshot' structure
+        """
+
+        def iso(dt):
+            if not dt:
+                return None
+            if not is_aware(dt):
+                return dt.isoformat() + "Z"
+            return dt.astimezone().isoformat().replace("+00:00", "Z")
+
+        return {
+            "id": self.id,
+            "websiteId": self.website_id,
+            "url": getattr(self.website, "url", None),
+            "isDeleted": self.isDeleted,
+
+            # Map internal status → API status
+            "status": self.status,
+
+            "publicationStatus": self.publicationStatus or "none",
+
+            "crawlStartTimestamp": iso(self.crawlStartTimestamp),
+            "crawlStopTimestamp": iso(self.crawlStopTimestamp),
+
+            "size": self.size,
+            "itemCount": self.itemCount,
+            "warcPath": self.warcPath,
+            "replayCollectionId": self.replayCollectionId,
+
+            # Optional / future-safe
+            "metadataArchival": {
+                "extra": []
+            },
+        }
+
 
 # --------------------------------------------------------------------
 #  CRAWL CONFIG
@@ -594,7 +634,7 @@ class Task(models.Model):
     snapshot = models.ForeignKey(Snapshot, on_delete=models.SET_NULL, related_name='task',
                                  null=True, blank=True)
     action = models.CharField(max_length=64)
-    uid = models.CharField(max_length=128)
+    uid = models.CharField(max_length=128, unique=True)
     user = models.CharField(max_length=128, null=True, blank=True)
     scheduleTime = models.DateTimeField(null=True, blank=True)
     startTime = models.DateTimeField(auto_now_add=True)
@@ -671,8 +711,10 @@ class Task(models.Model):
         # -------------------------------------------------
         try:
             crawl_config = task_params["crawlConfig"]
-            engine_config = crawl_config["engineConfig"]
-            scope = engine_config["crawlScope"]
+            engine_config = crawl_config.get("engineConfig")
+            if not engine_config:
+                engine_config = dict()
+            scope = engine_config.get("crawlScope",dict())
         except KeyError as exc:
             raise ValueError(
                 f"Invalid TaskParameters structure, missing {exc}"
@@ -682,8 +724,8 @@ class Task(models.Model):
         # Seeds / scope
         # -----------------
 
-        yaml_config["seeds"] = scope.get("startUrls", [])
-        yaml_config["scopeType"] = scope.get("type", "site")
+        yaml_config["seeds"] = scope.get("startUrls", [self.snapshot.website.url])
+        yaml_config["scopeType"] = scope.get("type", "page")
 
         if "maxDepth" in scope:
             yaml_config["depth"] = scope["maxDepth"]
@@ -803,6 +845,19 @@ class Task(models.Model):
         }
 
         return response
+
+    def update_task_params(self, params: dict) -> None:
+        """
+        Merge params into taskParameters JSON field and persist changes.
+        """
+        if not isinstance(params, dict):
+            raise TypeError("params must be a dict")
+
+        current = self.taskParameters or {}
+        current.update(params)
+
+        self.taskParameters = current
+        self.save(update_fields=["taskParameters"])
 
     def _build_task_api_payload(self) -> dict:
         """

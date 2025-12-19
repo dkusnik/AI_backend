@@ -62,7 +62,7 @@ def dispatch_task(task: Task) -> None:
             export_zosia - trigger / define scheduled ZoSIA export
     """
     if task.action == "crawl_run":
-        website = Website.create_from_task_parameters(task_data)
+        website = Website.create_from_task_parameters(task.taskParameters)
         queue_crawl(website.id, task)
 
 
@@ -94,12 +94,13 @@ def fetch_tasks_from_api(start=0, limit=50, where_status=None):
     return response.json()
 
 
-def upsert_task_from_api(task_data: dict) -> Task:
+def upsert_task_from_api(task_data: dict) -> tuple[Task, bool]:
     """
     Get existing Task by UID or create it if missing.
     Always returns a Task instance.
     """
 
+    print(task_data)
     uid = task_data["uid"]
 
     fields = {}
@@ -121,10 +122,10 @@ def upsert_task_from_api(task_data: dict) -> Task:
         defaults=fields,
     )
 
-    return task
+    return (task, _created)
 
 
-def sync_tasks_from_cluster(where_status=None, page_limit=50, dry_run=False) -> int:
+def sync_tasks_from_cluster(where_status: list | None = None, page_limit=50, dry_run=False) -> int:
     """
     Fetch all tasks from Cluster API and sync locally.
 
@@ -139,16 +140,16 @@ def sync_tasks_from_cluster(where_status=None, page_limit=50, dry_run=False) -> 
             limit=page_limit,
             where_status=where_status,
         )
-
-        items = data.get("items") or data.get("results") or data
+        items = data.get("items")
         if not items:
             break
 
         for task_data in items:
             processed += 1
             if not dry_run:
-                task = upsert_task_from_api(task_data)
-                dispatch_task(task)
+                task, created = upsert_task_from_api(task_data)
+                if created:
+                    dispatch_task(task)
 
         if len(items) < page_limit:
             break
@@ -158,4 +159,4 @@ def sync_tasks_from_cluster(where_status=None, page_limit=50, dry_run=False) -> 
     return processed
 
 def sync_tasks_scheduler() -> int:
-    return sync_tasks_from_cluster("scheduled")
+    return sync_tasks_from_cluster(["scheduled"])
