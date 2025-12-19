@@ -359,6 +359,7 @@ def move_snapshot_to_longterm(snapshot_id: str):
     # --------------------------------
     # Copy WARCs
     # --------------------------------
+    warc_list = []
     for fname in os.listdir(src_archive):
         if not fname.endswith((".warc", ".warc.gz")):
             continue
@@ -368,6 +369,7 @@ def move_snapshot_to_longterm(snapshot_id: str):
 
         # overwrite-safe copy
         shutil.copy2(src, dst)
+        warc_list.append(dst)
 
     # --------------------------------
     # Copy CDXJ indexes
@@ -380,6 +382,24 @@ def move_snapshot_to_longterm(snapshot_id: str):
         dst = os.path.join(dst_indexes, fname)
 
         shutil.copy2(src, dst)
+
+
+        # TODO: jak z lista warcow
+        snapshot.warcPath=warc_list[0]
+        snapshot.save()
+
+        # TODO: TASK bedzie mial chyba tylko 1 snapshot
+        task = snapshot.task.first()
+        delivery = task.send_task_response()
+        if not delivery.success:
+            logger.error(
+                f"TaskResponse delivery failed - {delivery.error_message}",
+                extra={
+                    "task_id": task.uid,
+                    "delivery_uuid": str(delivery.id),
+                    "error": delivery.error_message,
+                },
+            )
 
 
 def move_snapshot_to_production(snapshot_id: str):
@@ -469,8 +489,9 @@ def move_snapshot_to_production(snapshot_id: str):
         snapshot.warcPath=warc_list[0]
         snapshot.save()
 
-
-        delivery = snapshot.task.send_task_response()
+        # TODO: TASK bedzie mial chyba tylko 1 snapshot
+        task = snapshot.task.first()
+        delivery = task.send_task_response()
         if not delivery.success:
             logger.error(
                 f"TaskResponse delivery failed - {delivery.error_message}",

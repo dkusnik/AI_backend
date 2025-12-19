@@ -891,9 +891,10 @@ class Task(models.Model):
         if not self.taskResponse:
             raise ValueError("Task.taskResponse is empty – nothing to send")
 
+        payload = [self._build_task_api_payload()]
         delivery = TaskResponseDelivery.objects.create(
             task=self,
-            payload=[self.taskResponse],
+            payload=payload,
             target_url=settings.TASK_RESPONSE_URL,
             http_method="PUT",
         )
@@ -903,7 +904,7 @@ class Task(models.Model):
         try:
             response = requests.put(
                 settings.TASK_RESPONSE_URL,
-                json=[self._build_task_api_payload()],
+                json=payload,
                 timeout=getattr(settings, "TASK_RESPONSE_TIMEOUT", 10),
                 headers={
                     "Authorization": f"Bearer {token}",
