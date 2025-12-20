@@ -631,7 +631,7 @@ class Snapshot(models.Model):
 
     website = models.ForeignKey(Website, on_delete=models.CASCADE, related_name='snapshots')
     uid = models.UUIDField(
-        primary_key=True,
+        #primary_key=True,
         default=uuid.uuid4,
         editable=False,
         help_text="Unique delivery UUID (idempotency key)",
@@ -1035,7 +1035,7 @@ class Task(models.Model):
             "updated_at": timezone.now().isoformat(),
 
             # ---- uuid ----
-            "uuid": str(uuid.uuid4()),
+            #"uuid": str(uuid.uuid4()),
 
             # warcs
             "warcs": [
