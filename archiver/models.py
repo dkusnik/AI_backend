@@ -93,9 +93,18 @@ class WebsiteCrawlParameters(DefaultWebsiteCrawlParameters):
     Maps directly to Browsertrix YAML (--config).
     """
 
+    ENGINE_BROWSERTRIX = "browsertrix"
+    ENGINE_HERITRIX = "heritrix"
+
+    ENGINE_CHOICES = [
+        (ENGINE_BROWSERTRIX, "Browsertrix"),
+        (ENGINE_HERITRIX, "Heritrix"),
+    ]
+
     name = models.CharField(max_length=128)
     description = models.TextField(blank=True)
     is_default = models.BooleanField(default=False)
+    engine_type = models.CharField(max_length=32, choices=ENGINE_CHOICES)
 
     # --------------------
     # Crawl scope
@@ -200,7 +209,105 @@ class WebsiteCrawlParameters(DefaultWebsiteCrawlParameters):
     def __str__(self):
         return self.name
 
-    def to_browsertrix_crawl_config(self) -> dict:
+    @classmethod
+    def create_or_update_from_task_parameters(
+            cls,
+            task_parameters: dict,
+    ) -> tuple["WebsiteCrawlParameters", bool]:
+        """
+        Create or update WebsiteCrawlParameters from CrawlConfig taskParameters.
+        Returns (instance, created)
+        """
+
+        if not isinstance(task_parameters, dict):
+            raise TypeError("task_parameters must be a dict")
+
+        crawl_engine = task_parameters.get("crawlEngine")
+        engine_config = task_parameters.get("engineConfig") or {}
+
+        if crawl_engine not in {cls.ENGINE_BROWSERTRIX, cls.ENGINE_HERITRIX}:
+            raise ValueError(f"Unsupported crawlEngine: {crawl_engine}")
+
+        if not isinstance(engine_config, dict):
+            raise ValueError("engineConfig must be an object")
+
+        name = task_parameters.get("name", "Unnamed crawl config")
+
+        # -------------------------------------------------
+        # Lookup or create shell instance
+        # -------------------------------------------------
+        instance, created = cls.objects.get_or_create(
+            name=name,
+            engine_type=crawl_engine,
+            defaults={
+                "description": task_parameters.get("description", ""),
+                "is_default": False,
+            },
+        )
+
+        # -------------------------------------------------
+        # Common fields (always updated)
+        # -------------------------------------------------
+        instance.description = task_parameters.get("description", instance.description)
+
+        # =================================================
+        # Browsertrix
+        # =================================================
+        if crawl_engine == cls.ENGINE_BROWSERTRIX:
+            crawl_scope = engine_config.get("crawlScope", {})
+            crawl_limits = engine_config.get("crawlLimits", {})
+            page_behavior = engine_config.get("pageBehavior", {})
+            browser_settings = engine_config.get("browserSettings", {})
+
+            exclude_pages = crawl_scope.get("excludePages", {})
+
+            instance.start_urls = crawl_scope.get("startUrls", [])
+            instance.include_linked = crawl_scope.get("includeLinked", False)
+            instance.max_depth = crawl_scope.get("maxDepth")
+            instance.url_prefixes = crawl_scope.get("urlPrefixes", [])
+            instance.additional_pages = crawl_scope.get("additionalPages", [])
+
+            instance.exclude_text_matches = exclude_pages.get("textMatches", [])
+            instance.exclude_regex_matches = exclude_pages.get("regexMatches", [])
+
+            instance.max_pages = crawl_limits.get("maxPages")
+            instance.size_limit_gb = crawl_limits.get("sizeLimitGB")
+
+            instance.auto_scroll = page_behavior.get("autoScroll", True)
+            instance.auto_click = page_behavior.get("autoClick", False)
+            instance.post_load_delay_ms = page_behavior.get("delayAfterPageLoadMs", 0)
+            instance.page_extra_delay_ms = page_behavior.get(
+                "delayBeforeNextPageMs", 0
+            )
+
+            instance.user_agent = browser_settings.get("userAgent", "")
+            instance.language = browser_settings.get("language", "")
+            instance.proxy_server = browser_settings.get("proxyServer", "")
+
+            instance.extra_config = {
+                k: v
+                for k, v in engine_config.items()
+                if k
+                   not in {
+                       "crawlScope",
+                       "crawlLimits",
+                       "pageBehavior",
+                       "browserSettings",
+                   }
+            }
+
+        # =================================================
+        # Heritrix (future)
+        # =================================================
+        elif crawl_engine == cls.ENGINE_HERITRIX:
+            instance.extra_config = engine_config
+
+        instance.full_clean()
+        instance.save()
+
+        return instance, created
+
+    def build_json_response(self) -> dict:
         """
         Generate TaskParameters-compatible crawlConfig.engineConfig
         structure according to the new schema.
@@ -306,10 +413,8 @@ class WebsiteCrawlParameters(DefaultWebsiteCrawlParameters):
         # wrap into crawlConfig (WITH crawlEngine)
         # -------------------------------------------------
         return {
-            "crawlConfig": {
                 "crawlEngine": "browsertrix",
                 "engineConfig": engine_config,
-            }
         }
 
 
@@ -357,14 +462,14 @@ class Website(models.Model):
         if not params:
             params = WebsiteCrawlParameters()
             self.website_crawl_parameters = params
-            save()
+            self.save()
         if not params:
             raise RuntimeError(
                 "No WebsiteCrawlParameters found (no website-specific and no default)"
             )
         if not params.start_urls:
             params.start_urls = [self.url]
-        return params.to_browsertrix_crawl_config()
+        return params.build_json_response()
 
     @classmethod
     def create_from_task_parameters(cls, task_parameters: dict) -> "Website":
@@ -430,18 +535,30 @@ class WebsiteGroup(models.Model):
 
 
 class Snapshot(models.Model):
+    STATUS_QUEUED = "queued"
+    STATUS_RUNNING = "running"
+    STATUS_FINISHED = "finished"
+    STATUS_FAILED = "failed"
+    STATUS_ACCEPTED = "accepted"
+    STATUS_PUBLISHED = "published"
+
+
+
     STATUS_CHOICES = [
-        ('queued', 'Queued'),
-        ('running', 'Running'),
-        ('finished', 'Finished'),
-        ('failed', 'Failed'),
-        ('accepted', 'Accepted'),  # accepted into production queue
-        ('published', 'Published')
+        (STATUS_QUEUED, "Queued"),
+        (STATUS_RUNNING, "Running"),
+        (STATUS_FINISHED, "Finished"),
+        (STATUS_FAILED, "Failed"),
+        (STATUS_ACCEPTED, "Accepted"),
+        (STATUS_PUBLISHED, "Published"),
     ]
 
+    PUBLICATION_INTERNAL = "INTERNAL"
+    PUBLICATION_PUBLIC = "PUBLIC"
+
     STATUS_PUBLICATION = [
-        ('INTERNAL', "internal"),
-        ('PUBLIC', "public")
+        (PUBLICATION_INTERNAL, "internal"),
+        (PUBLICATION_PUBLIC, "public"),
     ]
 
     # PENDING = "pending"
@@ -631,8 +748,8 @@ class TaskStatus(models.TextChoices):
 
 
 class Task(models.Model):
-    snapshot = models.ForeignKey(Snapshot, on_delete=models.SET_NULL, related_name='task',
-                                 null=True, blank=True)
+    snapshot = models.OneToOneField(Snapshot, on_delete=models.SET_NULL, related_name='task',
+                                    null=True, blank=True)
     action = models.CharField(max_length=64)
     uid = models.CharField(max_length=128, unique=True)
     user = models.CharField(max_length=128, null=True, blank=True)
@@ -698,7 +815,7 @@ class Task(models.Model):
 
         return task
 
-    def build_browsertrix_yaml_config(self, crawl_job_id: int) -> Path:
+    def build_browsertrix_yaml_config(self, snapshot_id: int) -> Path:
         """
         Write Browsertrix YAML config compatible with `browsertrix-crawler crawl --config`.
         """
@@ -712,7 +829,7 @@ class Task(models.Model):
         try:
             crawl_config = task_params["crawlConfig"]
             engine_config = crawl_config.get("engineConfig")
-            if not engine_config:
+            if isinstance(engine_config,str):
                 engine_config = dict()
             scope = engine_config.get("crawlScope",dict())
         except KeyError as exc:
@@ -798,7 +915,7 @@ class Task(models.Model):
         # Output & indexing
         # -----------------
         yaml_config["generateCDX"] = True
-        yaml_config["collection"] = str(crawl_job_id)
+        yaml_config["collection"] = str(snapshot_id)
         yaml_config["cwd"] = "/crawls"
 
         # -----------------
@@ -807,7 +924,7 @@ class Task(models.Model):
         config_dir = Path(settings.BROWSERTIX_VOLUME) / "configs"
         config_dir.mkdir(parents=True, exist_ok=True)
 
-        path = config_dir / f"browsertrix_{crawl_job_id}.yaml"
+        path = config_dir / f"browsertrix_{snapshot_id}.yaml"
         path.write_text(yaml.dump(yaml_config, sort_keys=False))
         print(yaml.dump(yaml_config, sort_keys=False))
         return path
@@ -827,15 +944,14 @@ class Task(models.Model):
             "status": self.status,
             "updated_at": timezone.now().isoformat(),
 
-            # ---- uniqueness / idempotency ----
+            # ---- uuid ----
             "uuid": str(uuid.uuid4()),
 
-            # ---- archival artifacts ----
-            "warcs": (
-                snapshot.crawl_stats.get("warcs", [])
-                if snapshot and snapshot.crawl_stats
-                else []
-            ),
+            # warcs
+            "warcs": [
+                warc.to_api_dict()
+                for warc in snapshot.warcs.all()
+            ],
 
             # ---- crawl stats ----
             "crawl_stats": snapshot.crawl_stats if snapshot else {},
@@ -928,7 +1044,6 @@ class Task(models.Model):
             "success",
             "error_message",
         ])
-
         return delivery
 
 
@@ -956,15 +1071,24 @@ class Warc(models.Model):
     filename = models.CharField(max_length=512)
     path = models.TextField()  # full production path
     size_bytes = models.BigIntegerField()
-    created_at = models.DateTimeField()
-
-    created = models.DateTimeField(auto_now_add=True)
+    sha256 = models.CharField(max_length=64)
+    created_at = models.DateTimeField(auto_now_add=True)
 
     class Meta:
         unique_together = ("snapshot", "filename")
 
     def __str__(self):
         return f"{self.filename} ({self.size_bytes} bytes)"
+
+    def build_json_response(self) -> dict:
+        return {
+            "filename": self.filename,
+            "size_bytes": self.size_bytes,
+            "sha256": self.sha256 or None,
+            "created_at": self.created_at.isoformat() if self.created_at else None,
+            "path": self.path,
+            "url": self.url,
+        }
 
 class GlobalConfig(models.Model):
     ENTRY_CLASS_CHOICES = [

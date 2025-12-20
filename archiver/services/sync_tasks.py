@@ -3,7 +3,7 @@ from django.conf import settings
 from django.db import transaction
 from django.utils.dateparse import parse_datetime
 
-from archiver.models import Task, Website, Snapshot
+from archiver.models import Task, Website, Snapshot, WebsiteCrawlParameters
 from archiver.auth import get_keycloak_access_token
 from archiver.services.crawl_manager import queue_crawl
 
@@ -60,10 +60,34 @@ def dispatch_task(task: Task) -> None:
         Export:
 
             export_zosia - trigger / define scheduled ZoSIA export
+
+        # Objects which can be set up from task.parameters
+        - crawlConfig + id
+        - website + id
+        - schedule + id
     """
-    if task.action == "crawl_run":
-        website = Website.create_from_task_parameters(task.taskParameters)
-        queue_crawl(website.id, task)
+    try:
+        params = task.taskParameters
+        if task.action == "crawl_run":
+
+            website = Website.create_from_task_parameters(params)
+            if params.get("crawlConfig", None):
+                wp, _ = WebsiteCrawlParameters.create_or_update_from_task_parameters(params)
+            else:
+                wp = WebsiteCrawlParameters.create()
+                website.website_crawl_parameters = wp
+                task.update_task_params({'crawConfigId': wp.id,
+                                         'crawConfig': wp.build_json_response()})
+                task.save()
+            queue_crawl(website.id, task)
+
+    # TODO: think if this should be so generic
+    # except (KeyError, TypeError, ValueError, json.JSONDecodeError) as e:
+    except (Exception) as e:
+        task.status = "cancelled"
+        task.taskResponse = str(e)
+        task.save()
+        task.send_task_response()
 
 
 def fetch_tasks_from_api(start=0, limit=50, where_status=None):

@@ -108,8 +108,6 @@ def queue_crawl(website_id: int, task: Task = None, queue_name: str = "crawls") 
         website=website,
         status="queued",
     )
-    if not task.taskParameters['crawlConfig']:
-        task.taskParameters['crawlConfig'] = website.website_crawl_parameters.to_browsertrix_crawl_config()['crawlConfig']
 
     task.update_task_params({'snapshot_id': snapshot.id,
                              'snapshot': snapshot.build_json_response()})
@@ -118,7 +116,7 @@ def queue_crawl(website_id: int, task: Task = None, queue_name: str = "crawls") 
 
     # Enqueue the RQ job
     queue = django_rq.get_queue(queue_name)
-    job = queue.enqueue(start_crawl_task, task_id=task.id, crawl_job_id=snapshot.id)
+    job = queue.enqueue(start_crawl_task, task_id=task.id, snapshot_id=snapshot.id)
 
     # Attach the RQ job ID and save
     snapshot.rq_job_id = job.id

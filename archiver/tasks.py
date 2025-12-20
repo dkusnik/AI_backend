@@ -1,4 +1,3 @@
-import logging
 import os
 import shutil
 import time
@@ -16,9 +15,8 @@ from archiver.stats import (BrowsertrixLogParser, CDXParser,
                             CrawlMetricsCalculator, CrawlStats,
                             get_browsertrix_container_stats)
 
+from archiver.utils import calculate_sha256
 
-
-logger = logging.getLogger(__name__)
 
 redis_conn = django_rq.get_connection("crawls")
 
@@ -54,19 +52,19 @@ def update_snapshot_process_stats(container, snapshot_id: int) -> dict:
     return stats
 
 
-def build_browsertrix_container_args(crawl_job_id: int, task: Task):
+def build_browsertrix_container_args(snapshot_id: int, task: Task):
     """
     Build Docker SDK args for Browsertrix crawler using --config.
     """
 
     config_path = task.build_browsertrix_yaml_config(
-        crawl_job_id=crawl_job_id,
+        snapshot_id=snapshot_id,
     )
 
     command = [
         "crawl",
         "--config", f"/crawls/configs/{config_path.name}",
-        "--collection", str(crawl_job_id),
+        "--collection", str(snapshot_id),
         "--generateCDX",
         "--combineWARC"
     ]
@@ -87,107 +85,47 @@ def build_browsertrix_container_args(crawl_job_id: int, task: Task):
             }
         },
 
-        "name": f"crawl_{crawl_job_id}",
+        "name": f"crawl_{snapshot_id}",
 
         "labels": {
             "app": "browsertrix",
-            "crawl_job_id": str(crawl_job_id),
-        },
-    }
-
-def _old_build_browsertrix_container_args(website, crawl_job_id, params=None):
-    """
-    Build Docker SDK arguments to run:
-    webrecorder/browsertrix-crawler crawl ...
-    """
-    if not params:
-        params = website.get_final_params()
-
-    # This exactly replaces:
-    # docker run IMAGE crawl --text ...
-    command = [
-        "crawl",
-        "--text",
-        "--scopeType", params["scope_type"],
-        "--generateCDX",
-        "--workers", str(params["workers"]),
-        "--url", website.url,
-        "--collection", str(crawl_job_id),
-        "--pageLoadTimeout", str(params["page_load_timeout"]),
-        "--diskUtilization", str(params["disk_utilization"]),
-        #"--timeLimit", str(params["time_limit"]),
-    ]
-
-    return {
-        # EXACT image you use on CLI
-        "image": "webrecorder/browsertrix-crawler",
-
-        # Equivalent of `docker run … crawl …`
-        "command": command,
-
-        # Run in background
-        "detach": True,
-
-        # Do NOT auto-remove (we want logs, exit code, control)
-        "remove": False,
-
-        # Volume mount: -v BROWSERTIX_VOLUME:/crawls
-        "volumes": {
-            settings.BROWSERTIX_VOLUME: {
-                "bind": "/crawls",
-                "mode": "rw",
-            }
-        },
-
-        # Optional but useful metadata
-        "name": f"crawl_{crawl_job_id}",
-
-        # -it replacement:
-        # Browsertrix does NOT need an interactive TTY
-        # Setting tty=False is correct and safe
-        "tty": False,
-
-        # Labels for tracking / cleanup
-        "labels": {
-            "app": "browsertrix",
-            "crawl_job_id": str(crawl_job_id),
-            "website_id": str(website.id),
+            "snapshot_id": str(snapshot_id),
         },
     }
 
 
-def start_crawl_task(task_id, crawl_job_id):
+def start_crawl_task(task_id, snapshot_id):
     task = Task.objects.get(id=task_id)
-    crawl_job = Snapshot.objects.get(id=crawl_job_id)
+    snapshot = Snapshot.objects.get(id=snapshot_id)
     # -------------------------------
     # Mark job as running
     # -------------------------------
-    crawl_job.status = "running"
+    snapshot.status = "running"
 
-    crawl_job.machine = getattr(
+    snapshot.machine = getattr(
         settings, "CRAWL_MACHINE_NAME", "docker"
     )
-    crawl_job.save(update_fields=["status", "machine"])
+    snapshot.save(update_fields=["status", "machine"])
 
     # -------------------------------
     # Docker client
     # -------------------------------
     client = docker.from_env()
     container_args = build_browsertrix_container_args(
-        crawl_job_id, task
+        snapshot_id, task
     )
     container = client.containers.run(**container_args)
 
     # store container id (NOT PID)
-    crawl_job.process_id = container.id
+    snapshot.process_id = container.id
     task.status = "running"
     task.save(update_fields=["status"])
-    crawl_job.save(update_fields=["process_id"])
+    snapshot.save(update_fields=["process_id"])
 
     # -------------------------------
     # Redis control keys
     # -------------------------------
-    job_id = crawl_job.rq_job_id
+    job_id = snapshot.rq_job_id
     queue_key = f"crawl:{job_id}"
     control_key = f"{queue_key}:control"
 
@@ -195,7 +133,7 @@ def start_crawl_task(task_id, crawl_job_id):
 
     stats = CrawlStats()
 
-    base_path = Path(settings.BROWSERTIX_VOLUME) / "collections" / str(crawl_job_id)
+    base_path = Path(settings.BROWSERTIX_VOLUME) / "collections" / str(snapshot_id)
     log_parser = BrowsertrixLogParser(base_path / "logs")
     cdx_parser = CDXParser(Path(base_path / "warc-cdx"))
     metrics_calc = CrawlMetricsCalculator(stall_threshold_seconds=60)
@@ -215,17 +153,17 @@ def start_crawl_task(task_id, crawl_job_id):
 
                 if control_cmd == "stop":
                     container.stop(timeout=10)
-                    crawl_job.status = "stopped"
+                    snapshot.status = "stopped"
 
                 elif control_cmd == "suspend":
                     container.pause()
-                    crawl_job.status = "suspended"
+                    snapshot.status = "suspended"
 
                 elif control_cmd == "resume":
                     container.unpause()
-                    crawl_job.status = "running"
+                    snapshot.status = "running"
 
-                crawl_job.save(update_fields=["status"])
+                snapshot.save(update_fields=["status"])
                 redis_conn.delete(control_key)
 
             stats = log_parser.parse(stats)
@@ -260,35 +198,26 @@ def start_crawl_task(task_id, crawl_job_id):
                     "js_heavy": derived.crawler_running_no_cdx,
                 }
             }
-            crawl_job.update_snapshot_stats(stats, derived)
-            update_snapshot_process_stats(container, crawl_job_id)
+            snapshot.update_snapshot_stats(stats, derived)
+            update_snapshot_process_stats(container, snapshot_id)
 
             if status == "exited":
                 exit_code = container.attrs["State"]["ExitCode"]
-                crawl_job.status = "finished" if exit_code == 0 else "failed"
+                snapshot.status = "finished" if exit_code == 0 else "failed"
                 task.status = "success" if exit_code == 0 else "failed"
                 task.finishTime = timezone.now()
                 task.result = "success" if exit_code == 0 else "failed"
-                crawl_job.result = {
+                snapshot.result = {
                     "exit_code": exit_code,
                     "container_id": container.id,
                 }
                 task.save(update_fields=["status", "finishTime", "result"])
-                crawl_job.save(update_fields=["status", "result"])
+                snapshot.save(update_fields=["status", "result"])
 
             # SEND Task status
-            # TODO: optimise to sent an aggregated status PUT
+            # TODO: optimize to sent an aggregated status PUT
             task.update_task_response()
-            delivery = task.send_task_response()
-            if not delivery.success:
-                logger.error(
-                    f"TaskResponse delivery failed - {delivery.error_message}",
-                    extra={
-                        "task_id": task.uid,
-                        "delivery_uuid": str(delivery.id),
-                        "error": delivery.error_message,
-                    },
-                )
+            task.send_task_response()
             if status == "exited":
                 # we have to split it, so the final message will be send as well
                 container.remove()
@@ -301,24 +230,24 @@ def start_crawl_task(task_id, crawl_job_id):
         redis_conn.delete(control_key)
 
     # TODO: check if snapshot is okay
-    if crawl_job.status == 'finished':
+    if snapshot.status == 'finished':
         queue = django_rq.get_queue("management")
         queue.enqueue(
             move_snapshot_to_longterm,
-            crawl_job.id
+            snapshot.id
         )
-        if crawl_job.auto_update:
+        if snapshot.auto_update:
             queue.enqueue(
                 move_snapshot_to_production,
-                crawl_job.id
+                snapshot.id
             )
 
     # Return final result
     return {
-        "pid": crawl_job.process_id,
-        "status": crawl_job.status,
+        "pid": snapshot.process_id,
+        "status": snapshot.status,
         "cmd": container_args,
-        "result": crawl_job.result,
+        "result": snapshot.result,
     }
 
 
@@ -359,17 +288,27 @@ def move_snapshot_to_longterm(snapshot_id: str):
     # --------------------------------
     # Copy WARCs
     # --------------------------------
-    warc_list = []
     for fname in os.listdir(src_archive):
         if not fname.endswith((".warc", ".warc.gz")):
             continue
 
-        src = os.path.join(src_archive, fname)
-        dst = os.path.join(dst_archive, fname)
+        src_warc = os.path.join(src_archive, fname)
+        dst_warc = os.path.join(dst_archive, fname)
 
         # overwrite-safe copy
-        shutil.copy2(src, dst)
-        warc_list.append(dst)
+        shutil.copy2(src_warc, dst_warc)
+        stat = os.stat(dst_warc)
+
+        Warc.objects.update_or_create(
+            snapshot=snapshot,
+            filename=fname,
+            defaults={
+                "path": dst_warc,
+                "size_bytes": stat.st_size,
+                "created_at": datetime.fromtimestamp(stat.st_mtime),
+                "sha256": calculate_sha256(dst_warc)
+            },
+        )
 
     # --------------------------------
     # Copy CDXJ indexes
@@ -381,25 +320,18 @@ def move_snapshot_to_longterm(snapshot_id: str):
         src = os.path.join(src_indexes, fname)
         dst = os.path.join(dst_indexes, fname)
 
-        shutil.copy2(src, dst)
+        shutil.copy2(src_warc, dst_warc)
 
+    # TODO: ten warcPath jest neipotrzebny bo i tak lista warcow ma pelne patche
+    snapshot.warcPath=src_archive
+    snapshot.publicationStatus = snapshot.PUBLICATION_INTERNAL
+    snapshot.save()
 
-        # TODO: jak z lista warcow
-        snapshot.warcPath=warc_list[0]
-        snapshot.save()
+    snapshot.task.update_task_params({'snapshot': snapshot.build_json_response()})
+    snapshot.task.update_task_response()
 
-        # TODO: TASK bedzie mial chyba tylko 1 snapshot
-        task = snapshot.task.first()
-        delivery = task.send_task_response()
-        if not delivery.success:
-            logger.error(
-                f"TaskResponse delivery failed - {delivery.error_message}",
-                extra={
-                    "task_id": task.uid,
-                    "delivery_uuid": str(delivery.id),
-                    "error": delivery.error_message,
-                },
-            )
+    # TODO: TASK bedzie mial chyba tylko 1 snapshot
+    snapshot.task.send_task_response()
 
 
 def move_snapshot_to_production(snapshot_id: str):
@@ -480,27 +412,19 @@ def move_snapshot_to_production(snapshot_id: str):
             defaults={
                 "path": dst_warc,
                 "size_bytes": stat.st_size,
+                "sha256": calculate_sha256(dst_warc),
                 "created_at": datetime.fromtimestamp(stat.st_mtime),
             },
         )
         warc_list.append(dst_warc)
 
         # TODO: jak z lista warcow
-        snapshot.warcPath=warc_list[0]
+        snapshot.publicationStatus = snapshot.PUBLICATION_PUBLIC
+        snapshot.published = True
         snapshot.save()
 
         # TODO: TASK bedzie mial chyba tylko 1 snapshot
-        task = snapshot.task.first()
-        delivery = task.send_task_response()
-        if not delivery.success:
-            logger.error(
-                f"TaskResponse delivery failed - {delivery.error_message}",
-                extra={
-                    "task_id": task.uid,
-                    "delivery_uuid": str(delivery.id),
-                    "error": delivery.error_message,
-                },
-            )
+        snapshot.task.send_task_response()
 
 
 def trigger_website_cleanup(website_id: int):
@@ -521,13 +445,16 @@ def replay_unpublish_task(snapshot_id: int):
 
 
 def replay_repopulate_task(website_id: int | None = None):
-    qs = Snapshot.objects.all()
+    qs = Snapshot.objects.filter(status='finished')
+    queue = django_rq.get_queue("management")
     if website_id:
         qs = qs.filter(website_id=website_id)
 
-    for snap in qs.iterator():
-        redis_management.rpush("replay:repopulate", snap.id)
-
+    for snapshot in qs.iterator():
+        queue.enqueue(
+            move_snapshot_to_production,
+            snapshot.id
+        )
     return {"snapshots": qs.count()}
 
 def website_group_run_crawl_task(group_id: int):
@@ -562,7 +489,7 @@ def website_group_run_crawl_task(group_id: int):
         job = crawl_queue.enqueue(
             start_crawl_task,
             website.id,
-            crawl_job_id=snapshot.id
+            snapshot_id=snapshot.id
         )
 
         snapshot.rq_job_id = job.id
