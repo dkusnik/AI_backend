@@ -19,10 +19,8 @@ from archiver.tasks import (
     website_group_set_schedule_task,
     website_group_set_crawl_config_task,
     website_group_priority_crawl_task,
-    replay_publish_task,
-    replay_unpublish_task,
-    replay_repopulate_task,
     export_zosia_task,
+    move_snapshot_to_production,
 )
 
 UUID_REGEX = re.compile(r"^[0-9a-fA-F-]{32,36}$")
@@ -99,19 +97,19 @@ def queue_crawl(website_id: int, task: Task = None, queue_name: str = "crawls") 
 
     # Validate website
     website = Website.objects.get(id=website_id)
-    if not task:
-        task = Task.create_for_website(
-            website_id=website_id,
-            action="crawl_run",
-        )
     snapshot = Snapshot.objects.create(
         website=website,
-        status="queued",
+        status=Snapshot.STATUS_PENDING,
     )
-
-    task.update_task_params({'snapshot_id': snapshot.id,
+    if not task:
+        task = Task.create_for_website(
+            snapshot=snapshot,
+            action="crawl_run",
+        )
+    else:
+        task.update_task_params({'snapshot_id': snapshot.id,
                              'snapshot': snapshot.build_json_response()})
-    task.snapshot = snapshot
+        task.snapshot = snapshot
     task.save()
 
     # Enqueue the RQ job
@@ -301,9 +299,8 @@ def website_group_priority_crawl(group_id: int) -> str:
 # ------------------------
 def replay_publish(snapshot_id: int) -> str:
     queue = django_rq.get_queue("management")
-    job = queue.enqueue(replay_publish_task, snapshot_id)
+    job = queue.enqueue(move_snapshot_to_production, snapshot_id)
     return job.id
-
 
 def replay_unpublish(snapshot_id: int) -> str:
     queue = django_rq.get_queue("management")

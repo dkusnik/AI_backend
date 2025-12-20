@@ -10,7 +10,7 @@ import requests
 from django.conf import settings
 from django.utils import timezone
 
-from archiver.models import Snapshot, Warc, Website, WebsiteGroup, Task
+from archiver.models import Snapshot, Warc, Website, WebsiteGroup, Task, TaskStatus
 from archiver.stats import (BrowsertrixLogParser, CDXParser,
                             CrawlMetricsCalculator, CrawlStats,
                             get_browsertrix_container_stats)
@@ -100,7 +100,7 @@ def start_crawl_task(task_id, snapshot_id):
     # -------------------------------
     # Mark job as running
     # -------------------------------
-    snapshot.status = "running"
+    snapshot.status = Snapshot.STATUS_PENDING
 
     snapshot.machine = getattr(
         settings, "CRAWL_MACHINE_NAME", "docker"
@@ -118,7 +118,7 @@ def start_crawl_task(task_id, snapshot_id):
 
     # store container id (NOT PID)
     snapshot.process_id = container.id
-    task.status = "running"
+    task.status = TaskStatus.RUNNING
     task.save(update_fields=["status"])
     snapshot.save(update_fields=["process_id"])
 
@@ -161,7 +161,7 @@ def start_crawl_task(task_id, snapshot_id):
 
                 elif control_cmd == "resume":
                     container.unpause()
-                    snapshot.status = "running"
+                    snapshot.status = Snapshot.STATUS_CRAWLING
 
                 snapshot.save(update_fields=["status"])
                 redis_conn.delete(control_key)
@@ -173,7 +173,7 @@ def start_crawl_task(task_id, snapshot_id):
             derived = metrics_calc.calculate(stats)
 
             # ---- reporting / debugging / persistence ----
-            snapshot = {
+            report = {
                 # control-plane (logs)
                 "crawled": stats.crawled,
                 "total": stats.total,
@@ -198,15 +198,16 @@ def start_crawl_task(task_id, snapshot_id):
                     "js_heavy": derived.crawler_running_no_cdx,
                 }
             }
+            print(report)
             snapshot.update_snapshot_stats(stats, derived)
             update_snapshot_process_stats(container, snapshot_id)
 
             if status == "exited":
                 exit_code = container.attrs["State"]["ExitCode"]
-                snapshot.status = "finished" if exit_code == 0 else "failed"
-                task.status = "success" if exit_code == 0 else "failed"
+                snapshot.status = Snapshot.STATUS_COMPLETED if exit_code == 0 else Snapshot.STATUS_FAILED
+                task.status = TaskStatus.SUCCESS if exit_code == 0 else TaskStatus.FAILED
                 task.finishTime = timezone.now()
-                task.result = "success" if exit_code == 0 else "failed"
+                task.result = TaskStatus.SUCCESS if exit_code == 0 else TaskStatus.FAILED
                 snapshot.result = {
                     "exit_code": exit_code,
                     "container_id": container.id,
@@ -218,7 +219,7 @@ def start_crawl_task(task_id, snapshot_id):
             # TODO: optimize to sent an aggregated status PUT
             task.update_task_response()
             task.send_task_response()
-            if status == "exited":
+            if status == "exited" and snapshot.status == Snapshot.STATUS_COMPLETED:
                 # we have to split it, so the final message will be send as well
                 container.remove()
                 break
@@ -230,7 +231,7 @@ def start_crawl_task(task_id, snapshot_id):
         redis_conn.delete(control_key)
 
     # TODO: check if snapshot is okay
-    if snapshot.status == 'finished':
+    if snapshot.status == Snapshot.STATUS_COMPLETED:
         queue = django_rq.get_queue("management")
         queue.enqueue(
             move_snapshot_to_longterm,
@@ -430,33 +431,6 @@ def move_snapshot_to_production(snapshot_id: str):
 def trigger_website_cleanup(website_id: int):
     pass
 
-def replay_publish_task(snapshot_id: int):
-    snap = Snapshot.objects.get(id=snapshot_id)
-    snap.published = True
-    snap.save(update_fields=["published"])
-    return {"published": snapshot_id}
-
-
-def replay_unpublish_task(snapshot_id: int):
-    snap = Snapshot.objects.get(id=snapshot_id)
-    snap.published = False
-    snap.save(update_fields=["published"])
-    return {"unpublished": snapshot_id}
-
-
-def replay_repopulate_task(website_id: int | None = None):
-    qs = Snapshot.objects.filter(status='finished')
-    queue = django_rq.get_queue("management")
-    if website_id:
-        qs = qs.filter(website_id=website_id)
-
-    for snapshot in qs.iterator():
-        queue.enqueue(
-            move_snapshot_to_production,
-            snapshot.id
-        )
-    return {"snapshots": qs.count()}
-
 def website_group_run_crawl_task(group_id: int):
     """
     For a website group:
@@ -483,7 +457,7 @@ def website_group_run_crawl_task(group_id: int):
         # Create Snapshot first (same pattern as single crawl)
         snapshot = Snapshot.objects.create(
             website=website,
-            status="queued"
+            status=Snapshot.STATUS_PENDING
         )
 
         job = crawl_queue.enqueue(

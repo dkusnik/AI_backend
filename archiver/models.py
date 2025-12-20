@@ -63,6 +63,7 @@ CRAWL_SCOPE_CHOICES = [
     ("prefix", "Prefix (URL prefix)"),
     ("domain", "Domain"),
     ("host", "Host"),
+    ("page", "Page")
 ]
 
 
@@ -72,7 +73,7 @@ class DefaultWebsiteCrawlParameters(models.Model):
     scope_type = models.CharField(
         max_length=16,
         choices=CRAWL_SCOPE_CHOICES,
-        default="domain"
+        default="page"
     )
     generate_cdx = models.BooleanField(default=True)
     workers = models.PositiveIntegerField(default=32)
@@ -455,21 +456,74 @@ class Website(models.Model):
     def __str__(self):
         return f"{self.url} ({self.organisation})"
 
-    def get_final_params(self):
-        """Return final parameters: override → fallback defaults."""
-        params = self.website_crawl_parameters
+    def build_json_response(self) -> dict:
+        """
+        Build Website JSON response according to OpenAPI schema.
+        """
 
-        if not params:
-            params = WebsiteCrawlParameters()
-            self.website_crawl_parameters = params
-            self.save()
-        if not params:
-            raise RuntimeError(
-                "No WebsiteCrawlParameters found (no website-specific and no default)"
-            )
-        if not params.start_urls:
-            params.start_urls = [self.url]
-        return params.build_json_response()
+        def iso(dt):
+            if not dt:
+                return None
+            if is_aware(dt):
+                return dt.astimezone().isoformat().replace("+00:00", "Z")
+            return dt.isoformat() + "Z"
+
+        return {
+            "id": self.id,
+
+            "organisationId": self.organisation_id,
+
+            "url": self.url,
+            "isDeleted": self.isDeleted,
+
+            "name": self.name,
+            "displayName": self.displayName,
+            "shortDescription": self.shortDescription,
+            "longDescription": self.longDescription,
+
+            "doCrawl": self.doCrawl,
+            "suspendCrawlUntilTimestamp": iso(
+                self.suspendCrawlUntilTimestamp
+            ),
+
+            "tags": [
+                tag.build_json_response()
+                for tag in self.tags.all()
+            ],
+
+            # ---------------------------------
+            # Metadata (explicit placeholders)
+            # ---------------------------------
+            "metadataArchival": {
+                "autoPublish": self.auto_publish,
+                "enabled": self.enabled,
+            },
+
+            "metadataTechnical": {
+                "scopeType": self.scope_type,
+                "generateCdx": self.generate_cdx,
+                "workers": self.workers,
+                "pageLoadTimeout": self.page_load_timeout,
+                "diskUtilization": self.disk_utilization,
+                "timeLimit": self.time_limit,
+            },
+        }
+    #
+    # def get_final_params(self):
+    #     """Return final parameters: override → fallback defaults."""
+    #     params = self.website_crawl_parameters
+    #
+    #     if not params:
+    #         params = WebsiteCrawlParameters()
+    #         self.website_crawl_parameters = params
+    #         self.save()
+    #     if not params:
+    #         raise RuntimeError(
+    #             "No WebsiteCrawlParameters found (no website-specific and no default)"
+    #         )
+    #     if not params.start_urls:
+    #         params.start_urls = [self.url]
+    #     return params.build_json_response()
 
     @classmethod
     def create_from_task_parameters(cls, task_parameters: dict) -> "Website":
@@ -535,26 +589,34 @@ class WebsiteGroup(models.Model):
 
 
 class Snapshot(models.Model):
-    STATUS_QUEUED = "queued"
-    STATUS_RUNNING = "running"
-    STATUS_FINISHED = "finished"
+    # API-aligned status constants
+    # - pending
+    # - crawling
+    # - completed
+    # - failed
+    # - deleted
+    STATUS_PENDING = "pending"
+    STATUS_CRAWLING = "crawling"
+    STATUS_COMPLETED = "completed"
     STATUS_FAILED = "failed"
-    STATUS_ACCEPTED = "accepted"
+    STATUS_DELETED = "deleted"
     STATUS_PUBLISHED = "published"
-
-
+    STATUS_SUSPENDED = "suspended"
+    STATUS_STOPPED = "stopped"
 
     STATUS_CHOICES = [
-        (STATUS_QUEUED, "Queued"),
-        (STATUS_RUNNING, "Running"),
-        (STATUS_FINISHED, "Finished"),
+        (STATUS_PENDING, "Pending"),
+        (STATUS_CRAWLING, "Crawling"),
+        (STATUS_SUSPENDED, "Suspended"),
+        (STATUS_STOPPED, "Stopped"),
+        (STATUS_COMPLETED, "Completed"),
         (STATUS_FAILED, "Failed"),
-        (STATUS_ACCEPTED, "Accepted"),
+        (STATUS_DELETED, "Deleted"),
         (STATUS_PUBLISHED, "Published"),
     ]
 
-    PUBLICATION_INTERNAL = "INTERNAL"
-    PUBLICATION_PUBLIC = "PUBLIC"
+    PUBLICATION_INTERNAL = "internal"
+    PUBLICATION_PUBLIC = "public"
 
     STATUS_PUBLICATION = [
         (PUBLICATION_INTERNAL, "internal"),
@@ -570,7 +632,7 @@ class Snapshot(models.Model):
     website = models.ForeignKey(Website, on_delete=models.CASCADE, related_name='snapshots')
     created_by = models.ForeignKey(User, on_delete=models.SET_NULL, null=True)
     created_at = models.DateTimeField(auto_now_add=True)
-    status = models.CharField(max_length=20, choices=STATUS_CHOICES, default='queued')
+    status = models.CharField(max_length=20, choices=STATUS_CHOICES, default=STATUS_PENDING)
     progress = models.FloatField(default=0.0)  # 0.0 - 100.0
     stats = models.JSONField(default=dict, blank=True)  # e.g. {'fetched': 123, 'bytes': 45678}
     machine = models.CharField(max_length=255, null=True, blank=True)  
@@ -624,7 +686,7 @@ class Snapshot(models.Model):
         self.save(update_fields=['status','finished_at','error'])
 
     def __str__(self):
-        return f"CrawlJob {self.id} for {self.website.name}"
+        return f"CrawlJob {self.id} - {self.website.name} - {self.status} ({self.progress})"
 
     def update_snapshot_stats(self, stats: CrawlStats, derived: CrawlDerivedMetrics):
         self.crawl_stats = {
@@ -770,11 +832,43 @@ class Task(models.Model):
     taskParameters = models.JSONField(null=True, blank=True)
     taskResponse = models.JSONField(null=True, blank=True)
 
+    def __str__(self):
+        return f"{self.id} - {self.uid} ({self.action} - {self.status})"
+
+    @classmethod
+    def build_taskParameters(cls, snapshot) -> dict:
+
+        """
+        Generate TaskParameters dict according to OpenAPI spec.
+        Embedded objects are preferred; IDs are included as fallback.
+        """
+        data = {}
+
+        if snapshot:
+            data["snapshot"] = snapshot.build_json_response()
+            data["snapshotId"] = snapshot.id
+            if snapshot.website:
+                data["website"] = snapshot.website.build_json_response()
+                data["websiteId"] = snapshot.website.id
+                if snapshot.website.website_crawl_parameters:
+                    data["crawlConfig"] = snapshot.website.website_crawl_parameters.build_json_response()
+                    data["crawlConfigId"] = snapshot.website.website_crawl_parameters.id
+
+        # TODO:Schedule
+
+        # if schedule:
+        #     data["schedule"] = schedule.build_json_response()
+        #     data["scheduleId"] = schedule.id
+        # elif schedule_id:
+        #     data["scheduleId"] = schedule_id
+
+        return data
+
     @classmethod
     def create_for_website(
             cls,
             *,
-            website_id: int,
+            snapshot: Snapshot,
             action: str,
             user: str | None = None,
             priority: str = "normal",
@@ -784,15 +878,6 @@ class Task(models.Model):
         """
         Create a new Task for a given website.
         """
-        try:
-            website = Website.objects.get(id=website_id)
-        except ObjectDoesNotExist:
-            raise ValueError(f"Website with id={website_id} does not exist")
-
-        # -------------------------------------------------
-        # Build BrowsertrixCrawlConfig JSON
-        # -------------------------------------------------
-        crawl_config = website.get_final_params()
 
         # -------------------------------------------------
         # Create task
@@ -801,14 +886,12 @@ class Task(models.Model):
             action=action,
             uid=str(uuid.uuid4()),
             user=user,
-
+            snapshot=snapshot,
             status=TaskStatus.SCHEDULED,
-
+            taskParameters=Task.build_taskParameters(snapshot),
             priority=priority,
             schedule=schedule,
             scheduleTime=schedule_time,
-
-            taskParameters=crawl_config,
 
             updateTime=timezone.now(),
         )
@@ -842,6 +925,8 @@ class Task(models.Model):
         # -----------------
 
         yaml_config["seeds"] = scope.get("startUrls", [self.snapshot.website.url])
+        if not yaml_config["seeds"]:
+            yaml_config["seeds"] = [self.snapshot.website.url]
         yaml_config["scopeType"] = scope.get("type", "page")
 
         if "maxDepth" in scope:
@@ -949,7 +1034,7 @@ class Task(models.Model):
 
             # warcs
             "warcs": [
-                warc.to_api_dict()
+                warc.build_json_response()
                 for warc in snapshot.warcs.all()
             ],
 
@@ -1087,7 +1172,6 @@ class Warc(models.Model):
             "sha256": self.sha256 or None,
             "created_at": self.created_at.isoformat() if self.created_at else None,
             "path": self.path,
-            "url": self.url,
         }
 
 class GlobalConfig(models.Model):

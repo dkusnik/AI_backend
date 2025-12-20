@@ -1,7 +1,7 @@
 import django_rq
 from django.core.management.base import BaseCommand
 
-from archiver.models import Website
+from archiver.models import Website, WebsiteCrawlParameters
 from archiver.services.crawl_manager import (get_crawl_status,
                                              resolve_job_or_website,
                                              resume_crawl, queue_crawl,
@@ -42,6 +42,10 @@ class Command(BaseCommand):
                         f"Error: '{website_arg}' is not a valid website ID or name"
                     )
                     return
+
+            if not website.website_crawl_parameters:
+                website.website_crawl_parameters = WebsiteCrawlParameters.create()
+                website.save()
 
             # Now website_id is guaranteed to be valid
             job_id = queue_crawl(website_id)
