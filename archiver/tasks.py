@@ -335,17 +335,17 @@ def move_snapshot_to_longterm(snapshot_id: str):
     snapshot.task.send_task_response()
 
 
-def move_snapshot_to_production(snapshot_id: str):
+def move_snapshot_to_production(snapshot_uid: str):
     """
     Use pre-generated CDXJ from Browsertrix, ingest into OutbackCDX,
     move WARCs to production, and register them in DB.
     """
 
-    snapshot = Snapshot.objects.get(pk=snapshot_id)
+    snapshot = Snapshot.objects.get(uid=snapshot_id)
 
     base_path = os.path.join(
         settings.LONGTERM_VOLUME,
-        str(snapshot_id),
+        str(snapshot.id),
     )
 
     src_archive = os.path.join(base_path, "archive")

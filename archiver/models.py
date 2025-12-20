@@ -630,6 +630,12 @@ class Snapshot(models.Model):
     # DELETED = "deleted"
 
     website = models.ForeignKey(Website, on_delete=models.CASCADE, related_name='snapshots')
+    uid = models.UUIDField(
+        primary_key=True,
+        default=uuid.uuid4,
+        editable=False,
+        help_text="Unique delivery UUID (idempotency key)",
+    )
     created_by = models.ForeignKey(User, on_delete=models.SET_NULL, null=True)
     created_at = models.DateTimeField(auto_now_add=True)
     status = models.CharField(max_length=20, choices=STATUS_CHOICES, default=STATUS_PENDING)
@@ -736,7 +742,7 @@ class Snapshot(models.Model):
             return dt.astimezone().isoformat().replace("+00:00", "Z")
 
         return {
-            "id": self.id,
+            "uid": self.uid,
             "websiteId": self.website_id,
             "url": getattr(self.website, "url", None),
             "isDeleted": self.isDeleted,
@@ -846,7 +852,6 @@ class Task(models.Model):
 
         if snapshot:
             data["snapshot"] = snapshot.build_json_response()
-            data["snapshotId"] = snapshot.id
             if snapshot.website:
                 data["website"] = snapshot.website.build_json_response()
                 data["websiteId"] = snapshot.website.id

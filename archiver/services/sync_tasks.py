@@ -5,7 +5,7 @@ from django.utils.dateparse import parse_datetime
 
 from archiver.models import Task, Website, Snapshot, WebsiteCrawlParameters, TaskStatus
 from archiver.auth import get_keycloak_access_token
-from archiver.services.crawl_manager import queue_crawl
+from archiver.services.crawl_manager import queue_crawl, move_snapshot_to_production
 
 
 API_TO_MODEL_FIELD_MAP = {
@@ -83,7 +83,7 @@ def dispatch_task(task: Task) -> None:
         if task.action == "replay_publish":
             queue.enqueue(
                 move_snapshot_to_production,
-                params['snapshotId']
+                params['snapshot']['uid']
             )
 
     # TODO: think if this should be so generic
