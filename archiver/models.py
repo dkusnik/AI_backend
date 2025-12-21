@@ -631,7 +631,6 @@ class Snapshot(models.Model):
 
     website = models.ForeignKey(Website, on_delete=models.CASCADE, related_name='snapshots')
     uid = models.UUIDField(
-        #primary_key=True,
         default=uuid.uuid4,
         editable=False,
         help_text="Unique delivery UUID (idempotency key)",
@@ -742,7 +741,7 @@ class Snapshot(models.Model):
             return dt.astimezone().isoformat().replace("+00:00", "Z")
 
         return {
-            "uid": self.uid,
+            "uid": str(self.uid),
             "websiteId": self.website_id,
             "url": getattr(self.website, "url", None),
             "isDeleted": self.isDeleted,
