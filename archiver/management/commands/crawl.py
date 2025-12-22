@@ -44,7 +44,7 @@ class Command(BaseCommand):
                     return
 
             if not website.website_crawl_parameters:
-                website.website_crawl_parameters = WebsiteCrawlParameters.create()
+                website.website_crawl_parameters = WebsiteCrawlParameters.objects.create()
                 website.save()
 
             # Now website_id is guaranteed to be valid

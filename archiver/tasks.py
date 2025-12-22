@@ -16,7 +16,7 @@ from archiver.stats import (BrowsertrixLogParser, CDXParser,
                             CrawlMetricsCalculator, CrawlStats,
                             get_browsertrix_container_stats)
 
-from archiver.utils import calculate_sha256
+from archiver.utils import calculate_sha256, task_notify
 
 
 redis_conn = django_rq.get_connection("crawls")
@@ -95,6 +95,7 @@ def build_browsertrix_container_args(snapshot: Snapshot, task: Task):
     }
 
 
+@task_notify
 def start_crawl_task(snapshot_uid, task_uid):
     task = Task.objects.get(uid=task_uid)
     snapshot = Snapshot.objects.get(uid=snapshot_uid)
@@ -240,14 +241,12 @@ def start_crawl_task(snapshot_uid, task_uid):
         queue = django_rq.get_queue("management")
         queue.enqueue(
             move_snapshot_to_longterm,
-            snapshot.uid,
-            task.uid
+            snapshot.uid
         )
         if snapshot.auto_update:
             queue.enqueue(
                 move_snapshot_to_production,
-                snapshot.uid,
-                task.uid
+                snapshot.uid
             )
 
     # Return final result
@@ -259,20 +258,13 @@ def start_crawl_task(snapshot_uid, task_uid):
     }
 
 
-def move_snapshot_to_longterm(snapshot_uid: str, task_uid: str = None):
+def move_snapshot_to_longterm(snapshot_uid: str):
     """
     Copy WARCs and CDXJ indexes from production storage
     to long-term archival storage.
     """
 
     snapshot = Snapshot.objects.get(uid=snapshot_uid)
-    task = None
-    if task_uid:
-        task = Task.objects.get(uid=task_uid)
-        task.status = TaskStatus.RUNNING
-        task.startTime = timezone.now() if not task.startTime else task.startTime
-        task.save()
-        task.send_task_response()
 
     src_base = os.path.join(
         settings.BROWSERTIX_VOLUME,
@@ -347,28 +339,13 @@ def move_snapshot_to_longterm(snapshot_uid: str, task_uid: str = None):
     snapshot.item_count = item_count
     snapshot.save()
 
-    if task:
-        task.update_task_params({'snapshot': snapshot.build_json_response()})
-        task.status = TaskStatus.SUCCESS
-        task.finishTime = timezone.now()
-        task.update_task_response()
-        # TODO: TASK bedzie mial chyba tylko 1 snapshot
-        task.send_task_response()
 
-
-def remove_snapshot_from_production(snapshot_uid: str, task_uid: str = None):
+def remove_snapshot_from_production(snapshot_uid: str):
     """
        - remove CDX entries from OutbackCDX
        - remove WARCs from production storage
        """
     snapshot = Snapshot.objects.get(uid=snapshot_uid)
-    task = None
-    if task_uid:
-        task = Task.objects.get(uid=task_uid)
-        task.status = TaskStatus.RUNNING
-        task.startTime = timezone.now() if not task.startTime else task.startTime
-        task.save()
-        task.send_task_response()
 
     # --------------------------------------------------
     # Production paths
@@ -425,30 +402,14 @@ def remove_snapshot_from_production(snapshot_uid: str, task_uid: str = None):
     snapshot.published = False
     snapshot.save(update_fields=["publication_status", "published"])
 
-    # --------------------------------------------------
-    # 4. Notify task
-    # --------------------------------------------------
-    if task:
-        task.status = TaskStatus.SUCCESS
-        task.finishTime = timezone.now()
-        task.update_task_response()
-        task.send_task_response()
 
-
-def move_snapshot_to_production(snapshot_uid: str, task_uid: str = None):
+def move_snapshot_to_production(snapshot_uid: str):
     """
     Use pre-generated CDXJ from Browsertrix, ingest into OutbackCDX,
     move WARCs to production, and register them in DB.
     """
 
     snapshot = Snapshot.objects.get(uid=snapshot_uid)
-    task = None
-    if task_uid:
-        task = Task.objects.get(uid=task_uid)
-        task.status = TaskStatus.RUNNING
-        task.startTime = timezone.now() if not task.startTime else task.startTime
-        task.save()
-        task.send_task_response()
 
     base_path = os.path.join(
         settings.LONGTERM_VOLUME,
@@ -532,32 +493,22 @@ def move_snapshot_to_production(snapshot_uid: str, task_uid: str = None):
     snapshot.published = True
     snapshot.save()
 
-    # TODO: TASK bedzie mial chyba tylko 1 snapshot
-    if task:
-        task.status=TaskStatus.SUCCESS
-        task.finishTime = timezone.now()
-        task.update_task_response()
-        task.send_task_response()
 
-def repopulate_snapshot_to_production(website_id: int, task_uid: str):
-    task = Task.objects.get(uid=task_uid)
-    task.status = TaskStatus.RUNNING
-    task.startTime = timezone.now()
-    task.send_task_response()
-    try:
-        for snapshot in Snapshot.objects.filter(website_id=website_id):
-            remove_snapshot_from_production(snapshot.uid)
-            move_snapshot_to_production(snapshot.uid)
-        task.status = TaskStatus.SUCCESS
-        task.update_task_response()
+@task_notify
+def replay_publish_task(snapshot_uid: str, task_uid: str = None):
+    move_snapshot_to_production(snapshot_uid)
 
-    except Exception as e:
-        task.status = TaskStatus.FAILED
-        task.updateMessage = traceback.format_exc()
 
-    task.finishTime = timezone.now()
-    task.save(update_fields=["status", "updateMessage"])
-    task.send_task_response()
+@task_notify
+def replay_unpublish_task(snapshot_uid: str, task_uid: str = None):
+    remove_snapshot_from_production(snapshot_uid)
+
+
+@task_notify
+def repopulate_snapshot_to_production_task(website_id: int, task_uid: str):
+    for snapshot in Snapshot.objects.filter(website_id=website_id):
+        remove_snapshot_from_production(snapshot.uid)
+        move_snapshot_to_production(snapshot.uid)
 
 
 def trigger_website_cleanup(website_id: int):
@@ -568,26 +519,16 @@ def website_group_run_crawl_task(group_id: int):
     pass
 
 
+@task_notify
 def website_publish_all_task(website_id: int, task_uid: str):
-    task = Task.objects.get(uid=task_uid)
-    task.status = TaskStatus.RUNNING
-    task.startTime = timezone.now()
-    task.send_task_response()
-    try:
-        for snapshot in Snapshot.objects.filter(website_id=website_id):
-            move_snapshot_to_production(snapshot.uid)
-        task.status = TaskStatus.SUCCESS
+    for snapshot in Snapshot.objects.filter(website_id=website_id):
+        move_snapshot_to_production(snapshot.uid)
 
-    except Exception as e:
-        task.status = TaskStatus.FAILED
-        task.updateMessage = traceback.format_exc()
 
-    task.finishTime = timezone.now()
-    task.save(update_fields=["status", "updateMessage", "finishTime"])
-    task.send_task_response()
-
-def website_unpublish_all_task(website_id: int):
-    pass
+@task_notify
+def website_unpublish_all_task(website_id: int, task_uid: str):
+    for snapshot in Snapshot.objects.filter(website_id=website_id):
+        remove_snapshot_from_production(snapshot.uid)
 
 
 def admin_platform_lock_task(*args, **kwargs):

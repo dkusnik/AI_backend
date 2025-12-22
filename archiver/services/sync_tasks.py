@@ -5,7 +5,7 @@ from django.utils.dateparse import parse_datetime
 
 from archiver.models import Task, Website, Snapshot, WebsiteCrawlParameters, TaskStatus
 from archiver.auth import get_keycloak_access_token
-from archiver.services.crawl_manager import queue_crawl, replay_publish, replay_unpublish, website_publish_all
+from archiver.services.crawl_manager import queue_crawl, replay_publish, replay_unpublish, website_publish_all, website_unpublish_all
 
 
 API_TO_MODEL_FIELD_MAP = {
@@ -142,10 +142,10 @@ def handle_crawl_run(task):
     if params.get("crawlConfig", None):
         wp, _ = WebsiteCrawlParameters.create_or_update_from_task_parameters(params['crawlConfig'])
     else:
-        wp = WebsiteCrawlParameters.create()
+        wp = WebsiteCrawlParameters.objects.create()
     website.website_crawl_parameters = wp
-    task.update_task_params({'crawConfigId': wp.id,
-                             'crawConfig': wp.build_json_response()})
+    task.update_task_params({'crawlConfigId': wp.id,
+                             'crawlConfig': wp.build_json_response()})
     task.save()
     queue_crawl(website.id, task)
 

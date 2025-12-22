@@ -20,9 +20,9 @@ from archiver.tasks import (
     website_group_set_crawl_config_task,
     website_group_priority_crawl_task,
     export_zosia_task,
-    move_snapshot_to_production,
-    remove_snapshot_from_production,
-    repopulate_snapshot_to_production
+    repopulate_snapshot_to_production_task,
+    replay_unpublish_task,
+    replay_publish_task
 )
 
 UUID_REGEX = re.compile(r"^[0-9a-fA-F-]{32,36}$")
@@ -222,15 +222,15 @@ def resume_crawl(identifier: str) -> bool:
 # PLATFORM ADMINISTRATION (QUEUE: management)
 # ------------------------
 
-def admin_platform_lock() -> str:
+def admin_platform_lock(task_uid: str = None) -> str:
     queue = django_rq.get_queue("management")
-    job = queue.enqueue(admin_platform_lock_task)
+    job = queue.enqueue(admin_platform_lock_task, task_uid=task_uid)
     return job.id
 
 
-def admin_platform_unlock() -> str:
+def admin_platform_unlock(task_uid: str = None) -> str:
     queue = django_rq.get_queue("management")
-    job = queue.enqueue(admin_platform_unlock_task)
+    job = queue.enqueue(admin_platform_unlock_task, task_uid=task_uid)
     return job.id
 
 
@@ -254,13 +254,13 @@ def crawl_unthrottle() -> str:
 # ------------------------
 def website_publish_all(website_id: int, task_uid: str = None) -> str:
     queue = django_rq.get_queue("management")
-    job = queue.enqueue(website_publish_all_task, website_id), task_uid
+    job = queue.enqueue(website_publish_all_task, website_id=website_id, task_uid=task_uid)
     return job.id
 
 
-def website_unpublish_all(website_id: int) -> str:
+def website_unpublish_all(website_id: int, task_uid: str = None) -> str:
     queue = django_rq.get_queue("management")
-    job = queue.enqueue(website_unpublish_all_task, website_id)
+    job = queue.enqueue(website_unpublish_all_task, website_id=website_id, task_uid=task_uid)
     return job.id
 
 
@@ -268,51 +268,32 @@ def website_unpublish_all(website_id: int) -> str:
 # WEBSITE GROUP OPERATIONS (QUEUE: management)
 # ------------------------
 def website_group_set_schedule(group_id: int, schedule_id: int) -> str:
-    queue = django_rq.get_queue("management")
-    job = queue.enqueue(
-        website_group_set_schedule_task,
-        group_id,
-        schedule_id
-    )
-    return job.id
-
+    pass
 
 def website_group_set_crawl_config(group_id: int, crawl_config_id: int) -> str:
-    queue = django_rq.get_queue("management")
-    job = queue.enqueue(
-        website_group_set_crawl_config_task,
-        group_id,
-        crawl_config_id
-    )
-    return job.id
-
+    pass
 
 def website_group_priority_crawl(group_id: int) -> str:
-    queue = django_rq.get_queue("management")
-    job = queue.enqueue(
-        website_group_priority_crawl_task,
-        group_id
-    )
-    return job.id
-
+    pass
 
 # ------------------------
 # REPLAY OPERATIONS (QUEUE: management)
 # ------------------------
 def replay_publish(snapshot_uid: int, task_uid: str = None) -> str:
     queue = django_rq.get_queue("management")
-    job = queue.enqueue(move_snapshot_to_production, snapshot_uid, task_uid)
+    job = queue.enqueue(replay_publish_task, snapshot_uid=snapshot_uid, task_uid=task_uid)
     return job.id
 
 def replay_unpublish(snapshot_uid: int, task_uid: str = None) -> str:
     queue = django_rq.get_queue("management")
-    job = queue.enqueue(remove_snapshot_from_production, snapshot_uid,task_uid)
+    job = queue.enqueue(replay_unpublish_task, snapshot_uid=snapshot_uid, task_uid=task_uid)
     return job.id
 
 
 def replay_repopulate(website_id: Optional[int] = None, task_uid: str = None) -> str:
     queue = django_rq.get_queue("management")
-    job = queue.enqueue(repopulate_snapshot_to_production, website_id, task_uid)
+    job = queue.enqueue(repopulate_snapshot_to_production_task, website_id=website_id,
+                        task_uid=task_uid)
     return job.id
 
 # ------------------------
@@ -326,7 +307,7 @@ def export_zosia(
     queue = django_rq.get_queue("management")
     job = queue.enqueue(
         export_zosia_task,
-        website_id,
-        schedule
+        website_id=website_id,
+        schedule=schedule
     )
     return job.id

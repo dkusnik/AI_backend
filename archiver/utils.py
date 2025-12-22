@@ -1,5 +1,9 @@
 import hashlib
+import functools
+import traceback
+from django.utils import timezone
 
+from archiver.models import Task, TaskStatus
 
 def parse_pipe_array(request, name):
     v = request.query_params.get(name)
@@ -23,3 +27,61 @@ def calculate_sha256(file_path: str, chunk_size: int = 1024 * 1024) -> str:
             sha256.update(chunk)
 
     return sha256.hexdigest()
+
+
+def task_notify(func):
+    """
+    Decorator for task execution lifecycle:
+    - sets RUNNING + startTime
+    - executes task logic
+    - sets SUCCESS or FAILED
+    - sets finishTime
+    - sends task responses
+    """
+
+    @functools.wraps(func)
+    def wrapper(*args, **kwargs):
+        task_uid = kwargs.get("task_uid")
+
+        if not task_uid:
+            print("NE MA task_uid")
+            return func(*args, **kwargs)
+
+        print("jest task_uid")
+
+        task = Task.objects.get(uid=task_uid)
+
+        # -------------------------
+        # Task start
+        # -------------------------
+        task.status = TaskStatus.RUNNING
+        task.startTime = timezone.now()
+        task.save(update_fields=["status", "startTime"])
+        task.send_task_response()
+
+        try:
+            # -------------------------
+            # Execute wrapped function
+            # -------------------------
+            result = func(*args, **kwargs)
+
+            task.status = TaskStatus.SUCCESS
+            return result
+
+        except Exception:
+            task.status = TaskStatus.FAILED
+            task.updateMessage = traceback.format_exc()
+            raise
+
+        finally:
+            # -------------------------
+            # Task finish (always)
+            # -------------------------
+            task.finishTime = timezone.now()
+            #task.save(
+            #    update_fields=["status", "updateMessage", "finishTime"]
+            #)
+            task.update_task_response()  # To robi save
+            task.send_task_response()
+
+    return wrapper
