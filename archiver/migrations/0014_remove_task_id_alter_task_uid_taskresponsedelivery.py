@@ -16,11 +16,6 @@ class Migration(migrations.Migration):
             model_name='task',
             name='id',
         ),
-        migrations.AlterField(
-            model_name='task',
-            name='uid',
-            field=models.UUIDField(default=uuid.uuid4, primary_key=True, serialize=False),
-        ),
         migrations.CreateModel(
             name='TaskResponseDelivery',
             fields=[
