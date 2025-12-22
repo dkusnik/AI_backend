@@ -815,8 +815,8 @@ class TaskStatus(models.TextChoices):
 
 class Task(models.Model):
     uid = models.CharField(max_length=128)
-    snapshot = models.OneToOneField(Snapshot, on_delete=models.SET_NULL, related_name='task',
-                                    null=True, blank=True)
+    snapshot = models.ForeignKey(Snapshot, on_delete=models.SET_NULL, related_name='task',
+                                 null=True, blank=True)
     action = models.CharField(max_length=64)
     user = models.CharField(max_length=128, null=True, blank=True)
     scheduleTime = models.DateTimeField(null=True, blank=True)

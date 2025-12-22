@@ -134,7 +134,7 @@ def start_crawl_task(snapshot_uid, task_uid):
 
     stats = CrawlStats()
 
-    base_path = Path(settings.BROWSERTIX_VOLUME) / "collections" / str(snapshot_id)
+    base_path = Path(settings.BROWSERTIX_VOLUME) / "collections" / str(snapshot.replay_collection_id)
     log_parser = BrowsertrixLogParser(base_path / "logs")
     cdx_parser = CDXParser(Path(base_path / "warc-cdx"))
     metrics_calc = CrawlMetricsCalculator(stall_threshold_seconds=60)
