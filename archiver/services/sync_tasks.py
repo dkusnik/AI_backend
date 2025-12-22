@@ -270,10 +270,11 @@ def upsert_task_from_api(task_data: dict) -> tuple[Task, bool]:
     # uid must not be duplicated in defaults
     fields.pop("uid", None)
 
-    snapshot = task_data.get('snapshot', None)
+    taskParameters = task_data.get('taskParameters', {})
+    snapshot = taskParameters.get('snapshot', None)
     if snapshot:
         s = Snapshot.objects.filter(uid=snapshot.get('uid')).first()
-        fields[snapshot_id]=s.id
+        fields['snapshot_id']=s.id if s else None
     # TODO: snapshot i website do defaults z id?
     task, _created = Task.objects.get_or_create(
         uid=uid,
