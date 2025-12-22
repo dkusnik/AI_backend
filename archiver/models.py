@@ -838,6 +838,12 @@ class Task(models.Model):
     taskParameters = models.JSONField(null=True, blank=True)
     taskResponse = models.JSONField(null=True, blank=True)
 
+    class Meta:
+        ordering = ["-created_at"]
+        indexes = [
+            models.Index(fields=["uid"]),
+        ]
+
     def __str__(self):
         return f"{self.snapshot or ''}: '{self.uid} - ({self.action} - {self.status})"
 
