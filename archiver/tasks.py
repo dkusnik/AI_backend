@@ -7,6 +7,7 @@ from pathlib import Path
 import django_rq
 import docker
 import requests
+import traceback
 from django.conf import settings
 from django.utils import timezone
 
@@ -552,7 +553,7 @@ def repopulate_snapshot_to_production(website_id: int, task_uid: str):
 
     except Exception as e:
         task.status = TaskStatus.FAILED
-        task.updateMessage = str(s)
+        task.updateMessage = traceback.format_exc()
 
     task.finishTime = timezone.now()
     task.save(update_fields=["status", "updateMessage"])
@@ -579,7 +580,7 @@ def website_publish_all_task(website_id: int, task_uid: str):
 
     except Exception as e:
         task.status = TaskStatus.FAILED
-        task.updateMessage = str(s)
+        task.updateMessage = traceback.format_exc()
 
     task.finishTime = timezone.now()
     task.save(update_fields=["status", "updateMessage", "finishTime"])
