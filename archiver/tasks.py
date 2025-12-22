@@ -121,7 +121,8 @@ def start_crawl_task(snapshot_uid, task_uid):
     snapshot.process_id = container.id
     task.status = TaskStatus.RUNNING
     task.save(update_fields=["status"])
-    snapshot.save(update_fields=["process_id"])
+    snapshot.crawlStartTimestamp = timezone.now()
+    snapshot.save(update_fields=["process_id", "crawlStartTimestamp"])
 
     # -------------------------------
     # Redis control keys
@@ -213,8 +214,9 @@ def start_crawl_task(snapshot_uid, task_uid):
                     "exit_code": exit_code,
                     "container_id": container.id,
                 }
+                snapshot.crawlStopTimestamp = timezone.now()
                 task.save(update_fields=["status", "finishTime", "result"])
-                snapshot.save(update_fields=["status", "result"])
+                snapshot.save(update_fields=["status", "result", "crawlStopTimestamp"])
 
             # SEND Task status
             # TODO: optimize to sent an aggregated status PUT
@@ -298,6 +300,8 @@ def move_snapshot_to_longterm(snapshot_uid: str, task_uid: str = None):
     # --------------------------------
     # Copy WARCs
     # --------------------------------
+    warc_size = 0
+    item_count = 0
     for fname in os.listdir(src_archive):
         if not fname.endswith((".warc", ".warc.gz")):
             continue
@@ -319,7 +323,8 @@ def move_snapshot_to_longterm(snapshot_uid: str, task_uid: str = None):
                 "sha256": calculate_sha256(dst_warc)
             },
         )
-
+        item_count += 1
+        warc_size += stat.st_size
     # --------------------------------
     # Copy CDXJ indexes
     # --------------------------------
@@ -335,6 +340,8 @@ def move_snapshot_to_longterm(snapshot_uid: str, task_uid: str = None):
     # TODO: ten warcPath jest niepotrzebny bo i tak lista warcow ma pelne patche
     snapshot.warc_path=src_archive
     snapshot.publication_status = snapshot.PUBLICATION_INTERNAL
+    snapshot.size = warc_size
+    snapshot.item_count = item_count
     snapshot.save()
 
     if task:
