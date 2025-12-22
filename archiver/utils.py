@@ -78,10 +78,11 @@ def task_notify(func):
             # Task finish (always)
             # -------------------------
             task.finishTime = timezone.now()
-            #task.save(
-            #    update_fields=["status", "updateMessage", "finishTime"]
-            #)
-            task.update_task_response()  # To robi save
+            task.save(
+                update_fields=["status", "updateMessage", "finishTime"]
+            )
+            if task.action in ('replay_publish', 'replay_unpublish', 'crawl_run'):
+                task.update_task_response()  # To robi save
             task.send_task_response()
 
     return wrapper

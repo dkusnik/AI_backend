@@ -110,7 +110,7 @@ def queue_crawl(website_id: int, task: Task = None, queue_name: str = "crawls") 
         )
     else:
         task.update_task_params({'snapshot_id': snapshot.id,
-                             'snapshot': snapshot.build_json_response()})
+                                 'snapshot': snapshot.build_json_response()})
         task.snapshot = snapshot
     task.save()
 
