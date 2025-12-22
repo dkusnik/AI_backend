@@ -273,11 +273,11 @@ def upsert_task_from_api(task_data: dict) -> tuple[Task, bool]:
     snapshot = task_data.get('snapshot')
     website = task_data.get('website')
 
+    # TODO: snapshot i website do defaults z id?
     task, _created = Task.objects.get_or_create(
         uid=uid,
         defaults=fields,
         snapshot=Snapshot.objects.filter(uid=snapshot.get('uid')).first() if snapshot else None,
-        website=Website.objects.filter(id=website.get('id')).first() if website else None,
     )
 
     return (task, _created)
