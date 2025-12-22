@@ -633,6 +633,7 @@ class Snapshot(models.Model):
     uid = models.UUIDField(
         default=uuid.uuid4,
         editable=False,
+        unique=True,
         help_text="Unique delivery UUID (idempotency key)",
     )
     created_by = models.ForeignKey(User, on_delete=models.SET_NULL, null=True)
