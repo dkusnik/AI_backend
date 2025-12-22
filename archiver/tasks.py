@@ -236,13 +236,14 @@ def start_crawl_task(snapshot_uid, task_uid):
         queue = django_rq.get_queue("management")
         queue.enqueue(
             move_snapshot_to_longterm,
-            snapshot.id,
+            snapshot.uid,
             task.uid
         )
         if snapshot.auto_update:
             queue.enqueue(
                 move_snapshot_to_production,
-                snapshot.id
+                snapshot.uid,
+                task.uid
             )
 
     # Return final result
