@@ -346,6 +346,7 @@ def move_snapshot_to_longterm(snapshot_uid: str, task_uid: str = None):
 
     if task:
         task.update_task_params({'snapshot': snapshot.build_json_response()})
+        task.status = TaskStatus.SUCCESS
         task.update_task_response()
         # TODO: TASK bedzie mial chyba tylko 1 snapshot
         task.send_task_response()
