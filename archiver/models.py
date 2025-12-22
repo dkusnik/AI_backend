@@ -1097,9 +1097,6 @@ class Task(models.Model):
         Stores every delivery attempt.
         """
 
-        if not self.taskResponse:
-            raise ValueError("Task.taskResponse is empty – nothing to send")
-
         payload = [self._build_task_api_payload()]
         delivery = TaskResponseDelivery.objects.create(
             task=self,
