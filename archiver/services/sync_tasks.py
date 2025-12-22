@@ -195,13 +195,13 @@ def handle_website_group_priority_crawl(task):
 def handle_replay_publish(task):
     """Publish a single replay/WARC."""
     params = task.taskParameters
-    replay_publish(params['snapshot']['uid'])
+    replay_publish(params['snapshot']['uid'], task.uid)
 
 
 def handle_replay_unpublish(task):
     """Unpublish a single replay/WARC."""
     params = task.taskParameters
-    replay_unpublish(params['snapshot']['uid'])
+    replay_unpublish(params['snapshot']['uid'], task.uid)
 
 
 def handle_replay_repopulate(task):

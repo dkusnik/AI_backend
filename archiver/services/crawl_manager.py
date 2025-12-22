@@ -21,7 +21,8 @@ from archiver.tasks import (
     website_group_priority_crawl_task,
     export_zosia_task,
     move_snapshot_to_production,
-    remove_snapshot_from_production
+    remove_snapshot_from_production,
+    repopulate_snapshot_to_production
 )
 
 UUID_REGEX = re.compile(r"^[0-9a-fA-F-]{32,36}$")
@@ -298,20 +299,20 @@ def website_group_priority_crawl(group_id: int) -> str:
 # ------------------------
 # REPLAY OPERATIONS (QUEUE: management)
 # ------------------------
-def replay_publish(snapshot_uid: int) -> str:
+def replay_publish(snapshot_uid: int, task_uid: str = None) -> str:
     queue = django_rq.get_queue("management")
-    job = queue.enqueue(move_snapshot_to_production, snapshot_uid)
+    job = queue.enqueue(move_snapshot_to_production, snapshot_uid, task_uid)
     return job.id
 
-def replay_unpublish(snapshot_uid: int) -> str:
+def replay_unpublish(snapshot_uid: int, task_uid: str = None) -> str:
     queue = django_rq.get_queue("management")
-    job = queue.enqueue(remove_snapshot_from_production, snapshot_uid)
+    job = queue.enqueue(remove_snapshot_from_production, snapshot_uid,task_uid)
     return job.id
 
 
-def replay_repopulate(website_id: Optional[int] = None) -> str:
+def replay_repopulate(website_id: Optional[int] = None, task_uid: str = None) -> str:
     queue = django_rq.get_queue("management")
-    job = queue.enqueue(replay_repopulate_task, website_id)
+    job = queue.enqueue(repopulate_snapshot_to_production, website_id, task_uid)
     return job.id
 
 # ------------------------

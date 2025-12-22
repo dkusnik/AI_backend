@@ -336,18 +336,19 @@ def move_snapshot_to_longterm(snapshot_id: str):
     snapshot.task.send_task_response()
 
 
-def remove_snapshot_from_production(snapshot_uid: str):
+def remove_snapshot_from_production(snapshot_uid: str, task_uid: str = None):
     """
        - remove CDX entries from OutbackCDX
        - remove WARCs from production storage
        """
+    snapshot = Snapshot.objects.get(uid=snapshot_uid)
+    task = None
+    if task_uid:
+        task = Task.objects.get(uid=task_uid)
+        task.status = TaskStatus.RUNNING
+        task.save()
+        task.send_task_response()
 
-    snapshot = (
-        Snapshot.objects
-        .select_related()  # safe even if no FK on Snapshot
-        .prefetch_related("task")
-        .get(uid=snapshot_uid)
-    )
     # --------------------------------------------------
     # Production paths
     # --------------------------------------------------
@@ -406,25 +407,24 @@ def remove_snapshot_from_production(snapshot_uid: str):
     # --------------------------------------------------
     # 4. Notify task
     # --------------------------------------------------
-    if snapshot.task:
-        snapshot.task.update_task_response()
-        snapshot.task.send_task_response()
+    if task:
+        task.update_task_response()
+        task.send_task_response()
 
 
-def move_snapshot_to_production(snapshot_uid: str):
+def move_snapshot_to_production(snapshot_uid: str, task_uid: str = None):
     """
     Use pre-generated CDXJ from Browsertrix, ingest into OutbackCDX,
     move WARCs to production, and register them in DB.
     """
 
-    snapshot = (
-        Snapshot.objects
-        .select_related()  # safe even if no FK on Snapshot
-        .prefetch_related("task")
-        .get(uid=snapshot_uid)
-    )
-    snapshot.task.status = TaskStatus.RUNNING
-    snapshot.task.send_task_response()
+    snapshot = Snapshot.objects.get(uid=snapshot_uid)
+    task = None
+    if task_uid:
+        task = Task.objects.get(uid=task_uid)
+        task.status = TaskStatus.RUNNING
+        task.save()
+        task.send_task_response()
 
     base_path = os.path.join(
         settings.LONGTERM_VOLUME,
@@ -509,8 +509,14 @@ def move_snapshot_to_production(snapshot_uid: str):
     snapshot.save()
 
     # TODO: TASK bedzie mial chyba tylko 1 snapshot
-    snapshot.task.update_task_response()
-    snapshot.task.send_task_response()
+    if task:
+        task.update_task_response()
+        task.send_task_response()
+
+def repopulate_snapshot_to_production(website_id: int, task_uid: str):
+    for snapshot in Snapshot.objects.filter(website_id=website_id):
+        remove_snapshot_from_production(snapshot.uid, task_uid)
+        move_snapshot_to_production(snapshot.uid, task_uid)
 
 
 def trigger_website_cleanup(website_id: int):
