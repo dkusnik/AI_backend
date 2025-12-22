@@ -5,7 +5,7 @@ from django.utils.dateparse import parse_datetime
 
 from archiver.models import Task, Website, Snapshot, WebsiteCrawlParameters, TaskStatus
 from archiver.auth import get_keycloak_access_token
-from archiver.services.crawl_manager import queue_crawl, replay_publish, replay_unpublish, website_publish_all_task
+from archiver.services.crawl_manager import queue_crawl, replay_publish, replay_unpublish, website_publish_all
 
 
 API_TO_MODEL_FIELD_MAP = {
@@ -166,7 +166,7 @@ def handle_crawl_stop(task):
 def handle_website_publish_all(task):
     """Publish all snapshots of a website and enable auto-publish."""
     website_id = task.taskParameters['websiteId']
-    website_publish_all_task(website_id, task.uid)
+    website_publish_all(website_id, task.uid)
 
 
 def handle_website_unpublish_all(task):
