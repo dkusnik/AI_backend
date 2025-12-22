@@ -120,7 +120,8 @@ def start_crawl_task(snapshot_uid, task_uid):
     # store container id (NOT PID)
     snapshot.process_id = container.id
     task.status = TaskStatus.RUNNING
-    task.save(update_fields=["status"])
+    task.startTime = timezone.now()
+    task.save(update_fields=["status", "startTime"])
     snapshot.crawlStartTimestamp = timezone.now()
     snapshot.save(update_fields=["process_id", "crawlStartTimestamp"])
 
@@ -268,6 +269,7 @@ def move_snapshot_to_longterm(snapshot_uid: str, task_uid: str = None):
     if task_uid:
         task = Task.objects.get(uid=task_uid)
         task.status = TaskStatus.RUNNING
+        task.startTime = timezone.now() if not task.startTime else task.startTime
         task.save()
         task.send_task_response()
 
@@ -347,6 +349,7 @@ def move_snapshot_to_longterm(snapshot_uid: str, task_uid: str = None):
     if task:
         task.update_task_params({'snapshot': snapshot.build_json_response()})
         task.status = TaskStatus.SUCCESS
+        task.finishTime = timezone.now()
         task.update_task_response()
         # TODO: TASK bedzie mial chyba tylko 1 snapshot
         task.send_task_response()
@@ -362,6 +365,7 @@ def remove_snapshot_from_production(snapshot_uid: str, task_uid: str = None):
     if task_uid:
         task = Task.objects.get(uid=task_uid)
         task.status = TaskStatus.RUNNING
+        task.startTime = timezone.now() if not task.startTime else task.startTime
         task.save()
         task.send_task_response()
 
@@ -424,6 +428,8 @@ def remove_snapshot_from_production(snapshot_uid: str, task_uid: str = None):
     # 4. Notify task
     # --------------------------------------------------
     if task:
+        task.status = TaskStatus.SUCCESS
+        task.finishTime = timezone.now()
         task.update_task_response()
         task.send_task_response()
 
@@ -439,6 +445,7 @@ def move_snapshot_to_production(snapshot_uid: str, task_uid: str = None):
     if task_uid:
         task = Task.objects.get(uid=task_uid)
         task.status = TaskStatus.RUNNING
+        task.startTime = timezone.now() if not task.startTime else task.startTime
         task.save()
         task.send_task_response()
 
@@ -526,12 +533,15 @@ def move_snapshot_to_production(snapshot_uid: str, task_uid: str = None):
 
     # TODO: TASK bedzie mial chyba tylko 1 snapshot
     if task:
+        task.status=TaskStatus.SUCCESS
+        task.finishTime = timezone.now()
         task.update_task_response()
         task.send_task_response()
 
 def repopulate_snapshot_to_production(website_id: int, task_uid: str):
     task = Task.objects.get(uid=task_uid)
     task.status = TaskStatus.RUNNING
+    task.startTime = timezone.now()
     task.send_task_response()
     try:
         for snapshot in Snapshot.objects.filter(website_id=website_id):
@@ -544,6 +554,7 @@ def repopulate_snapshot_to_production(website_id: int, task_uid: str):
         task.status = TaskStatus.FAILED
         task.updateMessage = str(s)
 
+    task.finishTime = timezone.now()
     task.save(update_fields=["status", "updateMessage"])
     task.send_task_response()
 
@@ -559,6 +570,7 @@ def website_group_run_crawl_task(group_id: int):
 def website_publish_all_task(website_id: int, task_uid: str):
     task = Task.objects.get(uid=task_uid)
     task.status = TaskStatus.RUNNING
+    task.startTime = timezone.now()
     task.send_task_response()
     try:
         for snapshot in Snapshot.objects.filter(website_id=website_id):
@@ -569,7 +581,8 @@ def website_publish_all_task(website_id: int, task_uid: str):
         task.status = TaskStatus.FAILED
         task.updateMessage = str(s)
 
-    task.save(update_fields=["status", "updateMessage"])
+    task.finishTime = timezone.now()
+    task.save(update_fields=["status", "updateMessage", "finishTime"])
     task.send_task_response()
 
 def website_unpublish_all_task(website_id: int):
