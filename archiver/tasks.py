@@ -238,16 +238,9 @@ def start_crawl_task(snapshot_uid, task_uid):
 
     # TODO: check if snapshot is okay
     if snapshot.status == Snapshot.STATUS_COMPLETED:
-        queue = django_rq.get_queue("management")
-        queue.enqueue(
-            move_snapshot_to_longterm,
-            snapshot.uid
-        )
+        move_snapshot_to_longterm(snapshot.uid)
         if snapshot.auto_update:
-            queue.enqueue(
-                move_snapshot_to_production,
-                snapshot.uid
-            )
+            move_snapshot_to_production(snapshot.uid)
 
     # Return final result
     return {
@@ -330,7 +323,7 @@ def move_snapshot_to_longterm(snapshot_uid: str):
         src = os.path.join(src_indexes, fname)
         dst = os.path.join(dst_indexes, fname)
 
-        shutil.copy2(src_warc, dst_warc)
+        shutil.copy2(src, dst)
 
     # TODO: ten warcPath jest niepotrzebny bo i tak lista warcow ma pelne patche
     snapshot.warc_path=src_archive
