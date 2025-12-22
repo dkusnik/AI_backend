@@ -52,21 +52,21 @@ def update_snapshot_process_stats(container, snapshot_id: int) -> dict:
     return stats
 
 
-def build_browsertrix_container_args(snapshot_id: int, task: Task):
+def build_browsertrix_container_args(snapshot: Snapshot, task: Task):
     """
     Build Docker SDK args for Browsertrix crawler using --config.
     """
 
     config_path = task.build_browsertrix_yaml_config(
-        snapshot_id=snapshot_id,
+        replay_collection_id=snapshot.replay_collection_id,
     )
 
     command = [
         "crawl",
         "--config", f"/crawls/configs/{config_path.name}",
-        "--collection", str(snapshot_id),
+        "--collection", str(snapshot.replay_collection_id),
         "--generateCDX",
-        "--combineWARC"
+        # "--combineWARC" # TODO: rethink if this is needed
     ]
 
     return {
@@ -85,17 +85,17 @@ def build_browsertrix_container_args(snapshot_id: int, task: Task):
             }
         },
 
-        "name": f"crawl_{snapshot_id}",
+        "name": f"crawl_{snapshot.replay_collection_id}",
 
         "labels": {
             "app": "browsertrix",
-            "snapshot_id": str(snapshot_id),
+            "snapshot_id": str(snapshot.replay_collection_id),
         },
     }
 
 
-def start_crawl_task(task_id, snapshot_id):
-    task = Task.objects.get(id=task_id)
+def start_crawl_task(task_uid, snapshot_id):
+    task = Task.objects.get(uid=task_uid)
     snapshot = Snapshot.objects.get(id=snapshot_id)
     # -------------------------------
     # Mark job as running
@@ -105,6 +105,7 @@ def start_crawl_task(task_id, snapshot_id):
     snapshot.machine = getattr(
         settings, "CRAWL_MACHINE_NAME", "docker"
     )
+    snapshot.replay_collection_id = snapshot_id
     snapshot.save(update_fields=["status", "machine"])
 
     # -------------------------------
@@ -112,7 +113,7 @@ def start_crawl_task(task_id, snapshot_id):
     # -------------------------------
     client = docker.from_env()
     container_args = build_browsertrix_container_args(
-        snapshot_id, task
+        snapshot, task
     )
     container = client.containers.run(**container_args)
 
@@ -263,7 +264,7 @@ def move_snapshot_to_longterm(snapshot_id: str):
     src_base = os.path.join(
         settings.BROWSERTIX_VOLUME,
         "collections",
-        str(snapshot_id),
+        str(snapshot.replay_collection_id),
     )
 
     src_archive = os.path.join(src_base, "archive")
@@ -323,9 +324,9 @@ def move_snapshot_to_longterm(snapshot_id: str):
 
         shutil.copy2(src_warc, dst_warc)
 
-    # TODO: ten warcPath jest neipotrzebny bo i tak lista warcow ma pelne patche
-    snapshot.warcPath=src_archive
-    snapshot.publicationStatus = snapshot.PUBLICATION_INTERNAL
+    # TODO: ten warcPath jest niepotrzebny bo i tak lista warcow ma pelne patche
+    snapshot.warc_path=src_archive
+    snapshot.publication_status = snapshot.PUBLICATION_INTERNAL
     snapshot.save()
 
     snapshot.task.update_task_params({'snapshot': snapshot.build_json_response()})
@@ -335,17 +336,99 @@ def move_snapshot_to_longterm(snapshot_id: str):
     snapshot.task.send_task_response()
 
 
+def remove_snapshot_from_production(snapshot_uid: str):
+    """
+       - remove CDX entries from OutbackCDX
+       - remove WARCs from production storage
+       """
+
+    snapshot = (
+        Snapshot.objects
+        .select_related()  # safe even if no FK on Snapshot
+        .prefetch_related("task")
+        .get(uid=snapshot_uid)
+    )
+    # --------------------------------------------------
+    # Production paths
+    # --------------------------------------------------
+    dst_archive = os.path.join(
+        settings.PRODUCTION_VOLUME,
+        "default",
+        "archive",
+    )
+    src_indexes = os.path.join(
+        settings.LONGTERM_VOLUME,
+        str(snapshot.replay_collection_id),
+        "indexes",
+    )
+
+    # --------------------------------------------------
+    # OutbackCDX endpoint (per snapshot)
+    # --------------------------------------------------
+    outbackcdx_url = settings.OUTBACKCDX_URL.rstrip("/")
+    delete_endpoint = f"{outbackcdx_url}/default/delete"
+
+    for fname in sorted(os.listdir(src_indexes)):
+        if not fname.endswith(".cdxj"):
+            continue
+
+        cdxj_path = os.path.join(src_indexes, fname)
+
+        with open(cdxj_path, "rb") as fh:
+            r = requests.post(
+                delete_endpoint,
+                data=fh,
+                headers={"Content-Type": "text/plain"},
+                timeout=120,
+            )
+
+        if r.status_code != 200:
+            raise RuntimeError(
+                f"OutbackCDX delete failed for {fname}: "
+                f"{r.status_code} {r.text}"
+            )
+
+    # --------------------------------------------------
+    # 2. Remove WARCs from production
+    # --------------------------------------------------
+    for warc in snapshot.warcs.objects.filter(is_production=True):
+        if warc.path and os.path.exists(warc.path):
+            os.remove(warc.path)
+
+
+    # --------------------------------------------------
+    # 3. Update DB state
+    # --------------------------------------------------
+    snapshot.publication_status = Snapshot.PUBLICATION_INTERNAL
+    snapshot.published = False
+    snapshot.save(update_fields=["publication_status", "published"])
+
+    # --------------------------------------------------
+    # 4. Notify task
+    # --------------------------------------------------
+    if snapshot.task:
+        snapshot.task.update_task_response()
+        snapshot.task.send_task_response()
+
+
 def move_snapshot_to_production(snapshot_uid: str):
     """
     Use pre-generated CDXJ from Browsertrix, ingest into OutbackCDX,
     move WARCs to production, and register them in DB.
     """
 
-    snapshot = Snapshot.objects.get(uid=snapshot_id)
+    snapshot = (
+        Snapshot.objects
+        .select_related()  # safe even if no FK on Snapshot
+        .prefetch_related("task")
+        .get(uid=snapshot_uid)
+    )
+    snapshot.task.status = TaskStatus.RUNNING
+    snapshot.task.send_task_response()
 
     base_path = os.path.join(
         settings.LONGTERM_VOLUME,
-        str(snapshot.id),
+        str(snapshot.replay_collection_id),
     )
 
     src_archive = os.path.join(base_path, "archive")
@@ -360,14 +443,14 @@ def move_snapshot_to_production(snapshot_uid: str):
     # Production target
     dst_archive = os.path.join(
         settings.PRODUCTION_VOLUME,
-        str(snapshot_id),
+        "default",
         "archive",
     )
     os.makedirs(dst_archive, exist_ok=True)
 
     # OutbackCDX endpoint (index per snapshot)
     outbackcdx_url = settings.OUTBACKCDX_URL.rstrip("/")
-    cdx_endpoint = f"{outbackcdx_url}/{snapshot_id}?badLines=skip"
+    cdx_endpoint = f"{outbackcdx_url}/default"
 
     # --------------------------------------------------
     # 1. Load CDXJ into OutbackCDX (per file)
@@ -415,17 +498,19 @@ def move_snapshot_to_production(snapshot_uid: str):
                 "size_bytes": stat.st_size,
                 "sha256": calculate_sha256(dst_warc),
                 "created_at": datetime.fromtimestamp(stat.st_mtime),
+                "is_production": True,
             },
         )
         warc_list.append(dst_warc)
 
-        # TODO: jak z lista warcow
-        snapshot.publicationStatus = snapshot.PUBLICATION_PUBLIC
-        snapshot.published = True
-        snapshot.save()
+    # TODO: jak z lista warcow
+    snapshot.publication_status = snapshot.PUBLICATION_PUBLIC
+    snapshot.published = True
+    snapshot.save()
 
-        # TODO: TASK bedzie mial chyba tylko 1 snapshot
-        snapshot.task.send_task_response()
+    # TODO: TASK bedzie mial chyba tylko 1 snapshot
+    snapshot.task.update_task_response()
+    snapshot.task.send_task_response()
 
 
 def trigger_website_cleanup(website_id: int):

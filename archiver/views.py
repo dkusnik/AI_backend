@@ -56,8 +56,12 @@ def dummy_put_collector(request):
     Dummy endpoint to collect PUT requests and log payload.
     """
     logger = logging.getLogger("dummy.put.collector")
+    if request.method == "GET":
+        return JsonResponse({}, status=200)
+
     if request.method != "PUT":
         return HttpResponseNotAllowed(["PUT"])
+
 
     try:
         body = json.loads(request.body.decode("utf-8"))

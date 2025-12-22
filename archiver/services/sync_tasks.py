@@ -5,7 +5,7 @@ from django.utils.dateparse import parse_datetime
 
 from archiver.models import Task, Website, Snapshot, WebsiteCrawlParameters, TaskStatus
 from archiver.auth import get_keycloak_access_token
-from archiver.services.crawl_manager import queue_crawl, move_snapshot_to_production
+from archiver.services.crawl_manager import queue_crawl, replay_publish, replay_unpublish
 
 
 API_TO_MODEL_FIELD_MAP = {
@@ -30,7 +30,7 @@ API_TO_MODEL_FIELD_MAP = {
 
 def dispatch_task(task: Task) -> None:
     """
-            Defined task actions:
+    Defined task actions:
 
         Platform administration:
 
@@ -66,33 +66,156 @@ def dispatch_task(task: Task) -> None:
         - website + id - OK
         - schedule + id - TODO
     """
+    ACTION_HANDLERS = {
+        # Platform
+        "admin_platform_lock": handle_admin_platform_lock,
+        "admin_platform_unlock": handle_admin_platform_unlock,
+
+        # Crawl management
+        "crawl_throttle": handle_crawl_throttle,
+        "crawl_unthrottle": handle_crawl_unthrottle,
+        "crawl_run": handle_crawl_run,
+        "crawl_suspend": handle_crawl_suspend,
+        "crawl_stop": handle_crawl_stop,
+
+        # Website
+        "website_publish_all": handle_website_publish_all,
+        "website_unpublish_all": handle_website_unpublish_all,
+
+        # Website group
+        "website_group_set_schedule": handle_website_group_set_schedule,
+        "website_group_set_crawl_config": handle_website_group_set_crawl_config,
+        "website_group_priority_crawl": handle_website_group_priority_crawl,
+
+        # Replay
+        "replay_publish": handle_replay_publish,
+        "replay_unpublish": handle_replay_unpublish,
+        "replay_repopulate": handle_replay_repopulate,
+
+        # Export
+        "export_zosia": handle_export_zosia,
+    }
+
     try:
-        params = task.taskParameters
-        if task.action == "crawl_run":
-            website = Website.create_from_task_parameters(params)
-            if params.get("crawlConfig", None):
-                wp, _ = WebsiteCrawlParameters.create_or_update_from_task_parameters(params['crawlConfig'])
-            else:
-                wp = WebsiteCrawlParameters.create()
-            website.website_crawl_parameters = wp
-            task.update_task_params({'crawConfigId': wp.id,
-                                     'crawConfig': wp.build_json_response()})
-            task.save()
-            queue_crawl(website.id, task)
-
-        if task.action == "replay_publish":
-            queue.enqueue(
-                move_snapshot_to_production,
-                params['snapshot']['uid']
-            )
-
-    # TODO: think if this should be so generic
-    # except (KeyError, TypeError, ValueError, json.JSONDecodeError) as e:
+        ACTION_HANDLERS[task.action](task)
+        # except KeyError:
+        #    raise ValueError(f"Unsupported task action: {task.action}")
+        # TODO: rethink if this should be so generic
+        # except (KeyError, TypeError, ValueError, json.JSONDecodeError) as e:
     except (Exception) as e:
-        task.status = TaskStatus.CANCELLED
-        task.taskResponse = str(e)
+        task.status = TaskStatus.FAILED
+        task.updateMessage = str(e)
         task.save()
         task.send_task_response()
+
+
+# =================================================
+# Platform administration
+# =================================================
+def handle_admin_platform_lock(task):
+    """Force scheduled maintenance landing page."""
+    pass
+
+
+def handle_admin_platform_unlock(task):
+    """Disable maintenance landing page."""
+    pass
+
+
+# =================================================
+# Crawl management
+# =================================================
+def handle_crawl_throttle(task):
+    """Disable crawl scheduling; allow running crawls to finish."""
+    pass
+
+
+def handle_crawl_unthrottle(task):
+    """Re-enable crawl scheduling."""
+    pass
+
+
+def handle_crawl_run(task):
+    """Start crawl for a specific website."""
+    params = task.taskParameters
+    website = Website.create_from_task_parameters(params)
+    if params.get("crawlConfig", None):
+        wp, _ = WebsiteCrawlParameters.create_or_update_from_task_parameters(params['crawlConfig'])
+    else:
+        wp = WebsiteCrawlParameters.create()
+    website.website_crawl_parameters = wp
+    task.update_task_params({'crawConfigId': wp.id,
+                             'crawConfig': wp.build_json_response()})
+    task.save()
+    queue_crawl(website.id, task)
+
+
+def handle_crawl_suspend(task):
+    """Suspend crawl execution for a website or snapshot."""
+    pass
+
+
+def handle_crawl_stop(task):
+    """Force-stop an ongoing crawl."""
+    pass
+
+
+# =================================================
+# Website operations
+# =================================================
+def handle_website_publish_all(task):
+    """Publish all snapshots of a website and enable auto-publish."""
+    pass
+
+
+def handle_website_unpublish_all(task):
+    """Unpublish all snapshots of a website and disable auto-publish."""
+    pass
+
+
+# =================================================
+# Website group operations
+# =================================================
+def handle_website_group_set_schedule(task):
+    """Apply schedule config to all websites in a group."""
+    pass
+
+def handle_website_group_set_crawl_config(task):
+    """Apply crawl config to all websites in a group."""
+    pass
+
+def handle_website_group_priority_crawl(task):
+    """Mark all websites in a group for priority crawl."""
+    pass
+
+
+# =================================================
+# Replay operations
+# =================================================
+def handle_replay_publish(task):
+    """Publish a single replay/WARC."""
+    params = task.taskParameters
+    replay_publish(params['snapshot']['uid'])
+
+
+def handle_replay_unpublish(task):
+    """Unpublish a single replay/WARC."""
+    params = task.taskParameters
+    replay_unpublish(params['snapshot']['uid'])
+
+
+def handle_replay_repopulate(task):
+    """Recreate replay collections in batch."""
+    pass
+
+
+# =================================================
+# Export
+# =================================================
+def handle_export_zosia(task):
+    """Trigger or schedule ZoSIA export."""
+    pass
+
 
 
 def fetch_tasks_from_api(start=0, limit=50, where_status=None):

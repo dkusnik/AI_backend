@@ -648,15 +648,15 @@ class Snapshot(models.Model):
     rq_job_id = models.CharField(max_length=255, null=True, blank=True)
 
     isDeleted = models.BooleanField(default=False)
-    publicationStatus = models.CharField(max_length=32, choices=STATUS_PUBLICATION, null=True, blank=True)
+    publication_status = models.CharField(max_length=32, choices=STATUS_PUBLICATION, null=True, blank=True)
 
     crawlStartTimestamp = models.DateTimeField(null=True, blank=True)
     crawlStopTimestamp = models.DateTimeField(null=True, blank=True)
 
     size = models.BigIntegerField(null=True, blank=True)
-    itemCount = models.BigIntegerField(null=True, blank=True)
-    warcPath = models.CharField(max_length=512, blank=True, null=True)
-    replayCollectionId = models.CharField(max_length=255, blank=True, null=True)
+    item_count = models.BigIntegerField(null=True, blank=True)
+    warc_path = models.CharField(max_length=512, blank=True, null=True)
+    replay_collection_id = models.CharField(max_length=255, blank=True, null=True)
 
     process_id = models.CharField(max_length=64, null=True, blank=True)
     process_stats = models.JSONField(
@@ -749,15 +749,15 @@ class Snapshot(models.Model):
             # Map internal status → API status
             "status": self.status,
 
-            "publicationStatus": self.publicationStatus or "none",
+            "publicationStatus": self.publication_status or "none",
 
             "crawlStartTimestamp": iso(self.crawlStartTimestamp),
             "crawlStopTimestamp": iso(self.crawlStopTimestamp),
 
             "size": self.size,
-            "itemCount": self.itemCount,
-            "warcPath": self.warcPath,
-            "replayCollectionId": self.replayCollectionId,
+            "itemCount": self.item_count,
+            "warcPath": self.warc_path,
+            "replayCollectionId": self.replay_collection_id,
 
             # Optional / future-safe
             "metadataArchival": {
@@ -805,30 +805,31 @@ class ScheduleConfig(models.Model):
 # --------------------------------------------------------------------
 
 class TaskStatus(models.TextChoices):
-    CREATED = "created"
     SCHEDULED = "scheduled"
     CANCELLED = "cancelled"
     RUNNING = "running"
+    PAUSED= "paused"
     SUCCESS = "success"
     FAILED = "failed"
-    PAUSED = "paused"
 
 
 class Task(models.Model):
+    uid = models.UUIDField(primary_key=True, default=uuid.uuid4)
     snapshot = models.OneToOneField(Snapshot, on_delete=models.SET_NULL, related_name='task',
                                     null=True, blank=True)
     action = models.CharField(max_length=64)
-    uid = models.CharField(max_length=128, unique=True)
     user = models.CharField(max_length=128, null=True, blank=True)
     scheduleTime = models.DateTimeField(null=True, blank=True)
-    startTime = models.DateTimeField(auto_now_add=True)
+    startTime = models.DateTimeField(null=True, blank=True)
     updateTime = models.DateTimeField(auto_now=True)
     updateMessage = models.TextField(blank=True, null=True)
     finishTime = models.DateTimeField(null=True, blank=True)
-    status = models.CharField(max_length=32, choices=TaskStatus.choices)
+    status = models.CharField(max_length=32, choices=TaskStatus.choices, default=TaskStatus.SCHEDULED)
     result = models.TextField(blank=True, null=True)
     resultDescription = models.TextField(blank=True, null=True)
     runData = models.TextField(blank=True, null=True)
+    created_at = models.DateTimeField(auto_now_add=True)
+
 
     priority = models.CharField(max_length=32, default="normal")
     schedule = models.CharField(max_length=64, blank=True, null=True)
@@ -838,7 +839,7 @@ class Task(models.Model):
     taskResponse = models.JSONField(null=True, blank=True)
 
     def __str__(self):
-        return f"{self.id} - {self.uid} ({self.action} - {self.status})"
+        return f"{self.snapshot or ''}: '{self.uid} - ({self.action} - {self.status})"
 
     @classmethod
     def build_taskParameters(cls, snapshot) -> dict:
@@ -888,7 +889,7 @@ class Task(models.Model):
         # -------------------------------------------------
         task = cls.objects.create(
             action=action,
-            uid=str(uuid.uuid4()),
+            #uid=str(uuid.uuid4()),
             user=user,
             snapshot=snapshot,
             status=TaskStatus.SCHEDULED,
@@ -896,13 +897,12 @@ class Task(models.Model):
             priority=priority,
             schedule=schedule,
             scheduleTime=schedule_time,
-
             updateTime=timezone.now(),
         )
 
         return task
 
-    def build_browsertrix_yaml_config(self, snapshot_id: int) -> Path:
+    def build_browsertrix_yaml_config(self, replay_collection_id: int) -> Path:
         """
         Write Browsertrix YAML config compatible with `browsertrix-crawler crawl --config`.
         """
@@ -1004,7 +1004,7 @@ class Task(models.Model):
         # Output & indexing
         # -----------------
         yaml_config["generateCDX"] = True
-        yaml_config["collection"] = str(snapshot_id)
+        yaml_config["collection"] = str(replay_collection_id)
         yaml_config["cwd"] = "/crawls"
 
         # -----------------
@@ -1013,7 +1013,7 @@ class Task(models.Model):
         config_dir = Path(settings.BROWSERTIX_VOLUME) / "configs"
         config_dir.mkdir(parents=True, exist_ok=True)
 
-        path = config_dir / f"browsertrix_{snapshot_id}.yaml"
+        path = config_dir / f"browsertrix_{replay_collection_id}.yaml"
         path.write_text(yaml.dump(yaml_config, sort_keys=False))
         print(yaml.dump(yaml_config, sort_keys=False))
         return path
@@ -1028,13 +1028,11 @@ class Task(models.Model):
 
         response = {
             # ---- identity ----
-            "task_id": self.uid,
-            "snapshot_id": snapshot.id if snapshot else None,
-            "status": self.status,
-            "updated_at": timezone.now().isoformat(),
+            #"task_id": self.uid,
+            #"updated_at": timezone.now().isoformat(),
 
             # ---- uuid ----
-            #"uuid": str(uuid.uuid4()),
+            #"uid": str(uuid.uuid4()),
 
             # warcs
             "warcs": [
@@ -1070,7 +1068,7 @@ class Task(models.Model):
         """
         return {
             "action": self.action,
-            "uid": self.uid,
+            "uid": str(self.uid),
             "user": self.user,
             "scheduleTime": self.scheduleTime.isoformat() if self.scheduleTime else None,
             "startTime": self.startTime.isoformat() if self.startTime else None,
@@ -1162,6 +1160,7 @@ class Warc(models.Model):
     size_bytes = models.BigIntegerField()
     sha256 = models.CharField(max_length=64)
     created_at = models.DateTimeField(auto_now_add=True)
+    is_production = models.BooleanField(default=False)
 
     class Meta:
         unique_together = ("snapshot", "filename")
@@ -1176,6 +1175,7 @@ class Warc(models.Model):
             "sha256": self.sha256 or None,
             "created_at": self.created_at.isoformat() if self.created_at else None,
             "path": self.path,
+            "production": self.is_production
         }
 
 class GlobalConfig(models.Model):
@@ -1203,7 +1203,7 @@ class TaskResponseDelivery(models.Model):
     Each row = one PUT attempt.
     """
 
-    id = models.UUIDField(
+    uid = models.UUIDField(
         primary_key=True,
         default=uuid.uuid4,
         editable=False,
@@ -1217,9 +1217,7 @@ class TaskResponseDelivery(models.Model):
     )
 
     # ---- payload ----
-    payload = models.JSONField(
-        help_text="Exact Task.taskResponse JSON sent",
-    )
+    payload = models.JSONField()
 
     # ---- target ----
     target_url = models.URLField()
@@ -1254,5 +1252,5 @@ class TaskResponseDelivery(models.Model):
         ]
 
     def __str__(self):
-        return f"TaskResponseDelivery {self.id} task={self.task_id}"
+        return f"TaskResponseDelivery {self.uid} task={self.task.uid}"
 

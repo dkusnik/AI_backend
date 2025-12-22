@@ -6,7 +6,7 @@ from .models import (Organisation,
                      Snapshot, Task, User, Website, Warc,
                      WebsiteCrawlParameters, WebsiteGroup,
                      TaskResponseDelivery)
-from archiver.services.crawl_manager import queue_crawl, replay_publish
+from archiver.services.crawl_manager import queue_crawl, replay_publish, replay_unpublish
 
 
 class ReadOnlyAdmin(admin.ModelAdmin):
@@ -71,7 +71,7 @@ class WebsiteAdmin(admin.ModelAdmin):
 
 @admin.register(Snapshot)
 class SnapshotAdmin(ReadOnlyAdmin):
-    actions = ["publish_action"]
+    actions = ["publish_action", "unpublish_action"]
     @admin.action(description="Publish snapshot to production")
     def publish_action(self, request, queryset):
         """
@@ -82,7 +82,41 @@ class SnapshotAdmin(ReadOnlyAdmin):
 
         for snapshot in queryset:
             try:
-                job_id = replay_publish(snapshot.id)
+                job_id = replay_publish(snapshot.uid)
+                success += 1
+            except Exception as exc:
+                failures += 1
+                self.message_user(
+                    request,
+                    f"Failed to queue snapshot {snapshot} to production: {exc}",
+                    level=messages.ERROR,
+                )
+
+        if success:
+            self.message_user(
+                request,
+                f"Successfully queued {success} snapshot to production job(s).",
+                level=messages.SUCCESS,
+            )
+
+        if failures:
+            self.message_user(
+                request,
+                f"{failures} snapshot to production job(s) failed.",
+                level=messages.WARNING,
+            )
+
+    @admin.action(description="Publish snapshot to production")
+    def publish_action(self, request, queryset):
+        """
+        Admin action: enqueue crawl jobs for selected websites.
+        """
+        success = 0
+        failures = 0
+
+        for snapshot in queryset:
+            try:
+                job_id = replay_unpublish(snapshot.uid)
                 success += 1
             except Exception as exc:
                 failures += 1
@@ -109,6 +143,7 @@ class SnapshotAdmin(ReadOnlyAdmin):
 
 @admin.register(Task)
 class TaskAdmin(DeleteReadOnlyAdmin):
+    ordering = ("-created_at",)
     pass
 
 @admin.register(Warc)
@@ -117,4 +152,4 @@ class WarcAdmin(ReadOnlyAdmin):
 
 @admin.register(TaskResponseDelivery)
 class TaskResponseDeliveryAdmin(DeleteReadOnlyAdmin):
-    pass
+    ordering = ("-created_at",)

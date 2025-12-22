@@ -18,6 +18,7 @@ Vagrant.configure(VAGRANTFILE_API_VERSION) do |config|
 
     # Mount the repo root as /browsertrix (not /vagrant)
     config.vm.synced_folder ".", "/AI_backend"
+	config.vm.synced_folder "../AI_frontend", "/AI_frontend"
 
     # Provision using external script
     k8s.vm.provision "shell", path: "tools/vagrant/bootstrap.sh"
