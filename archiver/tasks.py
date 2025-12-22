@@ -201,7 +201,7 @@ def start_crawl_task(snapshot_uid, task_uid):
             }
             print(report)
             snapshot.update_snapshot_stats(stats, derived)
-            update_snapshot_process_stats(container, snapshot_id)
+            update_snapshot_process_stats(container, snapshot.id)
 
             if status == "exited":
                 exit_code = container.attrs["State"]["ExitCode"]
@@ -285,7 +285,7 @@ def move_snapshot_to_longterm(snapshot_uid: str, task_uid: str = None):
 
     dst_base = os.path.join(
         settings.LONGTERM_VOLUME,
-        str(snapshot_id),
+        str(snapshot.replay_collection_id),
     )
 
     dst_archive = os.path.join(dst_base, "archive")
