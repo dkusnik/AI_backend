@@ -252,9 +252,9 @@ def crawl_unthrottle() -> str:
 # ------------------------
 # WEBSITE OPERATIONS (QUEUE: management)
 # ------------------------
-def website_publish_all(website_id: int) -> str:
+def website_publish_all(website_id: int, task_uid: str = None) -> str:
     queue = django_rq.get_queue("management")
-    job = queue.enqueue(website_publish_all_task, website_id)
+    job = queue.enqueue(website_publish_all_task, website_id), task_uid
     return job.id
 
 

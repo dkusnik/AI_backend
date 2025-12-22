@@ -529,9 +529,22 @@ def move_snapshot_to_production(snapshot_uid: str, task_uid: str = None):
         task.send_task_response()
 
 def repopulate_snapshot_to_production(website_id: int, task_uid: str):
-    for snapshot in Snapshot.objects.filter(website_id=website_id):
-        remove_snapshot_from_production(snapshot.uid, task_uid)
-        move_snapshot_to_production(snapshot.uid, task_uid)
+    task = Task.objects.get(uid=task_uid)
+    task.status = TaskStatus.RUNNING
+    task.send_task_response()
+    try:
+        for snapshot in Snapshot.objects.filter(website_id=website_id):
+            remove_snapshot_from_production(snapshot.uid)
+            move_snapshot_to_production(snapshot.uid)
+        task.status = TaskStatus.SUCCESS
+        task.update_task_response()
+
+    except Exception as e:
+        task.status = TaskStatus.FAILED
+        task.updateMessage = str(s)
+
+    task.save(update_fields=["status", "updateMessage"])
+    task.send_task_response()
 
 
 def trigger_website_cleanup(website_id: int):
@@ -542,9 +555,21 @@ def website_group_run_crawl_task(group_id: int):
     pass
 
 
-def website_publish_all_task(website_id: int):
-    pass
+def website_publish_all_task(website_id: int, task_uid: str):
+    task = Task.objects.get(uid=task_uid)
+    task.status = TaskStatus.RUNNING
+    task.send_task_response()
+    try:
+        for snapshot in Snapshot.objects.filter(website_id=website_id):
+            move_snapshot_to_production(snapshot.uid)
+        task.status = TaskStatus.SUCCESS
 
+    except Exception as e:
+        task.status = TaskStatus.FAILED
+        task.updateMessage = str(s)
+
+    task.save(update_fields=["status", "updateMessage"])
+    task.send_task_response()
 
 def website_unpublish_all_task(website_id: int):
     pass
