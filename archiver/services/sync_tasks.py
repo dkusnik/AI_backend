@@ -270,20 +270,21 @@ def upsert_task_from_api(task_data: dict) -> tuple[Task, bool]:
     # uid must not be duplicated in defaults
     fields.pop("uid", None)
 
-    snapshot = task_data.get('snapshot')
-    website = task_data.get('website')
-
+    snapshot = task_data.get('snapshot', None)
+    if snapshot:
+        s = Snapshot.objects.filter(uid=snapshot.get('uid')).first()
+        fields[snapshot_id]=s.id
     # TODO: snapshot i website do defaults z id?
     task, _created = Task.objects.get_or_create(
         uid=uid,
         defaults=fields,
-        snapshot=Snapshot.objects.filter(uid=snapshot.get('uid')).first() if snapshot else None,
     )
 
     return (task, _created)
 
 
-def sync_tasks_from_cluster(where_status: list | None = None, page_limit=50, dry_run=False) -> int:
+def sync_tasks_from_cluster(where_status: list | None = None, page_limit=50, dry_run=False,
+                            only_sync=False) -> int:
     """
     Fetch all tasks from Cluster API and sync locally.
 
@@ -306,7 +307,7 @@ def sync_tasks_from_cluster(where_status: list | None = None, page_limit=50, dry
             processed += 1
             if not dry_run:
                 task, created = upsert_task_from_api(task_data)
-                if created:
+                if created and not only_sync:
                     dispatch_task(task)
 
         if len(items) < page_limit:

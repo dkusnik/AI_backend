@@ -23,10 +23,17 @@ class Command(BaseCommand):
             help="Fetch tasks but do not write to database",
         )
 
+        parser.add_argument(
+            "--only-sync",
+            action="store_true",
+            help="Fetch tasks but do not queue",
+        )
+
     def handle(self, *args, **options):
         statuses = options.get("status")
         limit = options["limit"]
         dry_run = options["dry_run"]
+        only_sync = options["only_sync"]
 
         self.stdout.write(self.style.NOTICE("Starting task import from Cluster API"))
 
@@ -35,6 +42,7 @@ class Command(BaseCommand):
                 where_status=statuses,
                 page_limit=limit,
                 dry_run=dry_run,
+                only_sync=only_sync,
             )
         except Exception as exc:
             raise CommandError(f"Task import failed: {exc}") from exc
