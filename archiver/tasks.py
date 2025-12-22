@@ -94,9 +94,9 @@ def build_browsertrix_container_args(snapshot: Snapshot, task: Task):
     }
 
 
-def start_crawl_task(task_uid, snapshot_id):
+def start_crawl_task(snapshot_uid, task_uid):
     task = Task.objects.get(uid=task_uid)
-    snapshot = Snapshot.objects.get(id=snapshot_id)
+    snapshot = Snapshot.objects.get(uid=snapshot_uid)
     # -------------------------------
     # Mark job as running
     # -------------------------------
@@ -105,8 +105,8 @@ def start_crawl_task(task_uid, snapshot_id):
     snapshot.machine = getattr(
         settings, "CRAWL_MACHINE_NAME", "docker"
     )
-    snapshot.replay_collection_id = snapshot_id
-    snapshot.save(update_fields=["status", "machine"])
+    snapshot.replay_collection_id = snapshot.id
+    snapshot.save(update_fields=["status", "machine", "replay_collection_id"])
 
     # -------------------------------
     # Docker client
@@ -236,7 +236,8 @@ def start_crawl_task(task_uid, snapshot_id):
         queue = django_rq.get_queue("management")
         queue.enqueue(
             move_snapshot_to_longterm,
-            snapshot.id
+            snapshot.id,
+            task.uid
         )
         if snapshot.auto_update:
             queue.enqueue(
@@ -253,13 +254,19 @@ def start_crawl_task(task_uid, snapshot_id):
     }
 
 
-def move_snapshot_to_longterm(snapshot_id: str):
+def move_snapshot_to_longterm(snapshot_uid: str, task_uid: str = None):
     """
     Copy WARCs and CDXJ indexes from production storage
     to long-term archival storage.
     """
 
-    snapshot = Snapshot.objects.get(pk=snapshot_id)
+    snapshot = Snapshot.objects.get(uid=snapshot_uid)
+    task = None
+    if task_uid:
+        task = Task.objects.get(uid=task_uid)
+        task.status = TaskStatus.RUNNING
+        task.save()
+        task.send_task_response()
 
     src_base = os.path.join(
         settings.BROWSERTIX_VOLUME,
@@ -271,10 +278,10 @@ def move_snapshot_to_longterm(snapshot_id: str):
     src_indexes = os.path.join(src_base, "indexes")
 
     if not os.path.isdir(src_archive):
-        raise FileNotFoundError(f"Production archive missing: {src_archive}")
+        raise FileNotFoundError(f"Longterm archive missing: {src_archive}")
 
     if not os.path.isdir(src_indexes):
-        raise FileNotFoundError(f"Production indexes missing: {src_indexes}")
+        raise FileNotFoundError(f"Longterm indexes missing: {src_indexes}")
 
     dst_base = os.path.join(
         settings.LONGTERM_VOLUME,
@@ -329,11 +336,11 @@ def move_snapshot_to_longterm(snapshot_id: str):
     snapshot.publication_status = snapshot.PUBLICATION_INTERNAL
     snapshot.save()
 
-    snapshot.task.update_task_params({'snapshot': snapshot.build_json_response()})
-    snapshot.task.update_task_response()
-
-    # TODO: TASK bedzie mial chyba tylko 1 snapshot
-    snapshot.task.send_task_response()
+    if task:
+        task.update_task_params({'snapshot': snapshot.build_json_response()})
+        task.update_task_response()
+        # TODO: TASK bedzie mial chyba tylko 1 snapshot
+        task.send_task_response()
 
 
 def remove_snapshot_from_production(snapshot_uid: str, task_uid: str = None):
@@ -522,112 +529,18 @@ def repopulate_snapshot_to_production(website_id: int, task_uid: str):
 def trigger_website_cleanup(website_id: int):
     pass
 
+
 def website_group_run_crawl_task(group_id: int):
-    """
-    For a website group:
-    - fetch all websites
-    - filter by enabled / doCrawl / suspendCrawlUntilTimestamp
-    - enqueue separate crawl tasks per website
-    """
-    group = WebsiteGroup.objects.get(id=group_id)
-    crawl_queue = django_rq.get_queue("crawls")
-
-    now = timezone.now()
-    enqueued = []
-
-    websites = group.websites.filter(
-        enabled=True,
-        doCrawl=True,
-        isDeleted=False,
-    )
-
-    for website in websites:
-        if website.suspendCrawlUntilTimestamp and website.suspendCrawlUntilTimestamp > now:
-            continue
-
-        # Create Snapshot first (same pattern as single crawl)
-        snapshot = Snapshot.objects.create(
-            website=website,
-            status=Snapshot.STATUS_PENDING
-        )
-
-        job = crawl_queue.enqueue(
-            start_crawl_task,
-            website.id,
-            snapshot_id=snapshot.id
-        )
-
-        snapshot.rq_job_id = job.id
-        snapshot.save(update_fields=["rq_job_id"])
-
-        enqueued.append({
-            "website_id": website.id,
-            "snapshot_id": snapshot.id,
-            "job_id": job.id,
-        })
-
-    return {
-        "group_id": group_id,
-        "enqueued": len(enqueued),
-        "jobs": enqueued,
-    }
+    pass
 
 
 def website_publish_all_task(website_id: int):
-    """
-    Enqueue replay_publish_task for EACH snapshot of a website.
-    """
-    website = Website.objects.get(id=website_id)
-    website.auto_publish = False
-    website.save(update_fields=["auto_publish"])
+    pass
 
-    queue = django_rq.get_queue("management")
-
-    jobs = []
-    # snapshot selected ONLY via website -> snapshot relation
-    for snapshot in website.snapshot_set.all().order_by("id"):
-        job = queue.enqueue(
-            replay_unpublish_task,
-            snapshot.id
-        )
-        jobs.append({
-            "snapshot_id": snapshot.id,
-            "job_id": job.id,
-        })
-
-    return {
-        "website_id": website_id,
-        "snapshots_enqueued": len(jobs),
-        "jobs": jobs,
-    }
 
 def website_unpublish_all_task(website_id: int):
-    """
-    Enqueue replay_publish_task for EACH snapshot of a website.
-    """
-    website = Website.objects.get(id=website_id)
-    website.auto_publish = True
-    website.save(update_fields=["auto_publish"])
+    pass
 
-    queue = django_rq.get_queue("management")
-
-    jobs = []
-    # snapshot selected ONLY via website -> snapshot relation
-    for snapshot in website.snapshot_set.all().order_by("id"):
-        job = queue.enqueue(
-            replay_publish_task,
-            snapshot.id
-        )
-        jobs.append({
-            "snapshot_id": snapshot.id,
-            "job_id": job.id,
-        })
-
-    return {
-        "website_id": website_id,
-        "snapshots_enqueued": len(jobs),
-        "jobs": jobs,
-    }
 
 def admin_platform_lock_task(*args, **kwargs):
     raise NotImplementedError("admin_platform_lock_task is not implemented yet")

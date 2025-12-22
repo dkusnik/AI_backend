@@ -116,7 +116,7 @@ def queue_crawl(website_id: int, task: Task = None, queue_name: str = "crawls") 
 
     # Enqueue the RQ job
     queue = django_rq.get_queue(queue_name)
-    job = queue.enqueue(start_crawl_task, task_uid=task.uid, snapshot_id=snapshot.id)
+    job = queue.enqueue(start_crawl_task, snapshot_uid=snapshot.uid, task_uid=task.uid)
 
     # Attach the RQ job ID and save
     snapshot.rq_job_id = job.id
