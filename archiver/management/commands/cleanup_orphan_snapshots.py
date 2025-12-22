@@ -34,6 +34,7 @@ class Command(BaseCommand):
             base_path = os.path.join(
                 settings.LONGTERM_VOLUME,
                 str(snapshot.replay_collection_id),
+                'archive'
             )
 
             if os.path.isdir(base_path):
