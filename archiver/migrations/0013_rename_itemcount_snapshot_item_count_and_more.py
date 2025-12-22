@@ -7,7 +7,7 @@ from django.db import migrations, models
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('archiver', '0012_alter_snapshot_website'),
+        ('archiver', '0010_snapshot_uid'),
     ]
 
     operations = [
