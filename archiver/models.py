@@ -1,4 +1,3 @@
-import json
 import uuid
 import requests
 from pathlib import Path
@@ -7,8 +6,8 @@ import yaml
 from django.conf import settings
 from django.contrib.auth.models import User
 from django.contrib.postgres.fields import ArrayField
-from django.core.exceptions import ObjectDoesNotExist, ValidationError
-from django.db import models
+from django.core.exceptions import ValidationError
+from django.db import models, transaction
 from django.utils import timezone
 from django.utils.dateparse import parse_datetime
 from django.utils.timezone import is_aware
@@ -288,13 +287,12 @@ class WebsiteCrawlParameters(DefaultWebsiteCrawlParameters):
             instance.extra_config = {
                 k: v
                 for k, v in engine_config.items()
-                if k
-                   not in {
-                       "crawlScope",
-                       "crawlLimits",
-                       "pageBehavior",
-                       "browserSettings",
-                   }
+                if k not in {
+                    "crawlScope",
+                    "crawlLimits",
+                    "pageBehavior",
+                    "browserSettings",
+                }
             }
 
         # =================================================
@@ -414,8 +412,8 @@ class WebsiteCrawlParameters(DefaultWebsiteCrawlParameters):
         # wrap into crawlConfig (WITH crawlEngine)
         # -------------------------------------------------
         return {
-                "crawlEngine": "browsertrix",
-                "engineConfig": engine_config,
+            "crawlEngine": "browsertrix",
+            "engineConfig": engine_config,
         }
 
 
@@ -639,9 +637,9 @@ class Snapshot(models.Model):
     created_by = models.ForeignKey(User, on_delete=models.SET_NULL, null=True)
     created_at = models.DateTimeField(auto_now_add=True)
     status = models.CharField(max_length=20, choices=STATUS_CHOICES, default=STATUS_PENDING)
-    progress = models.FloatField(default=0.0)  # 0.0 - 100.0
-    stats = models.JSONField(default=dict, blank=True)  # e.g. {'fetched': 123, 'bytes': 45678}
-    machine = models.CharField(max_length=255, null=True, blank=True)  
+    progress = models.FloatField(default=0.0)
+    stats = models.JSONField(default=dict, blank=True)
+    machine = models.CharField(max_length=255, null=True, blank=True)
     error = models.TextField(null=True, blank=True)
     published = models.BooleanField(default=False)
     auto_update = models.BooleanField(default=False)
@@ -649,7 +647,8 @@ class Snapshot(models.Model):
     rq_job_id = models.CharField(max_length=255, null=True, blank=True)
 
     isDeleted = models.BooleanField(default=False)
-    publication_status = models.CharField(max_length=32, choices=STATUS_PUBLICATION, null=True, blank=True)
+    publication_status = models.CharField(max_length=32, choices=STATUS_PUBLICATION,
+                                          null=True, blank=True)
 
     crawlStartTimestamp = models.DateTimeField(null=True, blank=True)
     crawlStopTimestamp = models.DateTimeField(null=True, blank=True)
@@ -665,31 +664,55 @@ class Snapshot(models.Model):
         blank=True,
         help_text="Docker-level runtime statistics for the crawl container",
     )
-
     crawl_stats = models.JSONField(
         null=True,
         blank=True,
-        help_text="Aggregated crawl statistics and health metrics"
     )
+    container_stats = models.JSONField(
+        null=True,
+        blank=True,
+    )
+    crawler = models.CharField(max_length=20, choices=WebsiteCrawlParameters.ENGINE_CHOICES,
+                               null=True)
+    crawlerConfiguration = models.JSONField(null=True, blank=True)
+    crawlerOutput = models.TextField(null=True, blank=True)
+    crawlWarcSize = models.BigIntegerField(null=True, blank=True)
 
-    def mark_running(self):
-        self.status = 'running'
-        self.started_at = timezone.now()
-        self.save(update_fields=['status','started_at'])
+    updated_at = models.DateTimeField(auto_now=True)
 
-    def mark_finished(self, stats=None):
-        self.status = 'finished'
-        self.finished_at = timezone.now()
-        if stats:
-            self.stats = stats
-        self.save(update_fields=['status','finished_at','stats'])
+    # ---------------------------------
+    # SAVE OVERRIDE
+    # ---------------------------------
+    def save(self, *args, **kwargs):
+        """
+        Save Snapshot and automatically send update notification.
+        """
 
-    def mark_failed(self, error=None):
-        self.status = 'failed'
-        self.finished_at = timezone.now()
-        if error:
-            self.error = str(error)
-        self.save(update_fields=['status','finished_at','error'])
+        # Allow callers to disable notification explicitly
+        notify = kwargs.pop("notify", True)
+
+        super().save(*args, **kwargs)
+
+        # Do NOT send during:
+        # - raw saves (fixtures)
+        # - migrations
+        # - disabled notification
+        if not notify or kwargs.get("raw", False):
+            return
+
+        # Send only after successful DB commit
+        transaction.on_commit(self._send_update_safe)
+
+    # ---------------------------------
+    # Internal safe sender
+    # ---------------------------------
+    def _send_update_safe(self):
+        try:
+            self.send_update_response()
+        except Exception:
+            # Never break save() because of external API
+            # Log if needed
+            pass
 
     def __str__(self):
         return f"CrawlJob {self.id} - {self.website.name} - {self.status} ({self.progress})"
@@ -759,18 +782,97 @@ class Snapshot(models.Model):
             "itemCount": self.item_count,
             "warcPath": self.warc_path,
             "replayCollectionId": self.replay_collection_id,
-
-            # Optional / future-safe
+            "warcs": [
+                warc.build_json_response()
+                for warc in self.warcs.all()
+            ],
             "metadataArchival": {
                 "extra": []
             },
+            "metadataTechnical": {
+                'crawler': self.crawler,
+                'crawlerConfiguration': self.crawlerConfiguration,
+                'crawlerOutput': self.crawlerOutput,
+                'crawlWarcSize': self.crawlWarcSize,
+            },
+            "crawlStats": self.crawl_stats,
+            "containerStats": self.container_stats,
         }
+
+    def send_create_response(self) -> "SnapshotResponseDelivery":
+        """Send Snapshot create (POST)."""
+        return self._send_snapshot_response(http_method="POST")
+
+    def send_update_response(self) -> "SnapshotResponseDelivery":
+        """Send Snapshot update (PUT)."""
+        return self._send_snapshot_response(http_method="PUT")
+
+    # =================================================
+    # Internal helper
+    # =================================================
+
+    def _send_snapshot_response(self, http_method: str) -> "SnapshotResponseDelivery":
+        """
+        Send Snapshot JSON to SNAPSHOT_API_URL using POST or PUT.
+        Stores every delivery attempt.
+        """
+
+        payload = self.build_json_response()
+
+        delivery = SnapshotResponseDelivery.objects.create(
+            snapshot=self,
+            payload=payload,
+            target_url=settings.SNAPSHOT_API_URL,
+            http_method=http_method,
+        )
+
+        token = get_keycloak_access_token()
+
+        try:
+            if http_method == "POST":
+                response = requests.post(
+                    settings.SNAPSHOT_API_URL,
+                    json=payload,
+                    timeout=getattr(settings, "SNAPSHOT_RESPONSE_TIMEOUT", 10),
+                    headers={
+                        "Authorization": f"Bearer {token}",
+                        "Content-Type": "application/json",
+                    },
+                )
+            elif http_method == "PUT":
+                response = requests.put(
+                    settings.SNAPSHOT_API_URL,
+                    json=payload,
+                    timeout=getattr(settings, "SNAPSHOT_RESPONSE_TIMEOUT", 10),
+                    headers={
+                        "Authorization": f"Bearer {token}",
+                        "Content-Type": "application/json",
+                    },
+                )
+            else:
+                raise ValueError(f"Unsupported HTTP method: {http_method}")
+
+            delivery.http_status = response.status_code
+            delivery.response_body = response.text
+            delivery.success = response.ok
+
+        except Exception as exc:
+            delivery.success = False
+            delivery.error_message = str(exc)
+
+        delivery.save(update_fields=[
+            "http_status",
+            "response_body",
+            "success",
+            "error_message",
+        ])
+
+        return delivery
 
 
 # --------------------------------------------------------------------
 #  CRAWL CONFIG
 # --------------------------------------------------------------------
-
 class CrawlConfigStatus(models.TextChoices):
     DISABLED = "disabled"
     RESTRICTED = "restricted"
@@ -801,15 +903,16 @@ class ScheduleConfig(models.Model):
     status = models.CharField(max_length=32, choices=ScheduleConfigStatus.choices)
     yamlConfig = models.TextField()
 
+
 # --------------------------------------------------------------------
 #  TASKS
 # --------------------------------------------------------------------
-
 class TaskStatus(models.TextChoices):
+    CREATED = "created"
     SCHEDULED = "scheduled"
     CANCELLED = "cancelled"
     RUNNING = "running"
-    PAUSED= "paused"
+    PAUSED = "paused"
     SUCCESS = "success"
     FAILED = "failed"
 
@@ -825,13 +928,12 @@ class Task(models.Model):
     updateTime = models.DateTimeField(auto_now=True)
     updateMessage = models.TextField(blank=True, null=True)
     finishTime = models.DateTimeField(null=True, blank=True)
-    status = models.CharField(max_length=32, choices=TaskStatus.choices, default=TaskStatus.SCHEDULED)
+    status = models.CharField(max_length=32, choices=TaskStatus.choices,
+                              default=TaskStatus.SCHEDULED)
     result = models.TextField(blank=True, null=True)
     resultDescription = models.TextField(blank=True, null=True)
     runData = models.TextField(blank=True, null=True)
     created_at = models.DateTimeField(auto_now_add=True)
-
-
     priority = models.CharField(max_length=32, default="normal")
     schedule = models.CharField(max_length=64, blank=True, null=True)
 
@@ -863,7 +965,9 @@ class Task(models.Model):
                 data["website"] = snapshot.website.build_json_response()
                 data["websiteId"] = snapshot.website.id
                 if snapshot.website.website_crawl_parameters:
-                    data["crawlConfig"] = snapshot.website.website_crawl_parameters.build_json_response()
+                    data["crawlConfig"] = (snapshot.website
+                                           .website_crawl_parameters.build_json_response()
+                                           )
                     data["crawlConfigId"] = snapshot.website.website_crawl_parameters.id
 
         # TODO:Schedule
@@ -896,7 +1000,7 @@ class Task(models.Model):
         # -------------------------------------------------
         task = cls.objects.create(
             action=action,
-            #uid=str(uuid.uuid4()),
+            # uid=str(uuid.uuid4()),
             user=user,
             snapshot=snapshot,
             status=TaskStatus.SCHEDULED,
@@ -923,9 +1027,9 @@ class Task(models.Model):
         try:
             crawl_config = task_params["crawlConfig"]
             engine_config = crawl_config.get("engineConfig")
-            if isinstance(engine_config,str):
+            if isinstance(engine_config, str):
                 engine_config = dict()
-            scope = engine_config.get("crawlScope",dict())
+            scope = engine_config.get("crawlScope", dict())
         except KeyError as exc:
             raise ValueError(
                 f"Invalid TaskParameters structure, missing {exc}"
@@ -1025,50 +1129,6 @@ class Task(models.Model):
         print(yaml.dump(yaml_config, sort_keys=False))
         return path
 
-    def build_task_response(self) -> dict:
-        """
-        Build TaskResponse JSON according to Swagger schema.
-        Snapshot is optional.
-        """
-
-        snapshot = self.snapshot
-
-        response = {
-            # ---- identity ----
-            #"task_id": self.uid,
-            #"updated_at": timezone.now().isoformat(),
-
-            # ---- uuid ----
-            #"uid": str(uuid.uuid4()),
-
-            # warcs
-            "warcs": [
-                warc.build_json_response()
-                for warc in snapshot.warcs.all()
-            ],
-
-            # ---- crawl stats ----
-            "crawl_stats": snapshot.crawl_stats if snapshot else {},
-
-            # ---- container / process stats ----
-            "container_stats": snapshot.process_stats if snapshot else {},
-        }
-
-        return response
-
-    def update_task_params(self, params: dict) -> None:
-        """
-        Merge params into taskParameters JSON field and persist changes.
-        """
-        if not isinstance(params, dict):
-            raise TypeError("params must be a dict")
-
-        current = self.taskParameters or {}
-        current.update(params)
-
-        self.taskParameters = current
-        self.save(update_fields=["taskParameters"])
-
     def _build_task_api_payload(self) -> dict:
         """
         Build a payload matching the Task schema defined in OpenAPI YAML.
@@ -1088,7 +1148,8 @@ class Task(models.Model):
             "runData": self.runData,
             "priority": self.priority,
             "schedule": self.schedule,
-            "taskParameters": self.taskParameters,
+            # tego juz nie wysylamy
+            # "taskParameters": self.taskParameters,
             "taskResponse": self.taskResponse,
         }
 
@@ -1138,21 +1199,6 @@ class Task(models.Model):
         return delivery
 
 
-    def update_task_response(self, save=True) -> dict:
-        """
-        Build and persist TaskResponse JSON into task.taskResponse.
-        """
-
-        response = self.build_task_response()
-
-        self.taskResponse = response
-        self.updateTime = timezone.now()
-
-        if save:
-            self.save(update_fields=["taskResponse", "updateTime"])
-
-        return response
-
 class Warc(models.Model):
     snapshot = models.ForeignKey(
         "Snapshot",
@@ -1182,6 +1228,7 @@ class Warc(models.Model):
             "production": self.is_production
         }
 
+
 class GlobalConfig(models.Model):
     ENTRY_CLASS_CHOICES = [
         ("global", "Global"),
@@ -1201,10 +1248,10 @@ class GlobalConfig(models.Model):
         return f"{self.key} = {self.value}"
 
 
-class TaskResponseDelivery(models.Model):
+class BaseResponseDelivery(models.Model):
     """
-    Persistent audit log of TaskResponse deliveries.
-    Each row = one PUT attempt.
+    Persistent audit log of API delivery attempts.
+    Each row = one HTTP attempt.
     """
 
     uid = models.UUIDField(
@@ -1214,18 +1261,12 @@ class TaskResponseDelivery(models.Model):
         help_text="Unique delivery UUID (idempotency key)",
     )
 
-    task = models.ForeignKey(
-        "Task",
-        on_delete=models.CASCADE,
-        related_name="response_deliveries",
-    )
-
     # ---- payload ----
     payload = models.JSONField()
 
     # ---- target ----
     target_url = models.URLField()
-    http_method = models.CharField(max_length=8, default="PUT")
+    http_method = models.CharField(max_length=8)
 
     # ---- result ----
     http_status = models.PositiveIntegerField(
@@ -1249,7 +1290,28 @@ class TaskResponseDelivery(models.Model):
     created_at = models.DateTimeField(auto_now_add=True)
 
     class Meta:
+        abstract = True
         ordering = ["-created_at"]
+
+
+class TaskResponseDelivery(BaseResponseDelivery):
+    """
+    Persistent audit log of TaskResponse deliveries.
+    Each row = one PUT attempt.
+    """
+
+    task = models.ForeignKey(
+        "Task",
+        on_delete=models.CASCADE,
+        related_name="response_deliveries",
+    )
+
+    http_method = models.CharField(
+        max_length=8,
+        default="PUT",
+    )
+
+    class Meta(BaseResponseDelivery.Meta):
         indexes = [
             models.Index(fields=["task"]),
             models.Index(fields=["success"]),
@@ -1258,3 +1320,24 @@ class TaskResponseDelivery(models.Model):
     def __str__(self):
         return f"TaskResponseDelivery {self.uid} task={self.task.uid}"
 
+
+class SnapshotResponseDelivery(BaseResponseDelivery):
+    """
+    Persistent audit log of Snapshot API deliveries.
+    Each row = one POST/PUT attempt.
+    """
+
+    snapshot = models.ForeignKey(
+        "Snapshot",
+        on_delete=models.CASCADE,
+        related_name="response_deliveries",
+    )
+
+    class Meta(BaseResponseDelivery.Meta):
+        indexes = [
+            models.Index(fields=["snapshot"]),
+            models.Index(fields=["success"]),
+        ]
+
+    def __str__(self):
+        return f"SnapshotResponseDelivery {self.uid} snapshot={self.snapshot.id}"

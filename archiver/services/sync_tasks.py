@@ -142,7 +142,11 @@ def handle_crawl_run(task):
     if params.get("crawlConfig", None):
         wp, _ = WebsiteCrawlParameters.create_or_update_from_task_parameters(params['crawlConfig'])
     else:
-        wp = WebsiteCrawlParameters.objects.create()
+        task.status = TaskStatus.FAILED
+        task.updateMessage = "Missing crawlConfig. Task fails"
+        task.save()
+        task.send_task_response()
+        return
     website.website_crawl_parameters = wp
     task.update_task_params({'crawlConfigId': wp.id,
                              'crawlConfig': wp.build_json_response()})

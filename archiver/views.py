@@ -46,8 +46,7 @@ def snapshot_stats_partial(request, snapshot_id: int):
     )
 
 
-
-#### FOR DEBUG ONLY
+#  FOR DEBUG ONLY
 
 
 @csrf_exempt
@@ -61,7 +60,6 @@ def dummy_put_collector(request):
 
     if request.method != "PUT":
         return HttpResponseNotAllowed(["PUT"])
-
 
     try:
         body = json.loads(request.body.decode("utf-8"))

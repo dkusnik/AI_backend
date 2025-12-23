@@ -7,11 +7,10 @@ from pathlib import Path
 import django_rq
 import docker
 import requests
-import traceback
 from django.conf import settings
 from django.utils import timezone
 
-from archiver.models import Snapshot, Warc, Website, WebsiteGroup, Task, TaskStatus
+from archiver.models import Snapshot, Warc, Task, TaskStatus
 from archiver.stats import (BrowsertrixLogParser, CDXParser,
                             CrawlMetricsCalculator, CrawlStats,
                             get_browsertrix_container_stats)
@@ -102,13 +101,12 @@ def start_crawl_task(snapshot_uid, task_uid):
     # -------------------------------
     # Mark job as running
     # -------------------------------
-    snapshot.status = Snapshot.STATUS_PENDING
+    snapshot.status = Snapshot.STATUS_CRAWLING
 
     snapshot.machine = getattr(
         settings, "CRAWL_MACHINE_NAME", "docker"
     )
     snapshot.replay_collection_id = snapshot.id
-    snapshot.save(update_fields=["status", "machine", "replay_collection_id"])
 
     # -------------------------------
     # Docker client
@@ -125,7 +123,8 @@ def start_crawl_task(snapshot_uid, task_uid):
     task.startTime = timezone.now()
     task.save(update_fields=["status", "startTime"])
     snapshot.crawlStartTimestamp = timezone.now()
-    snapshot.save(update_fields=["process_id", "crawlStartTimestamp"])
+    snapshot.save(update_fields=["process_id", "crawlStartTimestamp", "status", "machine",
+                                 "replay_collection_id"])
 
     # -------------------------------
     # Redis control keys
@@ -138,7 +137,8 @@ def start_crawl_task(snapshot_uid, task_uid):
 
     stats = CrawlStats()
 
-    base_path = Path(settings.BROWSERTIX_VOLUME) / "collections" / str(snapshot.replay_collection_id)
+    base_path = Path(settings.BROWSERTIX_VOLUME) / "collections" / str(
+        snapshot.replay_collection_id)
     log_parser = BrowsertrixLogParser(base_path / "logs")
     cdx_parser = CDXParser(Path(base_path / "warc-cdx"))
     metrics_calc = CrawlMetricsCalculator(stall_threshold_seconds=60)
@@ -209,7 +209,8 @@ def start_crawl_task(snapshot_uid, task_uid):
 
             if status == "exited":
                 exit_code = container.attrs["State"]["ExitCode"]
-                snapshot.status = Snapshot.STATUS_COMPLETED if exit_code == 0 else Snapshot.STATUS_FAILED
+                snapshot.status = (
+                    Snapshot.STATUS_COMPLETED if exit_code == 0 else Snapshot.STATUS_FAILED)
                 task.status = TaskStatus.SUCCESS if exit_code == 0 else TaskStatus.FAILED
                 task.finishTime = timezone.now()
                 task.result = TaskStatus.SUCCESS if exit_code == 0 else TaskStatus.FAILED
@@ -326,7 +327,7 @@ def move_snapshot_to_longterm(snapshot_uid: str):
         shutil.copy2(src, dst)
 
     # TODO: ten warcPath jest niepotrzebny bo i tak lista warcow ma pelne patche
-    snapshot.warc_path=src_archive
+    snapshot.warc_path = src_archive
     snapshot.publication_status = snapshot.PUBLICATION_INTERNAL
     snapshot.size = warc_size
     snapshot.item_count = item_count
@@ -340,14 +341,6 @@ def remove_snapshot_from_production(snapshot_uid: str):
        """
     snapshot = Snapshot.objects.get(uid=snapshot_uid)
 
-    # --------------------------------------------------
-    # Production paths
-    # --------------------------------------------------
-    dst_archive = os.path.join(
-        settings.PRODUCTION_VOLUME,
-        "default",
-        "archive",
-    )
     src_indexes = os.path.join(
         settings.LONGTERM_VOLUME,
         str(snapshot.replay_collection_id),
@@ -386,7 +379,6 @@ def remove_snapshot_from_production(snapshot_uid: str):
     for warc in snapshot.warcs.objects.filter(is_production=True):
         if warc.path and os.path.exists(warc.path):
             os.remove(warc.path)
-
 
     # --------------------------------------------------
     # 3. Update DB state
@@ -434,7 +426,7 @@ def move_snapshot_to_production(snapshot_uid: str):
     # 1. Load CDXJ into OutbackCDX (per file)
     # --------------------------------------------------
     for fname in sorted(os.listdir(src_indexes)):
-        if not fname.endswith(".cdxj"):
+        if not (fname.endswith(".cdxj") or fname.endswith(".cdx")):
             continue
 
         cdxj_path = os.path.join(src_indexes, fname)

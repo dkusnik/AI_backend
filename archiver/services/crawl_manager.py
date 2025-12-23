@@ -7,7 +7,7 @@ from typing import Optional
 import django_rq
 from rq.job import Job
 
-from archiver.models import Snapshot, Website, Task
+from archiver.models import Snapshot, Website, Task, TaskStatus
 from archiver.tasks import (
     start_crawl_task,
     admin_platform_lock_task,
@@ -109,9 +109,8 @@ def queue_crawl(website_id: int, task: Task = None, queue_name: str = "crawls") 
             action="crawl_run",
         )
     else:
-        task.update_task_params({'snapshot_id': snapshot.id,
-                                 'snapshot': snapshot.build_json_response()})
         task.snapshot = snapshot
+    task.status = TaskStatus.CREATED
     task.save()
 
     # Enqueue the RQ job
@@ -121,6 +120,8 @@ def queue_crawl(website_id: int, task: Task = None, queue_name: str = "crawls") 
     # Attach the RQ job ID and save
     snapshot.rq_job_id = job.id
     snapshot.save(update_fields=["rq_job_id"])
+    snapshot.send_create_response()
+
     return job.id
 
 

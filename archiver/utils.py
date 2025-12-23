@@ -5,6 +5,7 @@ from django.utils import timezone
 
 from archiver.models import Task, TaskStatus
 
+
 def parse_pipe_array(request, name):
     v = request.query_params.get(name)
     if not v:
@@ -70,7 +71,7 @@ def task_notify(func):
 
         except Exception:
             task.status = TaskStatus.FAILED
-            task.updateMessage = traceback.format_exc()
+            task.taskResponse = traceback.format_exc()
             raise
 
         finally:
@@ -79,10 +80,8 @@ def task_notify(func):
             # -------------------------
             task.finishTime = timezone.now()
             task.save(
-                update_fields=["status", "updateMessage", "finishTime"]
+                update_fields=["status", "taskResponse", "finishTime"]
             )
-            if task.action in ('replay_publish', 'replay_unpublish', 'crawl_run'):
-                task.update_task_response()  # To robi save
             task.send_task_response()
 
     return wrapper

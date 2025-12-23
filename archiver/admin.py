@@ -1,19 +1,20 @@
 from django.contrib import admin, messages
-from django.contrib.auth.admin import UserAdmin
 
-from .admin_actions import admin_start_crawl
-from .models import (Organisation,
-                     Snapshot, Task, User, Website, Warc,
-                     WebsiteCrawlParameters, WebsiteGroup,
-                     TaskResponseDelivery)
-from archiver.services.crawl_manager import queue_crawl, replay_publish, replay_unpublish
+from archiver.services.crawl_manager import (queue_crawl, replay_publish,
+                                             replay_unpublish)
+
+from .models import (Snapshot, SnapshotResponseDelivery, Task,
+                     TaskResponseDelivery, Warc, Website,
+                     WebsiteCrawlParameters, WebsiteGroup)
 
 
 class ReadOnlyAdmin(admin.ModelAdmin):
     def has_add_permission(self, request):
         return False
+
     def has_change_permission(self, request, obj=None):
         return False
+
     def has_delete_permission(self, request, obj=None):
         return False
 
@@ -23,8 +24,6 @@ class DeleteReadOnlyAdmin(ReadOnlyAdmin):
         return True
 
 
-#admin.site.register(User, UserAdmin)
-admin.site.register(Organisation)
 admin.site.register(WebsiteCrawlParameters)
 admin.site.register(WebsiteGroup)
 
@@ -44,7 +43,7 @@ class WebsiteAdmin(admin.ModelAdmin):
 
         for website in queryset:
             try:
-                job_id = queue_crawl(website.id)
+                queue_crawl(website.id)
                 success += 1
             except Exception as exc:
                 failures += 1
@@ -146,10 +145,17 @@ class TaskAdmin(DeleteReadOnlyAdmin):
     ordering = ("-created_at",)
     pass
 
+
 @admin.register(Warc)
 class WarcAdmin(ReadOnlyAdmin):
     pass
 
+
 @admin.register(TaskResponseDelivery)
 class TaskResponseDeliveryAdmin(DeleteReadOnlyAdmin):
+    ordering = ("-created_at",)
+
+
+@admin.register(SnapshotResponseDelivery)
+class SnapshotResponseDeliveryAdmin(DeleteReadOnlyAdmin):
     ordering = ("-created_at",)

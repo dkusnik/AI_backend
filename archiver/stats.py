@@ -7,7 +7,6 @@ from pathlib import Path
 from typing import Dict, Optional
 from urllib.parse import urlparse
 
-import docker
 from docker.errors import APIError
 
 
@@ -260,7 +259,6 @@ class CrawlMetricsCalculator:
 
         self.prev_stats = current
         return metrics
-
 
 
 def get_browsertrix_container_stats(container) -> dict:
