@@ -237,5 +237,6 @@ PRODUCTION_VOLUME = os.environ.get("PRODUCTION_VOLUME", '/srv/ai/production_coll
 OUTBACKCDX_URL = env("OUTBACKCDX_URL")
 
 TASK_RESPONSE_URL = os.environ.get("TASK_RESPONSE_URL", 'http://192.168.50.4/dummy/PUT_collector')
+SNAPSHOT_RESPONSE_URL = os.environ.get("SNAPSHOT_RESPONSE_URL", 'http://192.168.50.4/dummy/PUT_collector')
 #TASK_RESPONSE_URL = os.environ.get("TASK_RESPONSE_URL", 'http://10.2.17.37/api/v1/task/api')
 #http://10.2.17.37/api/v1/task/api

@@ -950,6 +950,19 @@ class Task(models.Model):
     def __str__(self):
         return f"{self.snapshot or ''}: '{self.uid} - ({self.action} - {self.status})"
 
+    def update_task_params(self, params: dict) -> None:
+        """
+        Merge params into taskParameters JSON field and persist changes.
+        """
+        if not isinstance(params, dict):
+            raise TypeError("params must be a dict")
+
+        current = self.taskParameters or {}
+        current.update(params)
+
+        self.taskParameters = current
+        self.save(update_fields=["taskParameters"])
+        
     @classmethod
     def build_taskParameters(cls, snapshot) -> dict:
 
