@@ -67,6 +67,9 @@ def task_notify(func):
             result = func(*args, **kwargs)
 
             task.status = TaskStatus.SUCCESS
+            task.taskResponse = {'updatedAt': timezone.now()}
+            if task.snapshot:
+                task.taskResponse['snapshotID'] = task.snapshot.uid
             return result
 
         except Exception:

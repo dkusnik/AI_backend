@@ -224,7 +224,6 @@ def start_crawl_task(snapshot_uid, task_uid):
 
             # SEND Task status
             # TODO: optimize to sent an aggregated status PUT
-            task.update_task_response()
             task.send_task_response()
             if status == "exited" and snapshot.status == Snapshot.STATUS_COMPLETED:
                 # we have to split it, so the final message will be send as well
