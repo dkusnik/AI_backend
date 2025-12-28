@@ -69,7 +69,7 @@ def task_notify(func):
             task.status = TaskStatus.SUCCESS
             task.taskResponse = {'updatedAt': str(timezone.now())}
             if task.snapshot:
-                task.taskResponse['snapshotID'] = task.snapshot.uid
+                task.taskResponse['snapshotID'] = str(task.snapshot.uid)
             return result
 
         except Exception:
