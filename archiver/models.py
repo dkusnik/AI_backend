@@ -813,7 +813,7 @@ class Snapshot(models.Model):
 
     def _send_snapshot_response(self, http_method: str) -> "SnapshotResponseDelivery":
         """
-        Send Snapshot JSON to SNAPSHOT_API_URL using POST or PUT.
+        Send Snapshot JSON to FRONTEND_API_URL/snapshot using POST or PUT.
         Stores every delivery attempt.
         """
 
@@ -822,7 +822,7 @@ class Snapshot(models.Model):
         delivery = SnapshotResponseDelivery.objects.create(
             snapshot=self,
             payload=payload,
-            target_url=settings.SNAPSHOT_API_URL,
+            target_url=f'{settings.FRONTEND_API_URL}/snapshot',
             http_method=http_method,
         )
 
@@ -831,9 +831,9 @@ class Snapshot(models.Model):
         try:
             if http_method == "POST":
                 response = requests.post(
-                    settings.SNAPSHOT_API_URL,
+                    f'{settings.FRONTEND_API_URL}/snapshot',
                     json=payload,
-                    timeout=getattr(settings, "SNAPSHOT_RESPONSE_TIMEOUT", 10),
+                    timeout=getattr(settings, "API_RESPONSE_TIMEOUT", 10),
                     headers={
                         "Authorization": f"Bearer {token}",
                         "Content-Type": "application/json",
@@ -841,9 +841,9 @@ class Snapshot(models.Model):
                 )
             elif http_method == "PUT":
                 response = requests.put(
-                    settings.SNAPSHOT_API_URL,
+                    f'{settings.FRONTEND_API_URL}/snapshot/{self.uid}',
                     json=payload,
-                    timeout=getattr(settings, "SNAPSHOT_RESPONSE_TIMEOUT", 10),
+                    timeout=getattr(settings, "API_RESPONSE_TIMEOUT", 10),
                     headers={
                         "Authorization": f"Bearer {token}",
                         "Content-Type": "application/json",
@@ -962,7 +962,7 @@ class Task(models.Model):
 
         self.taskParameters = current
         self.save(update_fields=["taskParameters"])
-        
+
     @classmethod
     def build_taskParameters(cls, snapshot) -> dict:
 
@@ -1168,7 +1168,7 @@ class Task(models.Model):
 
     def send_task_response(self) -> "TaskResponseDelivery":
         """
-        Send Task.taskResponse JSON to TASK_RESPONSE_URL via PUT.
+        Send Task.taskResponse JSON to {settings.FRONTEND_API_URL}/task/api via PUT.
         Stores every delivery attempt.
         """
 
@@ -1176,7 +1176,7 @@ class Task(models.Model):
         delivery = TaskResponseDelivery.objects.create(
             task=self,
             payload=payload,
-            target_url=settings.TASK_RESPONSE_URL,
+            target_url=f'{settings.FRONTEND_API_URL}/task/api',
             http_method="PUT",
         )
 
@@ -1184,9 +1184,9 @@ class Task(models.Model):
 
         try:
             response = requests.put(
-                settings.TASK_RESPONSE_URL,
+                f'{settings.FRONTEND_API_URL}/task/api',
                 json=payload,
-                timeout=getattr(settings, "TASK_RESPONSE_TIMEOUT", 10),
+                timeout=getattr(settings, "API_RESPONSE_TIMEOUT", 10),
                 headers={
                     "Authorization": f"Bearer {token}",
                     "Content-Type": "application/json",

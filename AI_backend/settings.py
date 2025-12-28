@@ -236,7 +236,8 @@ LONGTERM_VOLUME = os.environ.get("LONGTERM_VOLUME", '/srv/ai/long_term_collectio
 PRODUCTION_VOLUME = os.environ.get("PRODUCTION_VOLUME", '/srv/ai/production_collection')
 OUTBACKCDX_URL = env("OUTBACKCDX_URL")
 
-TASK_RESPONSE_URL = os.environ.get("TASK_RESPONSE_URL", 'http://192.168.50.4/dummy/PUT_collector')
-SNAPSHOT_RESPONSE_URL = os.environ.get("SNAPSHOT_RESPONSE_URL", 'http://192.168.50.4/dummy/PUT_collector')
-#TASK_RESPONSE_URL = os.environ.get("TASK_RESPONSE_URL", 'http://10.2.17.37/api/v1/task/api')
+FRONTEND_API_URL = os.environ.get("FRONTEND_API_URL", 'http://192.168.50.4/dummy/PUT_collector')
+API_RESPONSE_TIMEOUT = os.environ.get("API_RESPONSE_TIMEOUT", 10)
+
+#FRONTEND_API_URL = os.environ.get("FRONTEND_API_URL", 'http://10.2.17.37/api/v1/task/api')
 #http://10.2.17.37/api/v1/task/api

@@ -225,7 +225,7 @@ def handle_export_zosia(task):
 
 def fetch_tasks_from_api(start=0, limit=50, where_status=None):
     """
-    Fetch a single page of tasks from TASK_RESPONSE_URL.
+    Fetch a single page of tasks from FRONTEND_API_URL.
     """
     token = get_keycloak_access_token()
 
@@ -238,13 +238,13 @@ def fetch_tasks_from_api(start=0, limit=50, where_status=None):
         params["whereStatus"] = "|".join(where_status)
 
     response = requests.get(
-        settings.TASK_RESPONSE_URL,
+        f'{settings.FRONTEND_API_URL}/task/api',
         params=params,
         headers={
             "Authorization": f"Bearer {token}",
             "Accept": "application/json",
         },
-        timeout=10,
+        timeout=getattr(settings, "API_RESPONSE_TIMEOUT", 10),
     )
 
     response.raise_for_status()
