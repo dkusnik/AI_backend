@@ -251,6 +251,44 @@ def start_crawl_task(snapshot_uid, task_uid):
         "result": snapshot.result,
     }
 
+def _generate_cdx_from_warc(
+    warc_path: str,
+    output_dir: str,
+):
+    """
+    Generate CDX file from a WARC using cdx-indexer.
+    """
+
+    os.makedirs(output_dir, exist_ok=True)
+
+    warc_name = os.path.basename(warc_path)
+    cdx_name = f"{warc_name}.cdx"
+    cdx_path = os.path.join(output_dir, cdx_name)
+
+    cmd = [
+        "cdx-indexer",
+        warc_path,
+    ]
+
+    with open(cdx_path, "wb") as out:
+        result = subprocess.run(
+            cmd,
+            stdout=out,
+            stderr=subprocess.PIPE,
+            check=False,
+        )
+
+    if result.returncode != 0:
+        raise RuntimeError(
+            f"cdx-indexer failed for {warc_name}: "
+            f"{result.stderr.decode(errors='ignore')}"
+        )
+
+    # Safety check
+    if os.path.getsize(cdx_path) == 0:
+        raise RuntimeError(f"Generated empty CDX: {cdx_path}")
+
+    return cdx_path
 
 def move_snapshot_to_longterm(snapshot_uid: str):
     """
@@ -320,6 +358,14 @@ def move_snapshot_to_longterm(snapshot_uid: str):
         )
         item_count += 1
         warc_size += stat.st_size
+
+        src_warc = os.path.join(src_archive, fname)
+
+        generate_cdx_from_warc(
+            warc_path=src_warc,
+            output_dir=dst_warc_cdx,
+        )
+
     # --------------------------------
     # Copy CDXJ indexes
     # --------------------------------
@@ -329,15 +375,6 @@ def move_snapshot_to_longterm(snapshot_uid: str):
 
         src = os.path.join(src_indexes, fname)
         dst = os.path.join(dst_indexes, fname)
-
-        shutil.copy2(src, dst)
-
-    for fname in os.listdir(src_warc_cdx):
-        if not fname.endswith(".cdx"):
-            continue
-        # cdx-indexer / path / to / mywarcs / my.warc.gz >./ index1.cdx
-        src = os.path.join(src_warc_cdx, fname)
-        dst = os.path.join(dst_warc_cdx, fname)
 
         shutil.copy2(src, dst)
 
@@ -359,7 +396,7 @@ def remove_snapshot_from_production(snapshot_uid: str):
     src_indexes = os.path.join(
         settings.LONGTERM_VOLUME,
         str(snapshot.replay_collection_id),
-        "indexes",
+        "warc-cdx",
     )
 
     # --------------------------------------------------
