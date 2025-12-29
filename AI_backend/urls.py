@@ -30,4 +30,7 @@ urlpatterns = [
     path("api/docs/redoc/", SpectacularRedocView.as_view(url_name="schema"), name="redoc"),
 
     path("dummy/PUT_collector", dummy_put_collector, name="dummy_put_collector"),
+    path("task/api/", dummy_put_collector, name="dummy_put_collector"),
+    path("snapshot/", dummy_put_collector, name="dummy_put_collector"),
+    path("snapshot/<snapshot_id>/", dummy_put_collector, name="dummy_put_collector"),
 ]
