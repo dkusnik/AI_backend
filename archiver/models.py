@@ -781,7 +781,7 @@ class Snapshot(models.Model):
             "size": self.size,
             "itemCount": self.item_count,
             "warcPath": self.warc_path,
-            "replayCollectionId": self.replay_collection_id,
+            "replayCollectionId": str(self.replay_collection_id),
             "warcs": [
                 warc.build_json_response()
                 for warc in self.warcs.all()
