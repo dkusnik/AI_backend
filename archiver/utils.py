@@ -74,7 +74,7 @@ def task_notify(func):
 
         except Exception:
             task.status = TaskStatus.FAILED
-            task.taskResponse = traceback.format_exc()
+            task.updateMessage = traceback.format_exc()
             raise
 
         finally:
@@ -83,7 +83,7 @@ def task_notify(func):
             # -------------------------
             task.finishTime = timezone.now()
             task.save(
-                update_fields=["status", "taskResponse", "finishTime"]
+                update_fields=["status", "taskResponse", "finishTime", "updateMessage"]
             )
             task.send_task_response()
 
