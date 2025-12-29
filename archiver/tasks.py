@@ -268,7 +268,7 @@ def move_snapshot_to_longterm(snapshot_uid: str):
 
     src_archive = os.path.join(src_base, "archive")
     src_indexes = os.path.join(src_base, "indexes")
-    src_warc_idx = os.path.join(src_base, "warc-cdx")
+    src_warc_cdx = os.path.join(src_base, "warc-cdx")
 
     if not os.path.isdir(src_archive):
         raise FileNotFoundError(f"Longterm archive missing: {src_archive}")
@@ -276,8 +276,8 @@ def move_snapshot_to_longterm(snapshot_uid: str):
     if not os.path.isdir(src_indexes):
         raise FileNotFoundError(f"Longterm indexes missing: {src_indexes}")
 
-    if not os.path.isdir(src_warc_idx):
-        raise FileNotFoundError(f"Longterm archive missing: {src_warc_idx}")
+    if not os.path.isdir(src_warc_cdx):
+        raise FileNotFoundError(f"Longterm archive missing: {src_warc_cdx}")
 
     dst_base = os.path.join(
         settings.LONGTERM_VOLUME,
@@ -286,11 +286,11 @@ def move_snapshot_to_longterm(snapshot_uid: str):
 
     dst_archive = os.path.join(dst_base, "archive")
     dst_indexes = os.path.join(dst_base, "indexes")
-    dst_warc_idx = os.path.join(dst_base, "warc_idx")
+    dst_warc_cdx = os.path.join(dst_base, "warc-cdx")
 
     os.makedirs(dst_archive, exist_ok=True)
     os.makedirs(dst_indexes, exist_ok=True)
-    os.makedirs(dst_warc_idx, exist_ok=True)
+    os.makedirs(dst_warc_cdx, exist_ok=True)
 
     # --------------------------------
     # Copy WARCs
@@ -332,12 +332,12 @@ def move_snapshot_to_longterm(snapshot_uid: str):
 
         shutil.copy2(src, dst)
 
-    for fname in os.listdir(src_warc_idx):
+    for fname in os.listdir(src_warc_cdx):
         if not fname.endswith(".cdx"):
             continue
         # cdx-indexer / path / to / mywarcs / my.warc.gz >./ index1.cdx
-        src = os.path.join(src_warc_idx, fname)
-        dst = os.path.join(dst_warc_idx, fname)
+        src = os.path.join(src_warc_cdx, fname)
+        dst = os.path.join(dst_warc_cdx, fname)
 
         shutil.copy2(src, dst)
 
