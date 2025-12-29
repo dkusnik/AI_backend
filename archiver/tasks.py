@@ -290,6 +290,7 @@ def move_snapshot_to_longterm(snapshot_uid: str):
 
     os.makedirs(dst_archive, exist_ok=True)
     os.makedirs(dst_indexes, exist_ok=True)
+    os.makedirs(dst_warc_idx, exist_ok=True)
 
     # --------------------------------
     # Copy WARCs
