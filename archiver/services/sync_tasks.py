@@ -322,5 +322,42 @@ def sync_tasks_from_cluster(where_status: list | None = None, page_limit=50, dry
 
     return processed
 
+
+def sync_tasks_status_from_cluster(where_status: list | None = None, page_limit=50, dry_run=False,
+                            only_sync=False) -> int:
+    """
+    Fetch all tasks from Cluster API and sync locally.
+
+    :return: number of tasks processed
+    """
+    start = 0
+    processed = 0
+
+    while True:
+        data = fetch_tasks_from_api(
+            start=start,
+            limit=page_limit,
+            where_status=where_status,
+        )
+        items = data.get("items")
+        if not items:
+            break
+
+        for task_data in items:
+            processed += 1
+            if not dry_run:
+                uid = task_data.get('uid')
+                task = Task.objects.get(uid=uid)
+                if task:
+                    task.send_task_response()
+
+        if len(items) < page_limit:
+            break
+
+        start += page_limit
+
+    return processed
+
+
 def sync_tasks_scheduler() -> int:
     return sync_tasks_from_cluster(["scheduled"])
