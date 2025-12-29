@@ -361,7 +361,7 @@ def move_snapshot_to_longterm(snapshot_uid: str):
 
         src_warc = os.path.join(src_archive, fname)
 
-        generate_cdx_from_warc(
+        _generate_cdx_from_warc(
             warc_path=src_warc,
             output_dir=dst_warc_cdx,
         )
