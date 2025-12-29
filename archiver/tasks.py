@@ -334,7 +334,7 @@ def move_snapshot_to_longterm(snapshot_uid: str):
     for fname in os.listdir(src_warc_idx):
         if not fname.endswith(".cdx"):
             continue
-
+        # cdx-indexer / path / to / mywarcs / my.warc.gz >./ index1.cdx
         src = os.path.join(src_warc_idx, fname)
         dst = os.path.join(dst_warc_idx, fname)
 
