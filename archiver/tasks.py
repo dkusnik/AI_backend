@@ -268,7 +268,7 @@ def move_snapshot_to_longterm(snapshot_uid: str):
 
     src_archive = os.path.join(src_base, "archive")
     src_indexes = os.path.join(src_base, "indexes")
-    src_warc_idx = os.path.join(base_path, "warc-cdx")
+    src_warc_idx = os.path.join(src_base, "warc-cdx")
 
     if not os.path.isdir(src_archive):
         raise FileNotFoundError(f"Longterm archive missing: {src_archive}")
