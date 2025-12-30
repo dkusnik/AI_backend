@@ -289,7 +289,7 @@ def upsert_task_from_api(task_data: dict) -> tuple[Task, bool]:
 
 
 def sync_tasks_from_cluster(where_status: list | None = None, page_limit=50, dry_run=False,
-                            only_sync=False) -> int:
+                            only_sync=False, force_run=False) -> int:
     """
     Fetch all tasks from Cluster API and sync locally.
 
@@ -312,7 +312,7 @@ def sync_tasks_from_cluster(where_status: list | None = None, page_limit=50, dry
             processed += 1
             if not dry_run:
                 task, created = upsert_task_from_api(task_data)
-                if created and not only_sync:
+                if not only_sync and (created or force_run):
                     dispatch_task(task)
 
         if len(items) < page_limit:

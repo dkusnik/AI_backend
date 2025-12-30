@@ -29,11 +29,18 @@ class Command(BaseCommand):
             help="Fetch tasks but do not queue",
         )
 
+        parser.add_argument(
+            "--force-run",
+            action="store_true",
+            help="Forces the tasks to be dispatched again ( risky! use only if sure)",
+        )
+
     def handle(self, *args, **options):
         statuses = options.get("status")
         limit = options["limit"]
         dry_run = options["dry_run"]
         only_sync = options["only_sync"]
+        force_run = options["force_run"]
 
         self.stdout.write(self.style.NOTICE("Starting task import from Cluster API"))
 
@@ -43,6 +50,7 @@ class Command(BaseCommand):
                 page_limit=limit,
                 dry_run=dry_run,
                 only_sync=only_sync,
+                force_run=force_run,
             )
         except Exception as exc:
             raise CommandError(f"Task import failed: {exc}") from exc
