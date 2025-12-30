@@ -74,6 +74,7 @@ def task_notify(func):
 
         except Exception:
             task.status = TaskStatus.FAILED
+            task.taskResponse = {'updatedAt': str(timezone.now())}
             task.updateMessage = traceback.format_exc()
             raise
 
