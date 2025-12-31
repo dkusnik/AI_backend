@@ -1,21 +1,22 @@
-services:
-  #keycloak:
-  #  image: quay.io/keycloak/keycloak:23.0
-  #  container_name: keycloak
-  #  command: ["start-dev"]
-  #  environment:
-  #    KEYCLOAK_ADMIN: keycloak
-  #    KEYCLOAK_ADMIN_PASSWORD: keycloak_pass
-  #    KC_DB: postgres
-  #    KC_DB_URL: jdbc:postgresql://host.docker.internal:5432/keycloak
-  #    KC_DB_USERNAME: keycloak
-  #    KC_DB_PASSWORD: keycloak_pass
-  #    KC_PROXY: edge
-  #  ports:
-  #    - "8080:8080"
-  #  extra_hosts:
-  #    - "host.docker.internal:host-gateway"
+x-worker-common: &worker-common
+  build:
+    context: .
+    dockerfile: Dockerfile.worker
+  env_file:
+    - .env.docker
+  environment:
+    PYTHONUNBUFFERED: "1"
+  volumes:
+    - ./:/app/
+    - static_volume:/app/static
+    - /var/run/docker.sock:/var/run/docker.sock
+    - /srv/ai/:/srv/ai/:rw
+  extra_hosts:
+    - "host.docker.internal:host-gateway"
+  restart: unless-stopped
 
+
+services:
   web:
     build:
       context: .
@@ -32,37 +33,25 @@ services:
     extra_hosts:
       - "host.docker.internal:host-gateway"
 
-  worker_crawl:
-    build:
-      context: .
-      dockerfile: Dockerfile.worker_crawl
-    env_file:
-      - .env.docker
-    environment:
-      - PYTHONUNBUFFERED=1
-    volumes:
-      - ./:/app/    # mounts local code, overrides image
-      - static_volume:/app/static
-      - /var/run/docker.sock:/var/run/docker.sock
-      - /srv/ai/:/srv/ai/:rw
-#    depends_on:
-#      - web
-    extra_hosts:
-      - "host.docker.internal:host-gateway"
+  worker_crawl_normal:
+    <<: *worker-common
+    command: ["python", "manage.py", "rqworker", "crawls_normal"]
+
+  worker_crawl_high:
+    <<: *worker-common
+    command: ["python", "manage.py", "rqworker", "crawls_high"]
+
+  worker_crawl_low:
+    <<: *worker-common
+    command: ["python", "manage.py", "rqworker", "crawls_low"]
+
+  worker_crawl_priority:
+    <<: *worker-common
+    command: ["python", "manage.py", "rqworker", "crawls_priority"]
 
   worker_management:
-    build:
-      context: .
-      dockerfile: Dockerfile.worker_management
-    env_file:
-      - .env.docker
-    volumes:
-      - ./:/app/    # mounts local code, overrides image
-      - /srv/ai/:/srv/ai/:rw
- #   depends_on:
- #     - web
-    extra_hosts:
-      - "host.docker.internal:host-gateway"
+    <<: *worker-common
+    command: ["python", "manage.py", "rqworker", "management"]
 
   worker_default:
     build:

@@ -59,7 +59,19 @@ RQ_QUEUES = {
         "URL": env("REDIS_URL"),
         'DEFAULT_TIMEOUT': 3600,
     },
-    "crawls": {
+    "crawls_normal": {
+        "URL": env("REDIS_URL"),
+        "DEFAULT_TIMEOUT": 86400,  # long for full crawls
+    },
+    "crawls_low": {
+        "URL": env("REDIS_URL"),
+        "DEFAULT_TIMEOUT": 86400,  # long for full crawls
+    },
+    "crawls_high": {
+        "URL": env("REDIS_URL"),
+        "DEFAULT_TIMEOUT": 86400,  # long for full crawls
+    },
+    "crawls_priority": {
         "URL": env("REDIS_URL"),
         "DEFAULT_TIMEOUT": 86400,  # long for full crawls
     },

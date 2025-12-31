@@ -26,7 +26,7 @@ from archiver.tasks import (
 )
 
 UUID_REGEX = re.compile(r"^[0-9a-fA-F-]{32,36}$")
-redis_conn = django_rq.get_connection("crawls")
+redis_conn = django_rq.get_connection("management")
 
 # ------------------------
 # INTERNAL HELPERS
@@ -91,7 +91,7 @@ def resolve_job_or_website(identifier: str) -> Snapshot:
     raise Snapshot.DoesNotExist(f"No Snapshot found for identifier={identifier}")
 
 
-def queue_crawl(website_id: int, task: Task = None, queue_name: str = "crawls") -> str:
+def queue_crawl(website_id: int, task: Task = None, queue_name: str = "crawls_normal") -> str:
     """
     Enqueue a crawl job for the given website.
     Also creates a Snapshot database entry storing the RQ job ID.
@@ -110,6 +110,8 @@ def queue_crawl(website_id: int, task: Task = None, queue_name: str = "crawls") 
         )
     else:
         task.snapshot = snapshot
+    if task.priority:
+        queue_name = f"crawls_{task.priority}"
     task.status = TaskStatus.CREATED
     task.save()
 
@@ -125,7 +127,7 @@ def queue_crawl(website_id: int, task: Task = None, queue_name: str = "crawls") 
     return job.id
 
 
-def get_crawl_status(job_id: str, queue_name: str = "crawls") -> dict:
+def get_crawl_status(job_id: str, queue_name: str = "crawls_normal") -> dict:
     """
     Get the status of a crawl job.
     Returns dictionary with id, status, and result if finished.

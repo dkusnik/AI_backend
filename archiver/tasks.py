@@ -19,9 +19,6 @@ from archiver.stats import (BrowsertrixLogParser, CDXParser,
 from archiver.utils import calculate_sha256, task_notify
 
 
-redis_conn = django_rq.get_connection("crawls")
-
-
 def update_snapshot_process_stats(container, snapshot_id: int) -> dict:
     """
     Collect Docker stats for the Snapshot's container and
@@ -133,6 +130,8 @@ def start_crawl_task(snapshot_uid, task_uid):
     job_id = snapshot.rq_job_id
     queue_key = f"crawl:{job_id}"
     control_key = f"{queue_key}:control"
+
+    redis_conn = django_rq.get_connection(f"management")
 
     redis_conn.set(queue_key, "running")
 

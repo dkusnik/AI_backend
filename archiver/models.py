@@ -918,6 +918,20 @@ class TaskStatus(models.TextChoices):
     FAILED = "failed"
 
 
+class TaskPriority:
+    LOW = "low"
+    NORMAL = "normal"
+    HIGH = "high"
+    PRIORITY = "priority"
+
+    CHOICES = [
+        (LOW, "low"),
+        (NORMAL, "normal"),
+        (HIGH, "high"),
+        (PRIORITY, "priority")
+    ]
+
+
 class Task(models.Model):
     uid = models.CharField(max_length=128)
     snapshot = models.ForeignKey(Snapshot, on_delete=models.SET_NULL, related_name='task',
@@ -935,7 +949,10 @@ class Task(models.Model):
     resultDescription = models.TextField(blank=True, null=True)
     runData = models.TextField(blank=True, null=True)
     created_at = models.DateTimeField(auto_now_add=True)
-    priority = models.CharField(max_length=32, default="normal")
+    priority = models.CharField(max_length=32,
+                                choices=TaskPriority.CHOICES,
+                                default=TaskPriority.NORMAL,
+    )
     schedule = models.CharField(max_length=64, blank=True, null=True)
 
     # JSON fields (PostgreSQL)
