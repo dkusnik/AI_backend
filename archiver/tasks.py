@@ -241,7 +241,7 @@ def start_crawl_task(snapshot_uid, task_uid):
     # TODO: check if snapshot is okay
     if snapshot.status == Snapshot.STATUS_COMPLETED:
         move_snapshot_to_longterm(snapshot.uid)
-        if snapshot.auto_update:
+        if snapshot.website.auto_publish:
             move_snapshot_to_production(snapshot.uid)
 
     # Return final result
