@@ -554,6 +554,7 @@ class Website(models.Model):
                     else None
                 ),
                 "enabled": not website_data.get("isDeleted", False),
+                "auto_publish": website_data.get("autoPublish", False),
             }
 
             # Remove empty values (important for partial payloads)
