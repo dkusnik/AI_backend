@@ -105,8 +105,8 @@ class SnapshotAdmin(ReadOnlyAdmin):
                 level=messages.WARNING,
             )
 
-    @admin.action(description="Publish snapshot to production")
-    def publish_action(self, request, queryset):
+    @admin.action(description="Unpublish snapshot to production")
+    def unpublish_action(self, request, queryset):
         """
         Admin action: enqueue crawl jobs for selected websites.
         """

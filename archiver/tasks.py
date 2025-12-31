@@ -370,7 +370,7 @@ def move_snapshot_to_longterm(snapshot_uid: str):
     # Copy CDXJ indexes
     # --------------------------------
     for fname in os.listdir(src_indexes):
-        if not fname.endswith(".cdxj"):
+        if not (fname.endswith(".cdxj") or fname.endswith(".cdx")):
             continue
 
         src = os.path.join(src_indexes, fname)
@@ -406,7 +406,7 @@ def remove_snapshot_from_production(snapshot_uid: str):
     delete_endpoint = f"{outbackcdx_url}/default/delete"
 
     for fname in sorted(os.listdir(src_indexes)):
-        if not fname.endswith(".cdxj"):
+        if not (fname.endswith(".cdxj") or fname.endswith(".cdx")):
             continue
 
         cdxj_path = os.path.join(src_indexes, fname)
@@ -428,7 +428,7 @@ def remove_snapshot_from_production(snapshot_uid: str):
     # --------------------------------------------------
     # 2. Remove WARCs from production
     # --------------------------------------------------
-    for warc in snapshot.warcs.objects.filter(is_production=True):
+    for warc in snapshot.warcs.filter(is_production=True):
         if warc.path and os.path.exists(warc.path):
             os.remove(warc.path)
 
