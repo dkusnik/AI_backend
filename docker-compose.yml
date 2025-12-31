@@ -44,7 +44,7 @@ services:
       - ./:/app/    # mounts local code, overrides image
       - static_volume:/app/static
       - /var/run/docker.sock:/var/run/docker.sock
-      - /srv/ai/browsertrix/configs:/srv/ai/browsertrix/configs:rw
+      - /srv/ai/:/srv/ai/:rw
 #    depends_on:
 #      - web
     extra_hosts:
@@ -152,9 +152,10 @@ services:
       - "9081:8080"
     environment:
       PYWB_COLLECTIONS_DIR: /webarchive/collections
-      CDX_SERVER_URL: http://outbackcdx:8080
+      PYWB_CONFIG_FILE: /webarchive/config.yaml
     volumes:
       - /srv/ai/production_collection:/webarchive/collections:ro
+      - ./pywb/config.yaml:/webarchive/config.yaml:ro
     restart: unless-stopped
 
   # =====================
