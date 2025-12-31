@@ -1,6 +1,7 @@
 import requests
 from django.conf import settings
 from django.db import transaction
+from django.utils import timezone
 from django.utils.dateparse import parse_datetime
 
 from archiver.models import Task, Website, Snapshot, WebsiteCrawlParameters, TaskStatus
@@ -310,7 +311,13 @@ def sync_tasks_from_cluster(where_status: list | None = None, page_limit=50, dry
 
         for task_data in items:
             processed += 1
-            if not dry_run:
+            runAt = data.get("runAt")
+            if runAt is None:
+                should_run = True
+            else:
+                dt = parse_datetime(runAt)
+                should_run = dt is not None and dt <= timezone.now()
+            if not dry_run and should_run:
                 task, created = upsert_task_from_api(task_data)
                 if not only_sync and (created or force_run):
                     dispatch_task(task)
