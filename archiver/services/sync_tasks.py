@@ -1,3 +1,4 @@
+import django_rq
 import requests
 from django.conf import settings
 from django.db import transaction
@@ -6,8 +7,11 @@ from django.utils.dateparse import parse_datetime
 
 from archiver.models import Task, Website, Snapshot, WebsiteCrawlParameters, TaskStatus
 from archiver.auth import get_keycloak_access_token
-from archiver.services.crawl_manager import queue_crawl, replay_publish, replay_unpublish, website_publish_all, website_unpublish_all
-
+from archiver.services.crawl_manager import (queue_crawl, stop_crawl, resume_crawl,
+                                             replay_publish, replay_unpublish, website_publish_all,
+                                             website_unpublish_all, admin_platform_lock,
+                                             admin_platform_unlock)
+from archiver.utils import is_adding_new_tasks_disabled
 
 API_TO_MODEL_FIELD_MAP = {
     "action": "action",
@@ -27,6 +31,9 @@ API_TO_MODEL_FIELD_MAP = {
     "taskParameters": "taskParameters",
     "taskResponse": "taskResponse",
 }
+
+
+EXCLUDED_LOCK_QUEUE = "task_sync"
 
 
 def dispatch_task(task: Task) -> None:
@@ -73,10 +80,11 @@ def dispatch_task(task: Task) -> None:
         "admin_platform_unlock": handle_admin_platform_unlock,
 
         # Crawl management
-        "crawl_throttle": handle_crawl_throttle,
-        "crawl_unthrottle": handle_crawl_unthrottle,
+        "disable_adding_crawls ": handle_disable_adding_crawls ,
+        "enable_adding_crawls": handle_enable_adding_crawls,
         "crawl_run": handle_crawl_run,
         "crawl_suspend": handle_crawl_suspend,
+        "crawl_resume": handle_crawl_resume,
         "crawl_stop": handle_crawl_stop,
 
         # Website
@@ -114,26 +122,43 @@ def dispatch_task(task: Task) -> None:
 # Platform administration
 # =================================================
 def handle_admin_platform_lock(task):
-    """Force scheduled maintenance landing page."""
-    pass
+    return admin_platform_lock(task)
 
 
 def handle_admin_platform_unlock(task):
-    """Disable maintenance landing page."""
-    pass
+    return admin_platform_unlock(task)
 
 
 # =================================================
 # Crawl management
 # =================================================
-def handle_crawl_throttle(task):
-    """Disable crawl scheduling; allow running crawls to finish."""
-    pass
+def handle_disable_adding_crawls(task):
+    """
+    Disable adding NEW crawl tasks globally.
+    Running crawls are NOT affected.
+    """
+    redis = django_rq.get_connection("management")
+
+    redis.set(
+        settings.PLATFORM_DISABLE_ADDING_NEW_TASKS,
+        "1",
+        ex=None
+    )
+    return task.send_quick_status_message(TaskStatus.SUCCESS,
+                                          "Adding new tasks prohibited")
 
 
-def handle_crawl_unthrottle(task):
-    """Re-enable crawl scheduling."""
-    pass
+def handle_enable_adding_crawls(task):
+    """
+    Re-enable adding new crawl tasks globally.
+    """
+    redis = django_rq.get_connection("management")
+
+    redis.delete(
+        settings.PLATFORM_DISABLE_ADDING_NEW_TASKS
+    )
+    return task.send_quick_status_message(TaskStatus.SUCCESS,
+                                          "Adding new tasks allowed")
 
 
 def handle_crawl_run(task):
@@ -143,11 +168,8 @@ def handle_crawl_run(task):
     if params.get("crawlConfig", None):
         wp, _ = WebsiteCrawlParameters.create_or_update_from_task_parameters(params['crawlConfig'])
     else:
-        task.status = TaskStatus.FAILED
-        task.updateMessage = "Missing crawlConfig. Task fails"
-        task.save()
-        task.send_task_response()
-        return
+        return task.send_quick_status_message(TaskStatus.FAILED,
+                                              "Missing crawlConfig. Task fails")
     website.website_crawl_parameters = wp
     task.update_task_params({'crawlConfigId': wp.id,
                              'crawlConfig': wp.build_json_response()})
@@ -156,13 +178,37 @@ def handle_crawl_run(task):
 
 
 def handle_crawl_suspend(task):
-    """Suspend crawl execution for a website or snapshot."""
-    pass
+    """
+    Suspend crawl execution for a website or snapshot.
+    """
+    if task.status != TaskStatus.RUNNING:
+        return task.send_quick_status_message(TaskStatus.FAILED,
+                                              "Cannot suspend not running crawl")
+    if not task.snapshot:
+        return task.send_quick_status_message(TaskStatus.FAILED,
+                                              "This task has no snapshot, cannot be suspended")
+
+    return suspend_crawl(task)
 
 
 def handle_crawl_stop(task):
-    """Force-stop an ongoing crawl."""
-    pass
+    if task.status != TaskStatus.RUNNING:
+        return task.send_quick_status_message(TaskStatus.FAILED,
+                                              "Cannot stop not running crawl")
+    if not task.snapshot:
+        return task.send_quick_status_message(TaskStatus.FAILED,
+                                              "This task has no snapshot, cannot be stopped")
+    return stop_crawl(task)
+
+
+def handle_crawl_resume(task):
+    if task.status != TaskStatus.PAUSED:
+        return task.send_quick_status_message(TaskStatus.FAILED,
+                                              "Cannot resume not stopped crawl")
+    if not task.snapshot:
+        return task.send_quick_status_message(TaskStatus.FAILED,
+                                              "This task has no snapshot, cannot be resumed")
+    return resume_crawl(task)
 
 
 # =================================================
@@ -298,6 +344,10 @@ def sync_tasks_from_cluster(where_status: list | None = None, page_limit=50, dry
     """
     start = 0
     processed = 0
+
+    if is_adding_new_tasks_disabled():
+        print("Importing new tasks is prohibited. Remove the lock in FE!")
+        return 0
 
     while True:
         data = fetch_tasks_from_api(

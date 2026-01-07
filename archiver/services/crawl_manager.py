@@ -39,6 +39,19 @@ def _send_control(job_id: str, command: str):
     redis_conn.set(f"crawl:{job_id}:control", command)
 
 
+def _send_crawl_control(snapshot, command: str) -> bool:
+    """
+    Send control command to running crawl via Redis.
+    """
+    if not snapshot or not snapshot.rq_job_id:
+        return False
+
+    job_id = snapshot.rq_job_id
+    control_key = f"crawl:{job_id}:control"
+    redis_conn.set(control_key, command)
+    return True
+
+
 def resolve_job_or_website(identifier: str) -> Snapshot:
     """
     Accepts any of:
@@ -144,112 +157,77 @@ def get_crawl_status(job_id: str, queue_name: str = "crawls_normal") -> dict:
     }
 
 
-# ------------------------
-# STOP CRAWL
-# ------------------------
-def stop_crawl(identifier: str) -> bool:
-    cj = resolve_job_or_website(identifier)
-    job_id = cj.rq_job_id
-
-    # Prefer redis control (remote-safe)
-    if _queue_exists(job_id):
-        _send_control(job_id, "stop")
-        cj.status = "cancelled"
-        cj.save(update_fields=["status"])
-        return True
-
-    # Fallback: local kill if this is the right machine
-    if cj.machine == socket.gethostname() and cj.process_id:
-        try:
-            os.kill(cj.process_id, signal.SIGTERM)
-            cj.status = "cancelled"
-            cj.save(update_fields=["status"])
-            return True
-        except ProcessLookupError:
-            return False
-
-    return False
+def suspend_crawl(task: Task) -> bool:
+    ok = _send_crawl_control(task.snapshot, "suspend")
+    if not ok:
+        return task.send_quick_status_message(TaskStatus.FAILED,
+                                              "Could not send crawl control. Is crawl running?")
+    return task.send_quick_status_message(TaskStatus.SUCCESS,
+                                          "SUSPEND crawl control sent.")
 
 
-# ------------------------
-# SUSPEND CRAWL
-# ------------------------
-def suspend_crawl(identifier: str) -> bool:
-    cj = resolve_job_or_website(identifier)
-    job_id = cj.rq_job_id
-
-    if _queue_exists(job_id):
-        _send_control(job_id, "suspend")
-        cj.status = "suspended"
-        cj.save(update_fields=["status"])
-        return True
-
-    if cj.machine == socket.gethostname() and cj.process_id:
-        try:
-            os.kill(cj.process_id, signal.SIGSTOP)
-            cj.status = "suspended"
-            cj.save(update_fields=["status"])
-            return True
-        except ProcessLookupError:
-            return False
-
-    return False
+def stop_crawl(task: Task) -> bool:
+    ok = _send_crawl_control(task.snapshot, "stop")
+    if not ok:
+        return task.send_quick_status_message(TaskStatus.FAILED,
+                                              "Could not send crawl control. Is crawl running?")
+    return task.send_quick_status_message(TaskStatus.SUCCESS,
+                                          "STOP crawl control sent.")
 
 
-# ------------------------
-# RESUME CRAWL
-# ------------------------
-def resume_crawl(identifier: str) -> bool:
-    cj = resolve_job_or_website(identifier)
-    job_id = cj.rq_job_id
-
-    if _queue_exists(job_id):
-        _send_control(job_id, "resume")
-        cj.status = "running"
-        cj.save(update_fields=["status"])
-        return True
-
-    if cj.machine == socket.gethostname() and cj.process_id:
-        try:
-            os.kill(cj.process_id, signal.SIGCONT)
-            cj.status = "running"
-            cj.save(update_fields=["status"])
-            return True
-        except ProcessLookupError:
-            return False
-
-    return False
+def resume_crawl(task: Task) -> bool:
+    ok = _send_crawl_control(task.snapshot, "stop")
+    if not ok:
+        return task.send_quick_status_message(TaskStatus.FAILED,
+                                              "Could not send crawl control. Is crawl running?")
+    return task.send_quick_status_message(TaskStatus.SUCCESS,
+                                          "RESUME crawl control sent.")
 
 
 # ------------------------
 # PLATFORM ADMINISTRATION (QUEUE: management)
 # ------------------------
 
-def admin_platform_lock(task_uid: str = None) -> str:
-    queue = django_rq.get_queue("management")
-    job = queue.enqueue(admin_platform_lock_task, task_uid=task_uid)
-    return job.id
+def admin_platform_lock(task: Task):
+
+    redis_conn.set(
+        settings.PLATFORM_LOCK_KEY,
+        "1",
+        ex=None  # no expiration → manual unlock required
+    )
+    paused_queues = []
+
+    for queue_name in settings.RQ_QUEUES.keys():
+        if queue_name == EXCLUDED_QUEUE:
+            continue
+
+        queue = django_rq.get_queue(queue_name)
+
+        if not queue.is_paused:
+            queue.pause()
+            paused_queues.append(queue_name)
+    return task.send_quick_status_message(TaskStatus.SUCCESS,
+                                          "Platform LOCKED QUEUES: "+ ','.join(paused_queues))
 
 
-def admin_platform_unlock(task_uid: str = None) -> str:
-    queue = django_rq.get_queue("management")
-    job = queue.enqueue(admin_platform_unlock_task, task_uid=task_uid)
-    return job.id
+def admin_platform_unlock(task: Task):
+    """Disable maintenance lock."""
+    redis_conn.delete(settings.PLATFORM_LOCK_KEY)
+    resumed_queues = []
+
+    for queue_name in settings.RQ_QUEUES.keys():
+        if queue_name == EXCLUDED_QUEUE:
+            continue
+
+        queue = django_rq.get_queue(queue_name)
+
+        if queue.is_paused:
+            queue.resume()
+            resumed_queues.append(queue_name)
+    return task.send_quick_status_message(TaskStatus.SUCCESS,
+                                          "Platform UNLOCKED QUEUES: "+ ','.join(paused_queues))
 
 
-# ------------------------
-# GLOBAL CRAWL MANAGEMENT (QUEUE: management)
-# ------------------------
-def crawl_throttle() -> str:
-    queue = django_rq.get_queue("management")
-    job = queue.enqueue(crawl_throttle_task)
-    return job.id
-
-
-def crawl_unthrottle() -> str:
-    queue = django_rq.get_queue("management")
-    job = queue.enqueue(crawl_unthrottle_task)
-    return job.id
 
 
 # ------------------------

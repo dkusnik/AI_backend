@@ -117,8 +117,8 @@ def start_crawl_task(snapshot_uid, task_uid):
 
     # store container id (NOT PID)
     snapshot.process_id = container.id
-    task.status = TaskStatus.RUNNING
     task.startTime = timezone.now()
+    task.status = TaskStatus.RUNNING
     task.save(update_fields=["status", "startTime"])
     snapshot.crawlStartTimestamp = timezone.now()
     snapshot.save(update_fields=["process_id", "crawlStartTimestamp", "status", "machine",
@@ -158,14 +158,17 @@ def start_crawl_task(snapshot_uid, task_uid):
 
                 if control_cmd == "stop":
                     container.stop(timeout=10)
+                    task.status = TaskStatus.STOPPED
                     snapshot.status = "stopped"
 
                 elif control_cmd == "suspend":
                     container.pause()
+                    task.status = TaskStatus.PAUSED
                     snapshot.status = "suspended"
 
                 elif control_cmd == "resume":
                     container.unpause()
+                    task.status = TaskStatus.RUNNING
                     snapshot.status = Snapshot.STATUS_CRAWLING
 
                 snapshot.save(update_fields=["status"])

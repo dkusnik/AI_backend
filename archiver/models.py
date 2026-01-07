@@ -1,3 +1,4 @@
+import django_rq
 import uuid
 import requests
 from pathlib import Path
@@ -14,7 +15,7 @@ from django.utils.timezone import is_aware
 
 from archiver.stats import CrawlDerivedMetrics, CrawlStats
 from archiver.auth import get_keycloak_access_token
-
+from archiver.models import TaskStatus
 
 class Tag(models.Model):
     name = models.CharField(max_length=255)
@@ -913,6 +914,7 @@ class TaskStatus(models.TextChoices):
     SCHEDULED = "scheduled"
     CANCELLED = "cancelled"
     RUNNING = "running"
+    STOPPED = "stopped"
     PAUSED = "paused"
     SUCCESS = "success"
     FAILED = "failed"
@@ -1228,6 +1230,14 @@ class Task(models.Model):
             "error_message",
         ])
         return delivery
+
+    def send_quick_status_message(self, status: TaskStatus, message: str):
+        self.status = status
+        self.updateMessage = message
+        self.taskResponse = {'updatedAt': str(timezone.now())}
+        self.save()
+        self.send_task_response()
+        return
 
 
 class Warc(models.Model):
