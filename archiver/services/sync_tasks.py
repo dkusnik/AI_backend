@@ -112,10 +112,8 @@ def dispatch_task(task: Task) -> None:
         # TODO: rethink if this should be so generic
         # except (KeyError, TypeError, ValueError, json.JSONDecodeError) as e:
     except (Exception) as e:
-        task.status = TaskStatus.FAILED
-        task.updateMessage = str(e)
-        task.save()
-        task.send_task_response()
+        return task.send_quick_status_message(TaskStatus.FAILED,
+                                              str(e))
 
 
 # =================================================
@@ -137,15 +135,11 @@ def handle_disable_adding_crawls(task):
     Disable adding NEW crawl tasks globally.
     Running crawls are NOT affected.
     """
-    redis = django_rq.get_connection("management")
+    redis_conn = django_rq.get_connection("management")
+    redis_conn.delete(settings.PLATFORM_DISABLE_ADDING_NEW_TASKS)
 
-    redis.set(
-        settings.PLATFORM_DISABLE_ADDING_NEW_TASKS,
-        "1",
-        ex=None
-    )
     return task.send_quick_status_message(TaskStatus.SUCCESS,
-                                          "Adding new tasks prohibited")
+                                          "Adding new tasks allowed")
 
 
 def handle_enable_adding_crawls(task):
@@ -345,10 +339,6 @@ def sync_tasks_from_cluster(where_status: list | None = None, page_limit=50, dry
     start = 0
     processed = 0
 
-    if is_adding_new_tasks_disabled():
-        print("Importing new tasks is prohibited. Remove the lock in FE!")
-        return 0
-
     while True:
         data = fetch_tasks_from_api(
             start=start,
@@ -361,11 +351,15 @@ def sync_tasks_from_cluster(where_status: list | None = None, page_limit=50, dry
 
         for task_data in items:
             processed += 1
-            runAt = data.get("runAt")
-            if runAt is None:
+            if (task_data['action'] != "enable_adding_crawls") and is_adding_new_tasks_disabled():
+                print("Importing new tasks is prohibited. Remove the lock in FE!")
+                continue
+
+            run_at = data.get("runAt")
+            if run_at is None:
                 should_run = True
             else:
-                dt = parse_datetime(runAt)
+                dt = parse_datetime(run_at)
                 should_run = dt is not None and dt <= timezone.now()
             if not dry_run and should_run:
                 task, created = upsert_task_from_api(task_data)
