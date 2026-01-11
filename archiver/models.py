@@ -679,8 +679,13 @@ class Snapshot(models.Model):
     crawlerConfiguration = models.JSONField(null=True, blank=True)
     crawlerOutput = models.TextField(null=True, blank=True)
     crawlWarcSize = models.BigIntegerField(null=True, blank=True)
+    justification = models.TextField(blank=True, null=True)
 
     updated_at = models.DateTimeField(auto_now=True)
+
+    @property
+    def replayRelativeUrl(self):
+        return f"{self.replay_collection_id}/{self.website.url}"
 
     # ---------------------------------
     # SAVE OVERRIDE
@@ -799,6 +804,8 @@ class Snapshot(models.Model):
             },
             "crawlStats": self.crawl_stats,
             "containerStats": self.container_stats,
+            "justification": self.justification,
+            "replayRelativeUrl": self.replayRelativeUrl,
         }
 
     def send_create_response(self) -> "SnapshotResponseDelivery":
@@ -960,6 +967,7 @@ class Task(models.Model):
     # JSON fields (PostgreSQL)
     taskParameters = models.JSONField(null=True, blank=True)
     taskResponse = models.JSONField(null=True, blank=True)
+    justification = models.TextField(blank=True, null=True)
 
     class Meta:
         ordering = ["-created_at"]

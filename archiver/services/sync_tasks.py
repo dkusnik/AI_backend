@@ -30,6 +30,7 @@ API_TO_MODEL_FIELD_MAP = {
     "schedule": "schedule",
     "taskParameters": "taskParameters",
     "taskResponse": "taskResponse",
+    "justification": "justification",
 }
 
 

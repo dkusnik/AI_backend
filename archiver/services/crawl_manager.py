@@ -134,6 +134,7 @@ def queue_crawl(website_id: int, task: Task = None, queue_name: str = "crawls_no
 
     # Attach the RQ job ID and save
     snapshot.rq_job_id = job.id
+    snapshot.justification = task.justification
     snapshot.save(update_fields=["rq_job_id"])
     snapshot.send_create_response()
 
