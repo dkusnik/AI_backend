@@ -15,7 +15,7 @@ from django.utils.timezone import is_aware
 
 from archiver.stats import CrawlDerivedMetrics, CrawlStats
 from archiver.auth import get_keycloak_access_token
-from archiver.models import TaskStatus
+
 
 class Tag(models.Model):
     name = models.CharField(max_length=255)
