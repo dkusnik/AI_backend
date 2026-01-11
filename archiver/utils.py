@@ -3,6 +3,7 @@ import hashlib
 import functools
 import traceback
 from django.utils import timezone
+from django.conf import settings
 
 from archiver.models import Task, TaskStatus
 
@@ -93,7 +94,7 @@ def task_notify(func):
 
 def is_platform_locked() -> bool:
     redis = django_rq.get_connection("management")
-    return redis.exists(PLATFORM_LOCK_KEY) == 1
+    return redis.exists(settings.PLATFORM_LOCK_KEY) == 1
 
 
 def is_adding_new_tasks_disabled() -> bool:
