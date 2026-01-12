@@ -5,7 +5,7 @@ from django.http import HttpResponseNotAllowed, JsonResponse
 from django.shortcuts import get_object_or_404, render
 from django.views.decorators.csrf import csrf_exempt
 
-from archiver.models import Snapshot
+from archiver.models import Snapshot, Website
 
 
 def snapshot_list(request):
@@ -87,3 +87,20 @@ def dummy_put_collector(request):
         },
         status=200,
     )
+
+def seed_list(request):
+    tag = request.GET.get('tag')
+    if tag:
+        websites = Website.objects.filter(snapshots__published=True).filter(
+            tags__name__icontains=tag).prefetch_related('tags').distinct()
+    else:
+        websites = Website.objects.filter(snapshots__published=True).prefetch_related('tags').distinct()
+    data = [
+        {
+            "title": website.name,
+            "url": website.url,
+            "tags": ','.join([tag.name for tag in website.tags.all()])
+        }
+        for website in websites
+    ]
+    return JsonResponse(data, safe=False)

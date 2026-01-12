@@ -17,7 +17,7 @@ Including another URLconf
 from django.contrib import admin
 from django.urls import path, include
 from drf_spectacular.views import SpectacularAPIView, SpectacularSwaggerView, SpectacularRedocView
-from archiver.views import snapshot_list, snapshot_detail, snapshot_stats_partial, dummy_put_collector
+from archiver.views import snapshot_list, snapshot_detail, snapshot_stats_partial, dummy_put_collector, seed_list
 
 urlpatterns = [
     path("", snapshot_list, name="snapshot_list"),
@@ -33,4 +33,5 @@ urlpatterns = [
     path("task/api/", dummy_put_collector, name="dummy_put_collector"),
     path("snapshot/", dummy_put_collector, name="dummy_put_collector"),
     path("snapshot/<snapshot_id>/", dummy_put_collector, name="dummy_put_collector"),
+    path("seed_list/", seed_list, name="seed_list"),
 ]
