@@ -10,6 +10,7 @@ import docker
 import requests
 from django.conf import settings
 from django.utils import timezone
+from django.db.models import Subquery, Q
 
 from archiver.models import Snapshot, Warc, Task, TaskStatus
 from archiver.stats import (BrowsertrixLogParser, CDXParser,
@@ -538,6 +539,16 @@ def move_snapshot_to_production(snapshot_uid: str):
 
 @task_notify
 def replay_publish_task(snapshot_uid: str, task_uid: str = None):
+    Snapshot.objects.filter(
+        uid=snapshot_uid,
+        publicationJustification__isnull=True
+    ).update(
+        publicationJustification=Subquery(
+            Task.objects
+            .filter(uid=task_uid)
+            .values("taskParameters__publicationJustification")[:1]
+        )
+    )
     move_snapshot_to_production(snapshot_uid)
 
 
