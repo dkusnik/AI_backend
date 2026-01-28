@@ -1042,7 +1042,7 @@ class Task(models.Model):
         # -------------------------------------------------
         task = cls.objects.create(
             action=action,
-            # uid=str(uuid.uuid4()),
+            uid=str(uuid.uuid4()),
             user=user,
             snapshot=snapshot,
             status=TaskStatus.SCHEDULED,

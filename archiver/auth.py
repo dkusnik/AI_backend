@@ -14,7 +14,8 @@ def get_keycloak_access_token() -> str:
     Get cached OAuth token for cluster-service.
     Refresh automatically if expired or missing.
     """
-
+    if settings.KEYCLOAK_TOKEN_FOR_DEBUG and settings.DEBUG:
+        return settings.KEYCLOAK_TOKEN_FOR_DEBUG
     token = cache.get(TOKEN_CACHE_KEY)
     expires_at = cache.get(TOKEN_EXP_CACHE_KEY)
 

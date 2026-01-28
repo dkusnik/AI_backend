@@ -50,7 +50,7 @@ def snapshot_stats_partial(request, snapshot_id: int):
 
 
 @csrf_exempt
-def dummy_put_collector(request):
+def dummy_put_collector(request, snapshot_id=None):
     """
     Dummy endpoint to collect PUT requests and log payload.
     """

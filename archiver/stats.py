@@ -72,8 +72,15 @@ class BrowsertrixLogParser:
                 stats.log_bytes_parsed += raw_len
                 stats.log_lines_parsed += 1
 
+                # Szukamy początku JSON-a
+                json_start = line.find("{")
+                if json_start == -1:
+                    continue
+
+                json_part = line[json_start:]
+
                 try:
-                    record = json.loads(line)
+                    record = json.loads(json_part)
                 except json.JSONDecodeError:
                     continue
 
@@ -153,8 +160,15 @@ class CDXParser:
                 if not line:
                     continue
 
+                # Szukamy początku JSON-a
+                json_start = line.find("{")
+                if json_start == -1:
+                    continue
+
+                json_part = line[json_start:]
+
                 try:
-                    record = json.loads(line)
+                    record = json.loads(json_part)
                 except json.JSONDecodeError:
                     continue
 

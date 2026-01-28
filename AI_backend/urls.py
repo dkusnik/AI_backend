@@ -31,7 +31,7 @@ urlpatterns = [
 
     path("dummy/PUT_collector", dummy_put_collector, name="dummy_put_collector"),
     path("task/api/", dummy_put_collector, name="dummy_put_collector"),
-    path("snapshot/", dummy_put_collector, name="dummy_put_collector"),
-    path("snapshot/<snapshot_id>/", dummy_put_collector, name="dummy_put_collector"),
+    path("snapshot", dummy_put_collector, name="dummy_put_collector"),
+    path("snapshot/<snapshot_id>", dummy_put_collector, name="dummy_put_collector"),
     path("seed_list/", seed_list, name="seed_list"),
 ]
