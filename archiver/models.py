@@ -798,10 +798,24 @@ class Snapshot(models.Model):
                 "extra": []
             },
             "metadataTechnical": {
-                'crawler': self.crawler,
-                'crawlerConfiguration': self.crawlerConfiguration,
-                'crawlerOutput': self.crawlerOutput,
-                'crawlWarcSize': self.crawlWarcSize,
+                "crawled": self.crawl_stats.get("crawled", 0),
+                "total": self.crawl_stats.get("total", 0),
+                "pending": self.crawl_stats.get("pending", 0),
+                "failed": self.crawl_stats.get("failed", 0),
+                "limit_hit": self.crawl_stats.get("limit_hit", False),
+
+                # ---- request classification (LOGS ONLY, non-canonical) ----
+                "by_request_type": self.crawl_stats.get("by_request_type"),
+
+                # ---- CDX (CANONICAL CONTENT STATS) ----
+                "by_mime": self.crawl_stats.get("by_mime"),
+                "by_http_status": self.crawl_stats.get("by_http_status"),
+                "by_url_extension": self.crawl_stats.get("by_url_extension"),
+
+                "crawlStartTimestamp": self.crawlStartTimestamp,
+                "crawlStopTimestamp": self.crawlStopTimestamp,
+                "warc_path": self.warc_path,
+                "crawlWarcSize": self.crawlWarcSize,
             },
             "crawlStats": self.crawl_stats,
             "containerStats": self.container_stats,
