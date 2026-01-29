@@ -1,6 +1,7 @@
 # archiver/permissions.py
 from rest_framework import permissions
 
+
 # Helper: check if any required scope present inside token claims or user.is_staff
 def _has_scope(request, scope_name):
     # Customize this to your auth backend. Typical places:

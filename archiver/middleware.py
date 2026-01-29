@@ -1,6 +1,7 @@
 import jwt
 from django.utils.deprecation import MiddlewareMixin
-from django.contrib.auth.models import User, Group
+from django.contrib.auth.models import User
+
 
 class OAuth2RolesMiddleware(MiddlewareMixin):
     def process_request(self, request):

@@ -15,7 +15,7 @@ def admin_start_crawl(modeladmin, request, queryset):
         if not website.enabled:
             skipped += 1
             continue
-        job_id = queue_crawl(website.id)
+        queue_crawl(website.id)
         started += 1
 
     messages.success(

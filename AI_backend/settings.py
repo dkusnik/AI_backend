@@ -254,5 +254,7 @@ API_RESPONSE_TIMEOUT = os.environ.get("API_RESPONSE_TIMEOUT", 10)
 
 PLATFORM_LOCK_KEY = "platform:locked"
 PLATFORM_DISABLE_ADDING_NEW_TASKS = "platform:no_new_tasks"
+EXCLUDED_LOCK_QUEUES = ("task_sync", )
+
 #FRONTEND_API_URL = os.environ.get("FRONTEND_API_URL", 'http://10.2.17.37/api/v1/task/api')
 #http://10.2.17.37/api/v1/task/api

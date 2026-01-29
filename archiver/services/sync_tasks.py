@@ -1,17 +1,18 @@
 import django_rq
 import requests
 from django.conf import settings
-from django.db import transaction
 from django.utils import timezone
 from django.utils.dateparse import parse_datetime
 
 from archiver.models import Task, Website, Snapshot, WebsiteCrawlParameters, TaskStatus
 from archiver.auth import get_keycloak_access_token
-from archiver.services.crawl_manager import (queue_crawl, stop_crawl, resume_crawl,
+from archiver.services.crawl_manager import (queue_crawl, stop_crawl, cancel_crawl, resume_crawl,
                                              replay_publish, replay_unpublish, website_publish_all,
-                                             website_unpublish_all, admin_platform_lock,
+                                             admin_platform_lock, suspend_crawl,
                                              admin_platform_unlock)
 from archiver.utils import is_adding_new_tasks_disabled
+from typing import Optional
+
 
 API_TO_MODEL_FIELD_MAP = {
     "action": "action",
@@ -33,7 +34,24 @@ API_TO_MODEL_FIELD_MAP = {
 }
 
 
-EXCLUDED_LOCK_QUEUE = "task_sync"
+def get_target_task(task: Task) -> Optional[Task]:
+    params = task.taskParameters
+
+    target_uid = (
+        params.get("target_task_uid")
+        if isinstance(params, dict)
+        else None
+    )
+
+    if not target_uid:
+        return task.send_quick_status_message(TaskStatus.FAILED,
+                                              "This task has no task param uid!")
+
+    try:
+        return Task.objects.get(uid=target_uid)
+    except Task.DoesNotExist:
+        return task.send_quick_status_message(TaskStatus.FAILED,
+                                              "This task doesnt exists!")
 
 
 def dispatch_task(task: Task) -> None:
@@ -44,23 +62,14 @@ def dispatch_task(task: Task) -> None:
 
             admin_platform_lock / admin_platform_unlock - force scheduled maintenance landing page
 
-        Crawl management:
-
-            crawl_throttle / crawl_unthrottle - disable crawl scheduling, allow completing ongoing crawls
-            crawl_run / crawl_suspend / crawl_stop - actions on specific websites/crawls
-
-        Website operations:
-
-            website_publish_all - publish all snapshots of a website and set autoPublish=true
-            website_unpublish_all - unpublish all snapshots of a website and set autoPublish=false
-
-        Website group operations:
-
-            website_group_set_schedule - apply schedule config to all websites in group
-            website_group_set_crawl_config - apply crawl config to all websites in group
-            website_group_priority_crawl - mark all websites in group for priority crawl
-
         Replay operations:
+            - crawl_run
+            - crawl_force_finish
+            - crawl_cancel
+            - crawl_throttle                # deprecated - renamed to disable_adding_crawls
+            - crawl_unthrottle              # deprecated - renamed to enable_adding_crawls
+            - crawl_suspend                 # deprecated - kept for backwards compatibility
+            - crawl_stop                    # deprecated - kept for backwards compatibility
 
             replay_publish / replay_unpublish - operations on single WARC
             replay_repopulate - batch recreation of replay collections
@@ -80,9 +89,11 @@ def dispatch_task(task: Task) -> None:
         "admin_platform_unlock": handle_admin_platform_unlock,
 
         # Crawl management
-        "disable_adding_crawls ": handle_disable_adding_crawls ,
+        "disable_adding_crawls": handle_disable_adding_crawls,
         "enable_adding_crawls": handle_enable_adding_crawls,
         "crawl_run": handle_crawl_run,
+        "crawl_force_finish": handle_crawl_force_finish,
+        "crawl_cancel": handle_crawl_cancel,
         "crawl_suspend": handle_crawl_suspend,
         "crawl_resume": handle_crawl_resume,
         "crawl_stop": handle_crawl_stop,
@@ -175,34 +186,55 @@ def handle_crawl_suspend(task):
     """
     Suspend crawl execution for a website or snapshot.
     """
-    if task.status != TaskStatus.RUNNING:
+    target_task = get_target_task(task)
+    if not target_task:
+        return
+    if target_task.status != TaskStatus.RUNNING:
         return task.send_quick_status_message(TaskStatus.FAILED,
                                               "Cannot suspend not running crawl")
-    if not task.snapshot:
+    if not target_task.snapshot:
         return task.send_quick_status_message(TaskStatus.FAILED,
                                               "This task has no snapshot, cannot be suspended")
 
-    return suspend_crawl(task)
+    return suspend_crawl(target_task)
 
 
 def handle_crawl_stop(task):
-    if task.status != TaskStatus.RUNNING:
+    target_task = get_target_task(task)
+    if not target_task:
+        return
+    if target_task.status != TaskStatus.RUNNING:
         return task.send_quick_status_message(TaskStatus.FAILED,
-                                              "Cannot stop not running crawl")
-    if not task.snapshot:
+                                              "Cannot force finish not running crawl")
+    if not target_task.snapshot:
         return task.send_quick_status_message(TaskStatus.FAILED,
-                                              "This task has no snapshot, cannot be stopped")
-    return stop_crawl(task)
+                                              "This task has no snapshot, cannot be forced finish")
+    status, msg = stop_crawl(target_task)
+    return task.send_quick_status_message(status, msg)
+
+
+def handle_crawl_force_finish(task):
+    return handle_crawl_stop(task)
+
+
+def handle_crawl_cancel(task):
+    target_task = get_target_task(task)
+    if not target_task:
+        return
+    status, msg = cancel_crawl(target_task)
+    return task.send_quick_status_message(status, msg)
 
 
 def handle_crawl_resume(task):
-    if task.status != TaskStatus.PAUSED:
+    target_task = get_target_task(task)
+    if not target_task:
+        return
+
+    if target_task.status != TaskStatus.PAUSED:
         return task.send_quick_status_message(TaskStatus.FAILED,
                                               "Cannot resume not stopped crawl")
-    if not task.snapshot:
-        return task.send_quick_status_message(TaskStatus.FAILED,
-                                              "This task has no snapshot, cannot be resumed")
-    return resume_crawl(task)
+
+    return resume_crawl(target_task)
 
 
 # =================================================
@@ -226,9 +258,11 @@ def handle_website_group_set_schedule(task):
     """Apply schedule config to all websites in a group."""
     pass
 
+
 def handle_website_group_set_crawl_config(task):
     """Apply crawl config to all websites in a group."""
     pass
+
 
 def handle_website_group_priority_crawl(task):
     """Mark all websites in a group for priority crawl."""
@@ -261,7 +295,6 @@ def handle_replay_repopulate(task):
 def handle_export_zosia(task):
     """Trigger or schedule ZoSIA export."""
     pass
-
 
 
 def fetch_tasks_from_api(start=0, limit=50, where_status=None):
@@ -319,7 +352,7 @@ def upsert_task_from_api(task_data: dict) -> tuple[Task, bool]:
     snapshot = taskParameters.get('snapshot', None)
     if snapshot:
         s = Snapshot.objects.filter(uid=snapshot.get('uid')).first()
-        fields['snapshot_id']=s.id if s else None
+        fields['snapshot_id'] = s.id if s else None
     # TODO: snapshot i website do defaults z id?
     task, _created = Task.objects.get_or_create(
         uid=uid,
@@ -375,7 +408,7 @@ def sync_tasks_from_cluster(where_status: list | None = None, page_limit=50, dry
 
 
 def sync_tasks_status_from_cluster(where_status: list | None = None, page_limit=50, dry_run=False,
-                            only_sync=False) -> int:
+                                   only_sync=False) -> int:
     """
     Fetch all tasks from Cluster API and sync locally.
 

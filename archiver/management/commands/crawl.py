@@ -3,7 +3,6 @@ from django.core.management.base import BaseCommand
 
 from archiver.models import Website, WebsiteCrawlParameters
 from archiver.services.crawl_manager import (get_crawl_status,
-                                             resolve_job_or_website,
                                              resume_crawl, queue_crawl,
                                              stop_crawl, suspend_crawl)
 
@@ -12,7 +11,8 @@ class Command(BaseCommand):
     help = "Control Browsertrix crawl jobs"
 
     def add_arguments(self, parser):
-        parser.add_argument("action", choices=["start", "status", "stop", "suspend", "resume"], help="Action to perform")
+        parser.add_argument("action", choices=["start", "status", "stop", "suspend", "resume"],
+                            help="Action to perform")
         parser.add_argument("--website", type=str, help="Website ID (required for start)")
         parser.add_argument("--job", type=str, help="Job ID (required for status or stop)")
 
@@ -90,6 +90,7 @@ class Command(BaseCommand):
                     self.stdout.write(
                         f"{jid}: {job.get_status()} | result={job.result if job.is_finished else None}"
                     )
+
                 except Exception:
                     self.stdout.write(f"{jid}: <unable to fetch>")
         if action == "stop":

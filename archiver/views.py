@@ -88,13 +88,15 @@ def dummy_put_collector(request, snapshot_id=None):
         status=200,
     )
 
+
 def seed_list(request):
     tag = request.GET.get('tag')
     if tag:
         websites = Website.objects.filter(snapshots__published=True).filter(
             tags__name__icontains=tag).prefetch_related('tags').distinct()
     else:
-        websites = Website.objects.filter(snapshots__published=True).prefetch_related('tags').distinct()
+        websites = Website.objects.filter(
+            snapshots__published=True).prefetch_related('tags').distinct()
     data = [
         {
             "title": website.name,

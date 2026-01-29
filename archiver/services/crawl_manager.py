@@ -1,32 +1,20 @@
-import os
 import re
-import signal
-import socket
 from typing import Optional
 
 import django_rq
+from django.conf import settings
 from rq.job import Job
 
-from archiver.models import Snapshot, Website, Task, TaskStatus
-from archiver.tasks import (
-    start_crawl_task,
-    admin_platform_lock_task,
-    admin_platform_unlock_task,
-    crawl_throttle_task,
-    crawl_unthrottle_task,
-    website_publish_all_task,
-    website_unpublish_all_task,
-    website_group_set_schedule_task,
-    website_group_set_crawl_config_task,
-    website_group_priority_crawl_task,
-    export_zosia_task,
-    repopulate_snapshot_to_production_task,
-    replay_unpublish_task,
-    replay_publish_task
-)
+from archiver.models import Snapshot, Task, TaskStatus, Website
+from archiver.tasks import (export_zosia_task, replay_publish_task,
+                            replay_unpublish_task,
+                            repopulate_snapshot_to_production_task,
+                            start_crawl_task, website_publish_all_task,
+                            website_unpublish_all_task)
 
 UUID_REGEX = re.compile(r"^[0-9a-fA-F-]{32,36}$")
 redis_conn = django_rq.get_connection("management")
+
 
 # ------------------------
 # INTERNAL HELPERS
@@ -86,7 +74,7 @@ def resolve_job_or_website(identifier: str) -> Snapshot:
     try:
         website_id = int(identifier)
         return Snapshot.objects.filter(website_id=website_id).latest("id")
-    except:
+    except Snapshot.DoesNotExist:
         pass
 
     # ----------------------------------------------------------
@@ -95,7 +83,7 @@ def resolve_job_or_website(identifier: str) -> Snapshot:
     try:
         website = Website.objects.get(name=identifier)
         return Snapshot.objects.filter(website=website).latest("id")
-    except:
+    except (Snapshot.DoesNotExist, Website.DoesNotExist):
         pass
 
     # ----------------------------------------------------------
@@ -171,10 +159,35 @@ def suspend_crawl(task: Task) -> bool:
 def stop_crawl(task: Task) -> bool:
     ok = _send_crawl_control(task.snapshot, "stop")
     if not ok:
-        return task.send_quick_status_message(TaskStatus.FAILED,
-                                              "Could not send crawl control. Is crawl running?")
-    return task.send_quick_status_message(TaskStatus.SUCCESS,
-                                          "STOP crawl control sent.")
+        return (TaskStatus.FAILED, "Could not force finish crawl. Is crawl running?")
+    return (TaskStatus.SUCCESS, "Crawl force finish control sent.")
+
+
+def cancel_crawl(task: Task) -> bool:
+    ok = _send_crawl_control(task.snapshot, "cancel")
+    if ok:
+        task.send_quick_status_message(TaskStatus.CANCELLED,
+                                       "Task CANCELLED by command control sent.")
+        return (TaskStatus.SUCCESS, "Crawl Cancelled.")
+
+    queue_name = f"crawls_{task.priority}" if task.priority else "crawls_normal"
+    queue = django_rq.get_queue(queue_name)
+
+    if task.snapshot.rq_job_id:
+        try:
+            job = Job.fetch(task.snapshot.rq_job_id, connection=queue.connection)
+
+            status = job.get_status()
+
+            if status in ("queued", "deferred"):
+                job.cancel()
+                job.delete(remove_from_queue=True)
+                state = (TaskStatus.SUCCESS, "Crawl Cancelled. Removed from queue")
+
+        except Exception:
+            state = (TaskStatus.FAILED, "Crawl is not in the queue yet.")
+
+    return state
 
 
 def resume_crawl(task: Task) -> bool:
@@ -189,7 +202,6 @@ def resume_crawl(task: Task) -> bool:
 # ------------------------
 # PLATFORM ADMINISTRATION (QUEUE: management)
 # ------------------------
-
 def admin_platform_lock(task: Task):
 
     redis_conn.set(
@@ -200,7 +212,7 @@ def admin_platform_lock(task: Task):
     paused_queues = []
 
     for queue_name in settings.RQ_QUEUES.keys():
-        if queue_name == EXCLUDED_QUEUE:
+        if queue_name in (settings.EXCLUDED_LOCK_QUEUES):
             continue
 
         queue = django_rq.get_queue(queue_name)
@@ -209,7 +221,7 @@ def admin_platform_lock(task: Task):
             queue.pause()
             paused_queues.append(queue_name)
     return task.send_quick_status_message(TaskStatus.SUCCESS,
-                                          "Platform LOCKED QUEUES: "+ ','.join(paused_queues))
+                                          "Platform LOCKED QUEUES: " + ','.join(paused_queues))
 
 
 def admin_platform_unlock(task: Task):
@@ -218,7 +230,7 @@ def admin_platform_unlock(task: Task):
     resumed_queues = []
 
     for queue_name in settings.RQ_QUEUES.keys():
-        if queue_name == EXCLUDED_QUEUE:
+        if queue_name in (settings.EXCLUDED_LOCK_QUEUES):
             continue
 
         queue = django_rq.get_queue(queue_name)
@@ -227,9 +239,7 @@ def admin_platform_unlock(task: Task):
             queue.resume()
             resumed_queues.append(queue_name)
     return task.send_quick_status_message(TaskStatus.SUCCESS,
-                                          "Platform UNLOCKED QUEUES: "+ ','.join(paused_queues))
-
-
+                                          "Platform UNLOCKED QUEUES: " + ','.join(resumed_queues))
 
 
 # ------------------------
@@ -248,24 +258,13 @@ def website_unpublish_all(website_id: int, task_uid: str = None) -> str:
 
 
 # ------------------------
-# WEBSITE GROUP OPERATIONS (QUEUE: management)
-# ------------------------
-def website_group_set_schedule(group_id: int, schedule_id: int) -> str:
-    pass
-
-def website_group_set_crawl_config(group_id: int, crawl_config_id: int) -> str:
-    pass
-
-def website_group_priority_crawl(group_id: int) -> str:
-    pass
-
-# ------------------------
 # REPLAY OPERATIONS (QUEUE: management)
 # ------------------------
 def replay_publish(snapshot_uid: int, task_uid: str = None) -> str:
     queue = django_rq.get_queue("management")
     job = queue.enqueue(replay_publish_task, snapshot_uid=snapshot_uid, task_uid=task_uid)
     return job.id
+
 
 def replay_unpublish(snapshot_uid: int, task_uid: str = None) -> str:
     queue = django_rq.get_queue("management")
@@ -279,10 +278,10 @@ def replay_repopulate(website_id: Optional[int] = None, task_uid: str = None) ->
                         task_uid=task_uid)
     return job.id
 
+
 # ------------------------
 # EXPORT OPERATIONS (QUEUE: management)
 # ------------------------
-
 def export_zosia(
     website_id: Optional[int] = None,
     schedule: Optional[str] = None

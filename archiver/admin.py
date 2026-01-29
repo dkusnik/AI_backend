@@ -71,6 +71,7 @@ class WebsiteAdmin(admin.ModelAdmin):
 @admin.register(Snapshot)
 class SnapshotAdmin(ReadOnlyAdmin):
     actions = ["publish_action", "unpublish_action"]
+
     @admin.action(description="Publish snapshot to production")
     def publish_action(self, request, queryset):
         """
@@ -81,7 +82,7 @@ class SnapshotAdmin(ReadOnlyAdmin):
 
         for snapshot in queryset:
             try:
-                job_id = replay_publish(snapshot.uid)
+                replay_publish(snapshot.uid)
                 success += 1
             except Exception as exc:
                 failures += 1
@@ -115,7 +116,7 @@ class SnapshotAdmin(ReadOnlyAdmin):
 
         for snapshot in queryset:
             try:
-                job_id = replay_unpublish(snapshot.uid)
+                replay_unpublish(snapshot.uid)
                 success += 1
             except Exception as exc:
                 failures += 1

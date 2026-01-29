@@ -9,14 +9,13 @@ import django_rq
 import docker
 import requests
 from django.conf import settings
+from django.db.models import Subquery
 from django.utils import timezone
-from django.db.models import Subquery, Q
 
-from archiver.models import Snapshot, Warc, Task, TaskStatus
+from archiver.models import Snapshot, Task, TaskStatus, Warc
 from archiver.stats import (BrowsertrixLogParser, CDXParser,
                             CrawlMetricsCalculator, CrawlStats,
                             get_browsertrix_container_stats)
-
 from archiver.utils import calculate_sha256, task_notify
 
 
@@ -132,7 +131,7 @@ def start_crawl_task(snapshot_uid, task_uid):
     queue_key = f"crawl:{job_id}"
     control_key = f"{queue_key}:control"
 
-    redis_conn = django_rq.get_connection(f"management")
+    redis_conn = django_rq.get_connection("management")
 
     redis_conn.set(queue_key, "running")
 
@@ -157,12 +156,7 @@ def start_crawl_task(snapshot_uid, task_uid):
             if control:
                 control_cmd = control.decode()
 
-                if control_cmd == "stop":
-                    container.stop(timeout=10)
-                    task.status = TaskStatus.STOPPED
-                    snapshot.status = "stopped"
-
-                elif control_cmd == "suspend":
+                if control_cmd == "suspend":
                     container.pause()
                     task.status = TaskStatus.PAUSED
                     snapshot.status = "suspended"
@@ -171,7 +165,25 @@ def start_crawl_task(snapshot_uid, task_uid):
                     container.unpause()
                     task.status = TaskStatus.RUNNING
                     snapshot.status = Snapshot.STATUS_CRAWLING
+                elif control_cmd in ("cancel", "stop"):
+                    try:
+                        if container.status in ("running", "paused"):
+                            container.stop(timeout=10)
+                    except Exception:
+                        pass  # already stopped or gone
 
+                    if control_cmd == "stop":
+                        task.status = TaskStatus.STOPPED
+                        snapshot.status = "stopped"
+                        status = 'exited'
+                    if control_cmd == "cancel":
+                        task.status = TaskStatus.CANCELED
+                        snapshot.status = "canceled"
+                        try:
+                            container.remove(force=True)
+                        except Exception:
+                            pass  # already removed
+                        status = 'cancelled'
                 snapshot.save(update_fields=["status"])
                 redis_conn.delete(control_key)
 
@@ -211,28 +223,31 @@ def start_crawl_task(snapshot_uid, task_uid):
             snapshot.update_snapshot_stats(stats, derived)
             update_snapshot_process_stats(container, snapshot.id)
 
-            if status == "exited":
+            if status in ("exited", "cancelled"):
                 exit_code = container.attrs["State"]["ExitCode"]
-                snapshot.status = (
-                    Snapshot.STATUS_COMPLETED if exit_code == 0 else Snapshot.STATUS_FAILED)
-                task.status = TaskStatus.SUCCESS if exit_code == 0 else TaskStatus.FAILED
-                task.finishTime = timezone.now()
-                task.result = TaskStatus.SUCCESS if exit_code == 0 else TaskStatus.FAILED
+                if status == "exited":
+                    snapshot.status = (
+                        Snapshot.STATUS_COMPLETED if exit_code in (0, 137, 143)
+                        else Snapshot.STATUS_FAILED)
+                    # exit code when stop but we will keep the result
+                    task.status = TaskStatus.SUCCESS if exit_code == 0 else TaskStatus.FAILED
+                    task.result = TaskStatus.SUCCESS if exit_code == 0 else TaskStatus.FAILED
+                else:
+                    task.status = TaskStatus.FAILED
+                    task.result = TaskStatus.FAILED
+                    snapshot.status = Snapshot.STATUS_FAILED
+
                 snapshot.result = {
                     "exit_code": exit_code,
                     "container_id": container.id,
                 }
+                task.finishTime = timezone.now()
                 snapshot.crawlStopTimestamp = timezone.now()
                 task.save(update_fields=["status", "finishTime", "result"])
                 snapshot.save(update_fields=["status", "result", "crawlStopTimestamp"])
-
-            # SEND Task status
-            # TODO: optimize to sent an aggregated status PUT
-            task.send_task_response()
-            if status == "exited":
-                if snapshot.status == Snapshot.STATUS_COMPLETED:
-                    # we have to split it, so the final message will be send as well
-                    container.remove()
+                task.send_task_response()
+                # if snapshot.status == Snapshot.STATUS_COMPLETED:
+                container.remove()
                 break
 
             time.sleep(5)  # TODO: check if this is not too much computation expensive
@@ -254,6 +269,7 @@ def start_crawl_task(snapshot_uid, task_uid):
         "cmd": container_args,
         "result": snapshot.result,
     }
+
 
 def _generate_cdx_from_warc(
     warc_path: str,
@@ -293,6 +309,7 @@ def _generate_cdx_from_warc(
         raise RuntimeError(f"Generated empty CDX: {cdx_path}")
 
     return cdx_path
+
 
 def move_snapshot_to_longterm(snapshot_uid: str):
     """
@@ -459,8 +476,6 @@ def move_snapshot_to_production(snapshot_uid: str):
 
     src_archive = os.path.join(base_path, "archive")
     src_indexes = os.path.join(base_path, "warc-cdx")
-
-
 
     if not os.path.isdir(src_archive):
         raise FileNotFoundError(f"Archive dir missing: {src_archive}")

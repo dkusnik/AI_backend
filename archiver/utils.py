@@ -92,6 +92,7 @@ def task_notify(func):
 
     return wrapper
 
+
 def is_platform_locked() -> bool:
     redis = django_rq.get_connection("management")
     return redis.exists(settings.PLATFORM_LOCK_KEY) == 1

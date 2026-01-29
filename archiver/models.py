@@ -1,8 +1,7 @@
-import django_rq
 import uuid
-import requests
 from pathlib import Path
 
+import requests
 import yaml
 from django.conf import settings
 from django.contrib.auth.models import User
@@ -13,8 +12,8 @@ from django.utils import timezone
 from django.utils.dateparse import parse_datetime
 from django.utils.timezone import is_aware
 
-from archiver.stats import CrawlDerivedMetrics, CrawlStats
 from archiver.auth import get_keycloak_access_token
+from archiver.stats import CrawlDerivedMetrics, CrawlStats
 
 
 class Tag(models.Model):
@@ -977,7 +976,7 @@ class Task(models.Model):
     priority = models.CharField(max_length=32,
                                 choices=TaskPriority.CHOICES,
                                 default=TaskPriority.NORMAL,
-    )
+                                )
     schedule = models.CharField(max_length=64, blank=True, null=True)
 
     # JSON fields (PostgreSQL)
