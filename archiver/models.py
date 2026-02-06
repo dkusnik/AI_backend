@@ -1097,7 +1097,7 @@ class Task(models.Model):
         yaml_config["seeds"] = scope.get("startUrls", [self.snapshot.website.url])
         if not yaml_config["seeds"]:
             yaml_config["seeds"] = [self.snapshot.website.url]
-        yaml_config["scopeType"] = scope.get("type", "page")
+        yaml_config["scopeType"] = scope.get("scopeType", "page")
 
         if "maxDepth" in scope:
             yaml_config["depth"] = scope["maxDepth"]
