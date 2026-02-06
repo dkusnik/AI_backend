@@ -102,7 +102,7 @@ class WebsiteCrawlParameters(DefaultWebsiteCrawlParameters):
     ]
 
     name = models.CharField(max_length=128)
-    description = models.TextField(blank=True)
+    description = models.TextField(blank=True, null=True)
     is_default = models.BooleanField(default=False)
     engine_type = models.CharField(max_length=32, choices=ENGINE_CHOICES)
 
