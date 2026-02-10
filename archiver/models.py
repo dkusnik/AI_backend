@@ -817,8 +817,8 @@ class Snapshot(models.Model):
                 "by_http_status": self.crawl_stats.get("by_http_status"),
                 "by_url_extension": self.crawl_stats.get("by_url_extension"),
 
-                "crawlStartTimestamp": self.crawlStartTimestamp,
-                "crawlStopTimestamp": self.crawlStopTimestamp,
+                "crawlStartTimestamp": iso(self.crawlStartTimestamp),
+                "crawlStopTimestamp": iso(self.crawlStopTimestamp),
                 "warc_path": self.warc_path,
                 "crawlWarcSize": self.crawlWarcSize,
             },
