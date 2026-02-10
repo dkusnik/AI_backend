@@ -554,7 +554,9 @@ def move_snapshot_to_production(snapshot_uid: str):
     # TODO: jak z lista warcow
     snapshot.publication_status = snapshot.PUBLICATION_PUBLIC
     snapshot.published = True
-    snapshot.replayRelativeUrl = f"default/{min(warc_list, key=extract_dt)}/{snapshot.website.url}"
+    earliest_warc = min(warc_list, key=extract_dt)
+    dt = extract_dt(earliest_warc).strftime("%Y%m%d%H%M%S")
+    snapshot.replayRelativeUrl = f"default/{dt}/{snapshot.website.url.lstrip('/')}"
     snapshot.save()
 
 
