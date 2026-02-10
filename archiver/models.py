@@ -716,8 +716,12 @@ class Snapshot(models.Model):
     def _send_update_safe(self):
         try:
             self.send_update_response()
-        except Exception:
-            print("Error with sending snapshot info")
+        except Exception as e:
+            print(
+                f"[WARN][snapshot-update] "
+                f"{type(e).__name__}: {e} (ignored)"
+            )
+            traceback.print_exc()
             # Never break save() because of external API
             # Log if needed
             pass
