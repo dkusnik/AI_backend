@@ -681,12 +681,10 @@ class Snapshot(models.Model):
     crawlWarcSize = models.BigIntegerField(null=True, blank=True)
     crawlJustification = models.TextField(blank=True, null=True)
     publicationJustification = models.TextField(blank=True, null=True)
+    replayRelativeUrl = models.CharField(max_length=255, null=True, blank=True)
 
     updated_at = models.DateTimeField(auto_now=True)
 
-    @property
-    def replayRelativeUrl(self):
-        return f"{self.replay_collection_id}/{self.website.url}"
 
     # ---------------------------------
     # SAVE OVERRIDE
