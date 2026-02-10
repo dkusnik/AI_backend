@@ -2,6 +2,7 @@ import uuid
 from pathlib import Path
 
 import requests
+import traceback
 import yaml
 from django.conf import settings
 from django.contrib.auth.models import User
