@@ -320,7 +320,7 @@ def fetch_tasks_from_api(start=0, limit=50, where_status=None):
         },
         timeout=getattr(settings, "API_RESPONSE_TIMEOUT", 10),
     )
-
+    print(response.json())
     response.raise_for_status()
     return response.json()
 

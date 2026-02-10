@@ -717,6 +717,7 @@ class Snapshot(models.Model):
         try:
             self.send_update_response()
         except Exception:
+            print("Error with sending snapshot info")
             # Never break save() because of external API
             # Log if needed
             pass

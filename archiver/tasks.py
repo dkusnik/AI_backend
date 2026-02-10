@@ -466,6 +466,10 @@ def move_snapshot_to_production(snapshot_uid: str):
     Use pre-generated CDXJ from Browsertrix, ingest into OutbackCDX,
     move WARCs to production, and register them in DB.
     """
+    def extract_dt(filename):
+        # grab YYYYMMDDHHMMSS (first 14 digits of the timestamp block)
+        m = re.search(r'-(\d{14})\d+-', filename)
+        return datetime.strptime(m.group(1), "%Y%m%d%H%M%S")
 
     snapshot = Snapshot.objects.get(uid=snapshot_uid)
 
@@ -549,6 +553,7 @@ def move_snapshot_to_production(snapshot_uid: str):
     # TODO: jak z lista warcow
     snapshot.publication_status = snapshot.PUBLICATION_PUBLIC
     snapshot.published = True
+    snapshot.replayRelativeUrl = f"default/{min(warc_list, key=extract_dt)}/{snapshot.website.url}"
     snapshot.save()
 
 
