@@ -777,6 +777,7 @@ class Snapshot(models.Model):
                 return dt.isoformat() + "Z"
             return dt.astimezone().isoformat().replace("+00:00", "Z")
 
+        crawl_stats = self.crawl_stats if self.crawl_stats else {}
         return {
             "uid": str(self.uid),
             "websiteId": self.website_id,
@@ -803,26 +804,26 @@ class Snapshot(models.Model):
                 "extra": []
             },
             "metadataTechnical": {
-                "crawled": self.crawl_stats.get("crawled", 0),
-                "total": self.crawl_stats.get("total", 0),
-                "pending": self.crawl_stats.get("pending", 0),
-                "failed": self.crawl_stats.get("failed", 0),
-                "limit_hit": self.crawl_stats.get("limit_hit", False),
+                "crawled": crawl_stats.get("crawled", 0),
+                "total": crawl_stats.get("total", 0),
+                "pending": crawl_stats.get("pending", 0),
+                "failed": crawl_stats.get("failed", 0),
+                "limit_hit": crawl_stats.get("limit_hit", False),
 
                 # ---- request classification (LOGS ONLY, non-canonical) ----
-                "by_request_type": self.crawl_stats.get("by_request_type"),
+                "by_request_type": crawl_stats.get("by_request_type"),
 
                 # ---- CDX (CANONICAL CONTENT STATS) ----
-                "by_mime": self.crawl_stats.get("by_mime"),
-                "by_http_status": self.crawl_stats.get("by_http_status"),
-                "by_url_extension": self.crawl_stats.get("by_url_extension"),
+                "by_mime": crawl_stats.get("by_mime"),
+                "by_http_status": crawl_stats.get("by_http_status"),
+                "by_url_extension": crawl_stats.get("by_url_extension"),
 
                 "crawlStartTimestamp": iso(self.crawlStartTimestamp),
                 "crawlStopTimestamp": iso(self.crawlStopTimestamp),
                 "warc_path": self.warc_path,
                 "crawlWarcSize": self.crawlWarcSize,
             },
-            "crawlStats": self.crawl_stats,
+            "crawlStats": crawl_stats,
             "containerStats": self.container_stats,
             "crawlJustification": self.crawlJustification,
             "publicationJustification": self.publicationJustification,
