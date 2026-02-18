@@ -176,9 +176,9 @@ def handle_crawl_run(task):
         return task.send_quick_status_message(TaskStatus.FAILED,
                                               "Missing crawlConfig. Task fails")
     website.website_crawl_parameters = wp
-    task.update_task_params({'crawlConfigId': wp.id,
+    #task.update_task_params({'crawlConfigId': wp.id,
                              #'crawlConfig': wp.build_json_response()
-                             })
+    #                         })
     task.save()
     queue_crawl(website.id, task)
 
