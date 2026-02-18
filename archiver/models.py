@@ -264,7 +264,7 @@ class WebsiteCrawlParameters(DefaultWebsiteCrawlParameters):
 
             instance.start_urls = crawl_scope.get("startUrls", [])
             instance.include_linked = crawl_scope.get("includeLinked", False)
-            instance.max_depth = crawl_scope.get("maxDepth")
+            instance.max_depth = crawl_scope.get("depth")
             instance.url_prefixes = crawl_scope.get("urlPrefixes", [])
             instance.additional_pages = crawl_scope.get("additionalPages", [])
 
@@ -1102,10 +1102,15 @@ class Task(models.Model):
         yaml_config["seeds"] = scope.get("startUrls", [self.snapshot.website.url])
         if not yaml_config["seeds"]:
             yaml_config["seeds"] = [self.snapshot.website.url]
-        yaml_config["scopeType"] = scope.get("scopeType", "page")
+
+        yaml_config["scopeType"] = (
+                yaml_config.get("scopeType")
+                or yaml_config.get("type")
+                or "page"
+        )
 
         if "maxDepth" in scope:
-            yaml_config["depth"] = scope["maxDepth"]
+            yaml_config["depth"] = scope["depth"]
 
         if scope.get("includeLinked"):
             yaml_config["includeLinked"] = True
