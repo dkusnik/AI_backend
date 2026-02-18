@@ -404,6 +404,7 @@ def move_snapshot_to_longterm(snapshot_uid: str):
     snapshot.warc_path = src_archive
     snapshot.publication_status = snapshot.PUBLICATION_INTERNAL
     snapshot.size = warc_size
+    snapshot.crawlWarcSize = warc_size
     snapshot.item_count = item_count
     snapshot.save()
 
@@ -527,6 +528,7 @@ def move_snapshot_to_production(snapshot_uid: str):
     # 2. Move WARCs + persist metadata
     # --------------------------------------------------
     warc_list = []
+    warc_size = 0
     for fname in os.listdir(src_archive):
         if not fname.endswith((".warc", ".warc.gz")):
             continue

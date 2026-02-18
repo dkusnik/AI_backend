@@ -1,5 +1,5 @@
 from django.core.management.base import BaseCommand, CommandError
-from archiver.services.sync_tasks import sync_tasks_from_cluster
+from archiver.services.sync_tasks import sync_tasks_status_from_cluster
 
 
 class Command(BaseCommand):
@@ -32,7 +32,7 @@ class Command(BaseCommand):
 
         try:
 
-            count = sync_tasks_from_cluster(
+            count = sync_tasks_status_from_cluster(
                 where_status=statuses,
                 page_limit=limit,
                 dry_run=dry_run,

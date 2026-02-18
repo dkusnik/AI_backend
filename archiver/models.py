@@ -804,7 +804,7 @@ class Snapshot(models.Model):
             "metadataTechnical": {
                 "crawled": crawl_stats.get("crawled", 0),
                 "total": crawl_stats.get("total", 0),
-                "pending": crawl_stats.get("pending", 0),
+                #"pending": crawl_stats.get("pending", 0),
                 "failed": crawl_stats.get("failed", 0),
                 "limit_hit": crawl_stats.get("limit_hit", False),
 
@@ -812,9 +812,9 @@ class Snapshot(models.Model):
                 "by_request_type": crawl_stats.get("by_request_type"),
 
                 # ---- CDX (CANONICAL CONTENT STATS) ----
-                "by_mime": crawl_stats.get("by_mime"),
-                "by_http_status": crawl_stats.get("by_http_status"),
-                "by_url_extension": crawl_stats.get("by_url_extension"),
+                "by_mime": crawl_stats.get("mime_distribution"),
+                "by_http_status": crawl_stats.get("http_status"),
+                "by_url_extension": crawl_stats.get("url_extensions"),
 
                 "crawlStartTimestamp": iso(self.crawlStartTimestamp),
                 "crawlStopTimestamp": iso(self.crawlStopTimestamp),
