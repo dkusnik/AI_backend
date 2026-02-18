@@ -262,6 +262,8 @@ class WebsiteCrawlParameters(DefaultWebsiteCrawlParameters):
 
             exclude_pages = crawl_scope.get("excludePages", {})
 
+            instance.workers = engine_config.get("workers", 1)
+            instance.scope_type = crawl_scope.get("scopeType")
             instance.start_urls = crawl_scope.get("startUrls", [])
             instance.include_linked = crawl_scope.get("includeLinked", False)
             instance.max_depth = crawl_scope.get("depth")
@@ -319,15 +321,15 @@ class WebsiteCrawlParameters(DefaultWebsiteCrawlParameters):
         # crawlScope
         # -------------------------------------------------
         crawl_scope: dict = {
-            "type": self.scope_type,
+            "scopeType": self.scope_type,
             "startUrls": self.start_urls,
         }
 
         if self.include_linked:
-            crawl_scope["includeLinked"] = True
+            crawl_scope["includeLinked"] = self.include_linked
 
         if self.max_depth is not None:
-            crawl_scope["maxDepth"] = self.max_depth
+            crawl_scope["depth"] = self.max_depth
 
         if self.url_prefixes:
             crawl_scope["urlPrefixes"] = self.url_prefixes
@@ -347,6 +349,7 @@ class WebsiteCrawlParameters(DefaultWebsiteCrawlParameters):
             crawl_scope["excludePages"] = exclude_pages
 
         engine_config["crawlScope"] = crawl_scope
+        engine_config["workers"] = self.workers
 
         # -------------------------------------------------
         # crawlLimits
@@ -1109,11 +1112,11 @@ class Task(models.Model):
                 or "page"
         )
 
-        if "maxDepth" in scope:
+        if "depth" in scope:
             yaml_config["depth"] = scope["depth"]
 
         if scope.get("includeLinked"):
-            yaml_config["includeLinked"] = True
+            yaml_config["includeLinked"] = scope.get("includeLinked")
 
         if scope.get("urlPrefixes"):
             yaml_config["scopeIncludeRx"] = scope["urlPrefixes"]
