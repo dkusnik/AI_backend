@@ -262,7 +262,9 @@ class WebsiteCrawlParameters(DefaultWebsiteCrawlParameters):
 
             exclude_pages = crawl_scope.get("excludePages", {})
 
-            instance.workers = engine_config.get("workers", 1)
+            if engine_config.get("workers"):
+                instance.workers = engine_config.get("workers")
+
             instance.scope_type = crawl_scope.get("scopeType")
             instance.start_urls = crawl_scope.get("startUrls", [])
             instance.include_linked = crawl_scope.get("includeLinked", False)
@@ -1083,6 +1085,7 @@ class Task(models.Model):
     def build_browsertrix_yaml_config(self, replay_collection_id: int) -> Path:
         """
         Write Browsertrix YAML config compatible with `browsertrix-crawler crawl --config`.
+        https://github.com/sucho-archiving/browsertrix-yaml-examples
         """
 
         yaml_config = {}
@@ -1106,6 +1109,7 @@ class Task(models.Model):
         # Seeds / scope
         # -----------------
 
+        yaml_config["workers"] = engine_config.get("workers")
         yaml_config["seeds"] = scope.get("startUrls", [self.snapshot.website.url])
         if not yaml_config["seeds"]:
             yaml_config["seeds"] = [self.snapshot.website.url]

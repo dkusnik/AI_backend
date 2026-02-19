@@ -38,7 +38,7 @@ def get_target_task(task: Task) -> Optional[Task]:
     params = task.taskParameters
 
     target_uid = (
-        params.get("target_task_uid")
+        params.get("uid")
         if isinstance(params, dict)
         else None
     )
