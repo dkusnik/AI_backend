@@ -1111,8 +1111,8 @@ class Task(models.Model):
             yaml_config["seeds"] = [self.snapshot.website.url]
 
         yaml_config["scopeType"] = (
-                yaml_config.get("scopeType")
-                or yaml_config.get("type")
+                scope.get("scopeType")
+                or scope.get("type")
                 or "page"
         )
 
