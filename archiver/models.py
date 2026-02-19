@@ -275,7 +275,6 @@ class WebsiteCrawlParameters(DefaultWebsiteCrawlParameters):
 
             instance.max_pages = crawl_limits.get("maxPages")
             instance.size_limit_gb = crawl_limits.get("sizeLimitGB")
-            instance.time_limit = crawl_limits.get("timeLimitSeconds")
 
             instance.auto_scroll = page_behavior.get("autoScroll", True)
             instance.auto_click = page_behavior.get("autoClick", False)
@@ -287,8 +286,6 @@ class WebsiteCrawlParameters(DefaultWebsiteCrawlParameters):
             instance.user_agent = browser_settings.get("userAgent", "")
             instance.language = browser_settings.get("language", "")
             instance.proxy_server = browser_settings.get("proxyServer", "")
-
-            instance.time_limit = crawl_limits.get("timeLimitSeconds")
 
             page_load_limit_ms = page_behavior.get("pageLoadLimitMs")
             if page_load_limit_ms is not None:
