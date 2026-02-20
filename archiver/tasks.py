@@ -259,9 +259,16 @@ def start_crawl_task(snapshot_uid, task_uid):
 
     # TODO: check if snapshot is okay
     if snapshot.status == Snapshot.STATUS_COMPLETED:
-        move_snapshot_to_longterm(snapshot.uid)
-        if snapshot.website.auto_publish:
-            move_snapshot_to_production(snapshot.uid)
+        try:
+            move_snapshot_to_longterm(snapshot.uid)
+            if snapshot.website.auto_publish:
+                move_snapshot_to_production(snapshot.uid)
+        except FileNotFoundError as e:
+                task.send_quick_status_message(
+                    task.status,
+                    f"Could not send crawl control "
+                    f"[{type(e).__name__}: {e}]"
+                )
 
     # Return final result
     return {
