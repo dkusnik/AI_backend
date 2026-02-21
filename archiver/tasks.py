@@ -178,7 +178,7 @@ def start_crawl_task(snapshot_uid, task_uid):
                         snapshot.status = "stopped"
                         status = 'exited'
                     if control_cmd == "cancel":
-                        task.status = TaskStatus.CANCELED
+                        task.status = TaskStatus.CANCELLED
                         snapshot.status = "canceled"
                         try:
                             container.remove(force=True)
