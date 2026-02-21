@@ -1,0 +1,129 @@
+x-worker-common: &worker-common
+  build:
+    context: .
+    dockerfile: Dockerfile.worker
+  env_file:
+    - .env.docker
+  environment:
+    PYTHONUNBUFFERED: "1"
+  volumes:
+    - ./:/app/
+    - static_volume:/app/static
+    - /var/run/docker.sock:/var/run/docker.sock
+    - /srv/ai/:/srv/ai/:rw
+  extra_hosts:
+    - "host.docker.internal:host-gateway"
+  restart: unless-stopped
+
+
+services:
+  web:
+    build:
+      context: .
+      dockerfile: Dockerfile.web
+    expose:
+      - "8000"
+    env_file:
+      - .env.docker
+    volumes:
+      - ./:/app/    # mounts local code, overrides image
+      - static_volume:/app/static
+    #depends_on:
+    #  - keycloak
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
+    restart: unless-stopped
+
+  worker_crawl_normal:
+    <<: *worker-common
+    command: ["python", "manage.py", "rqworker", "crawls_normal"]
+
+  worker_crawl_high:
+    <<: *worker-common
+    command: ["python", "manage.py", "rqworker", "crawls_high"]
+
+  worker_crawl_low:
+    <<: *worker-common
+    command: ["python", "manage.py", "rqworker", "crawls_low"]
+
+  worker_crawl_priority:
+    <<: *worker-common
+    command: ["python", "manage.py", "rqworker", "crawls_priority"]
+
+  worker_management:
+    <<: *worker-common
+    command: ["python", "manage.py", "rqworker", "management"]
+
+  worker_default:
+    build:
+      context: .
+      dockerfile: Dockerfile.worker_default
+    env_file:
+      - .env.docker
+    volumes:
+      - ./:/app/    # mounts local code, overrides image
+ #   depends_on:
+ #     - web
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
+    restart: unless-stopped
+
+  worker_task_sync:
+    build:
+      context: .
+      dockerfile: Dockerfile.worker_task_sync
+    env_file:
+      - .env.docker
+    volumes:
+      - ./:/app/    # mounts local code, overrides image
+ #   depends_on:
+ #     - web
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
+    restart: unless-stopped
+
+  worker_cron:
+    build:
+      context: .
+      dockerfile: Dockerfile.worker_cron
+    env_file:
+      - .env.docker
+    volumes:
+      - ./:/app/    # mounts local code, overrides image
+ #   depends_on:
+ #     - web
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
+    restart: unless-stopped
+
+
+  nginx:
+    build:
+      context: .
+      dockerfile: Dockerfile.nginx
+    ports:
+      - "80:80"
+    depends_on:
+      - web
+    volumes:
+      - static_volume:/static
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
+    restart: unless-stopped
+
+  # =====================
+  # pywb replay service
+  # =====================
+  pywb_work:
+    image: webrecorder/pywb:latest
+    ports:
+      - "9080:8080"
+    environment:
+      PYWB_COLLECTIONS_DIR: /webarchive/collections
+    volumes:
+      - /srv/ai/browsertrix/collections:/webarchive/collections:ro
+    restart: unless-stopped
+
+volumes:
+  static_volume:
+  outbackcdx_data:
