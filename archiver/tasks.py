@@ -97,6 +97,34 @@ def build_browsertrix_container_args(snapshot: Snapshot, task: Task):
     }
 
 
+def _reindex_collection(collection_id: str):
+    """
+    Run wb-manager reindex for a given collection
+    using webrecorder/pywb:latest container.
+    """
+
+    client = docker.from_env()
+
+    container = client.containers.run(
+        image="webrecorder/pywb:latest",
+
+        command=["wb-manager", "reindex", str(collection_id)],
+
+        volumes={
+            settings.BROWSERTIX_VOLUME: {
+                "bind": "/webarchive/collections",
+                "mode": "rw",
+            }
+        },
+
+        remove=True,      # auto-remove container after exit
+        detach=False,     # wait for completion
+        tty=False,
+    )
+
+    return container.decode() if isinstance(container, bytes) else container
+
+
 @task_notify
 def start_crawl_task(snapshot_uid, task_uid):
     task = Task.objects.get(uid=task_uid)
@@ -260,6 +288,13 @@ def start_crawl_task(snapshot_uid, task_uid):
     finally:
         redis_conn.delete(queue_key)
         redis_conn.delete(control_key)
+
+    # We have to reindex the collection. so lets do it on the work level
+    # we fail it silently, as the snapshot might be empty
+    try:
+        _reindex_collection(snapshot.replay_collection_id)
+    except:
+        pass
 
     # TODO: check if snapshot is okay
     if snapshot.status == Snapshot.STATUS_COMPLETED:
