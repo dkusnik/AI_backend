@@ -83,6 +83,10 @@ def build_browsertrix_container_args(snapshot: Snapshot, task: Task):
                 "mode": "rw",
             }
         },
+        # to musi sie dac jakos inaczej zrobic
+        "extra_hosts": {
+            "www.nac.gov.pl": "45.60.74.29"
+        },
 
         "name": f"crawl_{snapshot.replay_collection_id}",
 
