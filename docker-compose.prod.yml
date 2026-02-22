@@ -12,6 +12,7 @@ x-worker-common: &worker-common
     - /var/run/docker.sock:/var/run/docker.sock
     - /srv/ai/long_term_collections:/srv/ai/long_term_collections:rw
     - /srv/ai/production_collection:/srv/ai/production_collection:rw
+    - /srv/ai/working/:/srv/ai/browsertrix/:rw
   extra_hosts:
     - "host.docker.internal:host-gateway"
   restart: unless-stopped
