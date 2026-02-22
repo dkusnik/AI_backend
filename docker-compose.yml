@@ -145,8 +145,9 @@ services:
     ports:
       - "9081:8080"
     environment:
-      PYWB_COLLECTIONS_DIR: /webarchive/collections
+      #PYWB_COLLECTIONS_DIR: /webarchive/collections
       PYWB_CONFIG_FILE: /webarchive/config.yaml
+      UWSGI_MOUNT: /pywb=/pywb/pywb/apps/wayback.py
     volumes:
       - /srv/ai/production_collection:/webarchive/collections:ro
       - ./pywb/config.yaml:/webarchive/config.yaml:ro
@@ -161,8 +162,10 @@ services:
       - "9082:8080"
     environment:
       PYWB_COLLECTIONS_DIR: /webarchive/collections
+      UWSGI_MOUNT: /pywb=/pywb/pywb/apps/wayback.py
     volumes:
       - /srv/ai/long_term_collections:/webarchive/collections:ro
+      - ./pywb/config_lt.yaml:/webarchive/config.yaml:ro
     restart: unless-stopped
 
 volumes:

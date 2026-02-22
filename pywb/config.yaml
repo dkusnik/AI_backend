@@ -2,3 +2,5 @@ collections:
   default:
     index_paths: cdx+http://outbackcdx:8080/default
     archive_paths: /webarchive/collections/default/archive/
+framed_replay: false
+
