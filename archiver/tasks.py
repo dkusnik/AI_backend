@@ -111,7 +111,7 @@ def _reindex_collection(collection_id: str):
         command=["wb-manager", "reindex", str(collection_id)],
 
         volumes={
-            settings.BROWSERTIX_VOLUME: {
+            f"{settings.BROWSERTIX_VOLUME}/collections": {
                 "bind": "/webarchive/collections",
                 "mode": "rw",
             }
