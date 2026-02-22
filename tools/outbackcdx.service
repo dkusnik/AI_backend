@@ -1,0 +1,32 @@
+[Unit]
+Description=AI Backend Docker Compose
+Requires=docker.service
+After=docker.service
+
+[Service]
+Type=oneshot
+WorkingDirectory=/opt/AI_backend
+RemainAfterExit=yes
+
+# start
+ExecStart=/usr/bin/docker compose -f docker-compose.prod.yml up -d \
+<% unless ['ai-stg-backapp01', 'ai-prd-backapp01'].include?(@facts['networking']['hostname']) -%>
+  --scale worker_task_sync=0 \
+  --scale worker_cron=0 \
+<% end -%>
+  --scale worker_crawl_normal=10 \
+  --scale worker_crawl_high=10 \
+  --scale worker_crawl_low=10 \
+  --scale worker_crawl_priority=10
+
+# stop
+ExecStop=/usr/bin/docker compose stop
+
+# reload = pull + recreate
+ExecReload=/usr/bin/docker compose up -d --build
+
+TimeoutStartSec=0
+TimeoutStopSec=60
+
+[Install]
+WantedBy=multi-user.target

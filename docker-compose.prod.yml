@@ -10,7 +10,8 @@ x-worker-common: &worker-common
     - ./:/app/
     - static_volume:/app/static
     - /var/run/docker.sock:/var/run/docker.sock
-    - /srv/ai/:/srv/ai/:rw
+    - /srv/ai/long_term_collections:/srv/ai/long_term_collections:rw
+    - /srv/ai/production_collection:/srv/ai/production_collection:rw
   extra_hosts:
     - "host.docker.internal:host-gateway"
   restart: unless-stopped
