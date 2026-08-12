@@ -1,0 +1,3 @@
+# url<TAB>surt<TAB>timestamp<TAB>status
+http://www.example.com/path	com,example,www)/path	20260101000000	200
+http://www.example.com/other	com,example,www)/other	20260101000001	200

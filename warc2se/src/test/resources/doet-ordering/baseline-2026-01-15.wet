@@ -1,0 +1,45 @@
+WARC/1.0
+WARC-Type: warcinfo
+WARC-Date: 2026-01-15T09:00:00Z
+WARC-Record-ID: <urn:uuid:00919894-7121-45b4-afa8-210087ae0528>
+Content-Type: application/warc-fields
+Content-Length: 100
+
+software: warc-cli test-generator
+format: WET
+filename: baseline-2026-01-15.wet
+
+
+WARC/1.0
+WARC-Type: conversion
+WARC-Date: 2026-01-15T10:00:00Z
+WARC-Record-ID: <urn:uuid:fa004089-dd34-4b1d-8c33-640584d28a07>
+WARC-Target-URI: http://test.gov.pl/content-a
+Content-Type: text/plain; charset=utf-8
+Content-Length: 74
+WARC-Block-Digest: sha256:aaa1111111111111111111111111111111111111111111111111111111111111
+
+Content A - This is the first baseline content with some text for testing.
+
+WARC/1.0
+WARC-Type: conversion
+WARC-Date: 2026-01-15T10:05:00Z
+WARC-Record-ID: <urn:uuid:43da4ed0-31b3-41de-90cd-53d76b8b60a6>
+WARC-Target-URI: http://test.gov.pl/content-b
+Content-Type: text/plain; charset=utf-8
+Content-Length: 75
+WARC-Block-Digest: sha256:bbb2222222222222222222222222222222222222222222222222222222222222
+
+Content B - Second baseline record with different digest for merge testing.
+
+WARC/1.0
+WARC-Type: conversion
+WARC-Date: 2026-01-15T10:10:00Z
+WARC-Record-ID: <urn:uuid:b2d79dfe-ae33-4790-b350-62931567d369>
+WARC-Target-URI: http://test.gov.pl/content-c
+Content-Type: text/plain; charset=utf-8
+Content-Length: 79
+WARC-Block-Digest: sha256:ccc3333333333333333333333333333333333333333333333333333333333333
+
+Content C - Third baseline content to validate multi-record ordering in output.
+

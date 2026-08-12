@@ -1,0 +1,65 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<Configuration status="WARN" monitorInterval="30">
+  <Properties>
+    <!-- Default verbosity mode - overridden by Java system property -->
+    <Property name="verbosity">${sys:warc.logging.verbosity:-standard}</Property>
+
+    <!-- Log patterns -->
+    <Property name="pattern.simple">[%level] %msg%n</Property>
+    <Property name="pattern.standard">[%d{HH:mm:ss.SSS}] [%level] [%logger{1}] %msg%n</Property>
+    <Property name="pattern.verbose">[%d{HH:mm:ss.SSS}] [%level] [%logger{1}:%L] %msg%n</Property>
+    <Property name="pattern.debug">[%d{HH:mm:ss.SSS}] [%level] [%C{1}.%M:%L] %msg%n</Property>
+    <Property name="pattern.file">[%d{yyyy-MM-dd HH:mm:ss.SSS}] [%level] [%logger{36}] %msg%n</Property>
+
+    <!-- Dynamic Level and Pattern based on verbosity system -->
+    <!-- These are expected to be set by VerbosityManager/Config at startup -->
+    <Property name="log.level">${sys:warc.logging.level:-INFO}</Property>
+    <Property name="log.pattern">${sys:warc.logging.pattern:-${pattern.standard}}</Property>
+    <Property name="console.level">${sys:warc.logging.console.level:-WARN}</Property>
+    <Property name="file.level">${sys:warc.logging.file.level:-WARN}</Property>
+    <Property name="log.dir">${sys:warc.logging.dir:-log}</Property>
+    <Property name="log.file">${sys:warc.logging.file:-${log.dir}/pipeline.log}</Property>
+  </Properties>
+
+  <Appenders>
+    <!-- Console appender - configured dynamically based on verbosity -->
+    <Console name="Console" target="${sys:warc.logging.console.target:-SYSTEM_OUT}">
+      <JsonLayout compact="true" eventEol="true" properties="true" stacktraceAsString="true"/>
+    </Console>
+
+    <!-- Async file appender for performance -->
+    <RollingRandomAccessFile name="File"
+                 fileName="${log.file}"
+                 filePattern="${log.dir}/pipeline-%d{yyyy-MM-dd}-%i.log.gz"
+                 immediateFlush="false">
+      <PatternLayout pattern="${pattern.file}"/>
+      <Policies>
+        <TimeBasedTriggeringPolicy interval="1"/>
+        <SizeBasedTriggeringPolicy size="100 MB"/>
+      </Policies>
+      <DefaultRolloverStrategy max="10"/>
+    </RollingRandomAccessFile>
+  </Appenders>
+
+  <Loggers>
+    <!-- Silence external libraries -->
+    <Logger name="org.jline" level="WARN"/>
+    <Logger name="org.apache.tika" level="WARN"/>
+    <Logger name="org.apache.pdfbox" level="ERROR"/>
+    <Logger name="org.elasticsearch" level="WARN"/>
+    <Logger name="org.rocksdb" level="WARN"/>
+    <Logger name="org.netpreserve.jwarc" level="WARN"/>
+    <Logger name="org.apache.commons.compress" level="WARN"/>
+
+    <!-- Application loggers -->
+    <Logger name="pl.gov.nac.warc" level="${log.level}" additivity="false">
+      <AppenderRef ref="Console" level="${console.level}"/>
+      <AppenderRef ref="File" level="${file.level}"/>
+    </Logger>
+
+    <Root level="WARN">
+      <AppenderRef ref="Console"/>
+      <AppenderRef ref="File" level="WARN"/>
+    </Root>
+  </Loggers>
+</Configuration>

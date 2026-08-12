@@ -1,0 +1,27 @@
+[package]
+name = "readability-jni"
+version = "0.1.0"
+edition = "2024"
+rust-version = "1.85"
+description = "JNI/FFI bridge for Rust readability library"
+license = "Apache-2.0"
+
+[lib]
+crate-type = ["cdylib"]  # Dynamic library for JNI/FFI
+
+[dependencies]
+# Readability extraction - using readable-app fork (actively maintained)
+readable-readability = { git = "https://github.com/readable-app/readability.rs", rev = "04128c50bcf32d6213365ecc20e21e810fefe7c5" }
+
+# HTML DOM manipulation for fallback extraction (Proposal #9)
+# Same crate used internally by readable-readability — no new binary bloat
+kuchiki = "0.8"
+
+# For C string handling
+libc = "0.2"
+
+[profile.release]
+opt-level = 3
+lto = true
+codegen-units = 1
+panic = "unwind"

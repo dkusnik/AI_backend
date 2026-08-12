@@ -1,0 +1,34 @@
+WARC/1.0
+WARC-Type: warcinfo
+WARC-Date: 2026-01-20T09:00:00Z
+WARC-Record-ID: <urn:uuid:3c83b2bc-59a4-4e43-a510-0d7bbd8a3d9b>
+Content-Type: application/warc-fields
+Content-Length: 100
+
+software: warc-cli test-generator
+format: WET
+filename: scan-2026-01-20.wet
+
+
+WARC/1.0
+WARC-Type: conversion
+WARC-Date: 2026-01-20T11:00:00Z
+WARC-Record-ID: <urn:uuid:7eeb4f81-576e-42f1-837e-6cd9a71234b7>
+WARC-Target-URI: http://test.gov.pl/content-a
+Content-Type: text/plain; charset=utf-8
+Content-Length: 74
+WARC-Block-Digest: sha256:aaa1111111111111111111111111111111111111111111111111111111111111
+
+Content A - This is the first baseline content with some text for testing.
+
+WARC/1.0
+WARC-Type: conversion
+WARC-Date: 2026-01-20T11:05:00Z
+WARC-Record-ID: <urn:uuid:81fafadd-1af1-497a-8fbc-6de33fc308a7>
+WARC-Target-URI: http://test.gov.pl/content-d
+Content-Type: text/plain; charset=utf-8
+Content-Length: 85
+WARC-Block-Digest: sha256:ddd4444444444444444444444444444444444444444444444444444444444444
+
+Content D - New content discovered in second scan, should get new-content provenance.
+

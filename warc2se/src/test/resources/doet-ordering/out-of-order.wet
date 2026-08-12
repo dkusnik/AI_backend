@@ -1,0 +1,34 @@
+WARC/1.0
+WARC-Type: warcinfo
+WARC-Date: 2026-02-01T09:00:00Z
+WARC-Record-ID: <urn:uuid:8ad1445a-c0a4-4c3c-8484-2af6f614e7f6>
+Content-Type: application/warc-fields
+Content-Length: 100
+
+software: warc-cli test-generator
+format: WET
+filename: out-of-order.wet
+
+
+WARC/1.0
+WARC-Type: conversion
+WARC-Date: 2026-02-01T14:00:00Z
+WARC-Record-ID: <urn:uuid:23c4e9b3-a06a-4247-b3e4-de85e39bf2f9>
+WARC-Target-URI: http://test.gov.pl/content-z
+Content-Type: text/plain; charset=utf-8
+Content-Length: 60
+WARC-Block-Digest: sha256:zzz9999999999999999999999999999999999999999999999999999999999999
+
+Content Z - This record appears first but has a late digest.
+
+WARC/1.0
+WARC-Type: conversion
+WARC-Date: 2026-02-01T14:05:00Z
+WARC-Record-ID: <urn:uuid:63b6d752-6035-45b5-8275-f48240d2d689>
+WARC-Target-URI: http://test.gov.pl/content-a-late
+Content-Type: text/plain; charset=utf-8
+Content-Length: 74
+WARC-Block-Digest: sha256:aaa1111111111111111111111111111111111111111111111111111111111111
+
+Content A - This is the first baseline content with some text for testing.
+

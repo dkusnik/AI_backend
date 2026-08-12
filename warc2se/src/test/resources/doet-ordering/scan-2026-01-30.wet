@@ -1,0 +1,34 @@
+WARC/1.0
+WARC-Type: warcinfo
+WARC-Date: 2026-01-30T09:00:00Z
+WARC-Record-ID: <urn:uuid:575a3d83-89fd-40b0-ad92-252f5b76a8da>
+Content-Type: application/warc-fields
+Content-Length: 100
+
+software: warc-cli test-generator
+format: WET
+filename: scan-2026-01-30.wet
+
+
+WARC/1.0
+WARC-Type: conversion
+WARC-Date: 2026-01-30T13:00:00Z
+WARC-Record-ID: <urn:uuid:89a50d55-4cbb-471f-a745-8fc8dcc00e91>
+WARC-Target-URI: http://test.gov.pl/content-b
+Content-Type: text/plain; charset=utf-8
+Content-Length: 75
+WARC-Block-Digest: sha256:bbb2222222222222222222222222222222222222222222222222222222222222
+
+Content B - Second baseline record with different digest for merge testing.
+
+WARC/1.0
+WARC-Type: conversion
+WARC-Date: 2026-01-30T13:05:00Z
+WARC-Record-ID: <urn:uuid:fc01d7a7-e978-4ff9-bd57-ab41f0d3cf68>
+WARC-Target-URI: http://test.gov.pl/content-f
+Content-Type: text/plain; charset=utf-8
+Content-Length: 81
+WARC-Block-Digest: sha256:fff6666666666666666666666666666666666666666666666666666666666666
+
+Content F - Final new content record to complete the test dataset for validation.
+

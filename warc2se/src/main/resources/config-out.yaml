@@ -1,0 +1,631 @@
+global:
+  # Out distribution profile:
+  # - keep periodic progress output
+  # - keep final report output
+  # - reduce module logs to warnings/errors
+  verbosity: BRIEF
+
+  # -------------------------------------------------------------------
+  # JVM Settings (extracted by shell scripts for java command)
+  # -------------------------------------------------------------------
+  # Values are parsed by a small shell helper in pipeline-lib; keep them as
+  # single scalars without embedded spaces or shell quoting.
+  # PROFILE: default (2GB heap, 3 cores)
+  # Note: concurrency allows multiple virtual threads to multiplex on available cores
+  jvm:
+    jvm-memory-heap-min: 2g     # JVM -Xms
+    jvm-memory-heap-max: 2g     # JVM -Xmx
+    jvm-cpu-count: 3            # JVM -XX:ActiveProcessorCount (limits cores used)
+    jvm-gc: zgc                 # Garbage collector: zgc | g1 | parallel
+
+  # -------------------------------------------------------------------
+  # Engine Settings (used by Java runtime)
+  # -------------------------------------------------------------------
+  engine:
+    # Engine type: 'virtual' (VirtualThreadEngine) is the only engine.
+    # 'reactive' was removed 2026-07-08 (R-11 #10) — it produced invalid
+    # output (R-10 M10) and now fails fast if selected.
+    type: virtual
+    concurrency: 50             # Optimal for 3-core configuration (174 MB/s)
+    shutdownTimeout: 60         # Pipeline completion timeout (seconds)
+    isalEnabled: true           # ISA-L SIMD gzip decompression (Intel/AMD CPUs, falls back to standard zlib if unavailable)
+    # -------------------------------------------------------------------
+    # Queue and parallel-compression limits
+    # -------------------------------------------------------------------
+    recordSizeThresholdMB: 10   # Records >= this size use count-based throttling
+    maxRecords: 5               # Queue capacity floor; caps parallel-GZIP workers
+    # parallelGzip: NOT enabled — R-10 M16 measured no gain on this pipeline
+    # (322 vs 325 MB/s) and 1/7 runs produced empty output; see R-11 #3 verdict.
+  prescanCounts: fast
+  args:
+    - ["-h", "--help", "boolean", "global.help"]
+    - [null, "--dry-run", "boolean", "global.dryRun"]
+    - [null, "--force", "boolean", "output.force"]
+    - [null, "--engine", "string", "engine.type"]
+    - [null, "--isal-enabled", "boolean", "engine.isalEnabled"]
+    - ["-t", "--threads", "integer", "engine.concurrency"]
+    - [null, "--size-threshold-mb", "integer", "engine.recordSizeThresholdMB"]
+    - ["-r", "--max-records", "integer", "engine.maxRecords"]
+    - [null, "--version", "boolean", "global.version"]
+    - [null, "--format", "string", "global.format"]
+    - [null, "--brief", "boolean", "global.brief"]
+    - [null, "--development", "boolean", "global.development"]
+    - [null, "--debug", "boolean", "global.debug"]
+    - ["-v", "--verbose", "boolean", "global.verbose"]
+    - ["-s", "--silent", "boolean", "global.silent"]
+    - [null, "--benchmark", "boolean", "global.benchmark"]
+    - [null, "--progress-none", "boolean", "global.progressNone"]
+    - [null, "--progress-verbose", "boolean", "global.progressVerbose"]
+    - [null, "--final-report-none", "boolean", "global.finalReportNone"]
+    - [null, "--final-report-summary", "boolean", "global.finalReportSummary"]
+    - [null, "--final-report-full", "boolean", "global.finalReportFull"]
+    - [null, "--final-report-to", "string", "global.finalReportTo"]
+    - [null, "--log-cli-none", "boolean", "global.logCliNone"]
+    - ["-o", "--output", "string", "output.file"]
+    - ["", "--output-mode", "string", "output.mode"]
+    - ["", "--output-name-prefix", "string", "output.output-name-prefix"]
+    - ["", "--output-name-template", "string", "output.output-name-template"]
+    - ["", "--output-size-limit", "string", "output.warc-size-limit"]
+    - ["", "--compression", "string", "output.compression"]
+    - ["", "--cdx-sidecar", "boolean", "output.cdx-sidecar"]
+    - ["string[]", "input.files"]
+
+# ==============================================================================
+# Performance Profiles
+# ==============================================================================
+# Profiles allow different resource configurations without separate YAML files.
+# Select via: --profile=<name> or WARC_CLI_PROFILE=<name>
+# Profiles override the global settings above.
+#
+# Available profiles:
+#   light           - 1GB heap, 1 core,  10 vthreads, 5-record queue floor (default, safe)
+#   light-optimized - 1GB heap, 3 cores, 50 vthreads, 5-record queue floor (benchmark: 180 MB/s)
+#   light-parallel  - 1GB heap, 4 cores, 25 vthreads, 10-record queue floor
+#   parallel        - 4GB heap, 4 cores, 100 vthreads, 20-record queue floor
+
+profiles:
+  parallel:
+    global:
+      jvm:
+        jvm-memory-heap-min: 4g
+        jvm-memory-heap-max: 4g
+        jvm-cpu-count: 4
+      engine:
+        concurrency: 100        # Reduced from 200 for stability on 4GB heap
+        maxRecords: 20          # Queue floor and parallel-GZIP worker cap
+        parallelGzip: true      # Enable parallel compression
+
+  light-parallel:
+    global:
+      jvm:
+        jvm-memory-heap-min: 1g
+        jvm-memory-heap-max: 1g
+        jvm-cpu-count: 4
+      engine:
+        concurrency: 25         # Balanced for 1GB heap with 4 cores
+        maxRecords: 10          # Queue floor and parallel-GZIP worker cap
+        parallelGzip: true      # Enable parallel compression
+
+  light-optimized:
+    global:
+      jvm:
+        jvm-memory-heap-min: 1g
+        jvm-memory-heap-max: 1g
+        jvm-cpu-count: 3        # Optimal for benchmark performance
+      engine:
+        concurrency: 50         # Optimal concurrency for 3 cores (179.88 MB/s benchmark)
+        maxRecords: 5           # Queue floor and parallel-GZIP worker cap
+        parallelGzip: true      # Enable parallel compression
+
+# ==============================================================================
+# PIPELINES - Organized by Purpose
+# ==============================================================================
+# CLI-USED: Pipelines called directly by warc-cli commands
+# ANALYSIS: Validation and analysis pipelines
+# TEST: Test pipelines for development
+# BENCHMARK: Performance measurement
+# DEBUG: Profiling and debugging
+# ==============================================================================
+
+pipelines:
+
+  # Naming rules for new pipelines:
+  # - Test-related pipelines must use prefix: test-
+  # - Benchmark-related pipelines must use prefix: bench-
+
+  warc2wet:
+    description: "WARC to WET text extraction pipeline"
+    chain: [input, grep, extract-text, lang-detect, digest, doet-accumulator, provenance, output]
+    args:
+      - [null, "--url-id", "string", "processor.provenance.url-id"]
+      - [null, "--crawl-id", "string", "processor.provenance.crawl-id"]
+    overrides:
+      input:
+        module: archive-chunked
+        emittedOutputTypes: [RecordWarcUniversal]
+      processor.doet-accumulator:
+        doet-merge: false
+        # Note: wrappers override rocksdb-path per-run via CLI
+        rocksdb-path: "${WARC_DIST_DIR}/var/db/doet"
+        deduplicate-scope: "global"
+      processor.grep:
+        mode: "deny-allow-drop"
+        allow-groups-and: true
+        allow-warcinfo: false
+        allow-warc-types: ["response", "resource", "conversion"]
+        allow-http-codes: ["200"]
+        allow-mime-types:
+          [
+            "text/html",
+            "text/plain",
+            "application/xhtml+xml",
+            "application/pdf",
+            "application/msword",
+            "application/vnd.ms-*",
+            "application/vnd.openxmlformats-officedocument*",
+            "application/vnd.oasis.opendocument*",
+            "application/rtf",
+            "text/rtf",
+            "application/epub",
+            "text/markdown",
+            "text/x-tex",
+            "text/x-latex",
+          ]
+        # R-11 opt/mvp-filter-no-regex: contains-lists instead of regexes
+        # (regex machinery was ~39% of MVP CPU per R-10 M13 JFR).
+        # Kept semantically aligned with config.yaml — C-3/F-C3.
+        deny-url-contains: ["sitemap.xml", "robots.txt", "/feed/", "/rss/", "/atom/", "/feed.", "/rss.", "/atom."]
+        deny-mime-contains:
+          [
+            "template",
+            "+rss", "+atom", "+svg", "+mathml", "+rdf",
+            "openapi", "swagger",
+            "ld+json",
+            "wasm",
+          ]
+      processor.extract-text:
+        extract-min-text-length: 20
+        extract-title: true
+        extract-hybrid-fallback: true
+        extract-hybrid-threshold: 200
+        extract-preserve-links: true
+        extract-preserve-headings: true
+        use-pdftotext: true
+        pdftotext-max-concurrent: 3
+      processor.lang-detect:
+        min-text-length: 50
+        confidence-threshold: 0.8
+        use-fasttext: false
+        # fastText is outside the MVP until F-C1b decides whether to implement
+        # the model path/preflight/worker lifecycle fully or drop this path.
+        fasttext-model-path: "../conf/lid.176.ftz"
+        fasttext-process-count: 3
+      output:
+        module: codec
+        compress: gzip
+
+  warc-grep-chunked:
+    description: "Benchmark: chunked producer with noop consumer (measures raw read throughput)"
+    before: []
+    producer: archive-chunked
+    processors: []
+    consumer: noop
+    overrides:
+      producer.archive-chunked: { output: universal }
+
+  warc-grep:
+    description: "Filter WARC records by MIME type, URL patterns, status, and record type"
+    before: []
+    producer: archive-chunked
+    processors: [grep]
+    consumer: codec
+    after: [noop]
+    overrides:
+      producer.archive-chunked: { output: universal }
+      processor.grep:
+        mode: "deny-allow-drop"
+      consumer.codec:
+        output-format: warc+cdx
+        compress: gzip
+
+  warc2warc:
+    description: "WARC passthrough - read and write without transformation"
+    before: []
+    producer: archive-chunked
+    processors: []
+    consumer: codec
+    after: [noop]
+
+  dedupe:
+    description: "WET to DOET - deduplicate and sort by digest"
+    before: []
+    producer: archive-chunked
+    processors: [doet-accumulator]
+    consumer: codec
+    after: [noop]
+    overrides:
+      producer.archive-chunked: { output: universal }
+      processor.doet-accumulator: { rocksdb-path: "${WARC_DIST_DIR}/var/db/doet", primary-file: "" }
+      consumer.codec:
+        {
+          output-format: doet,
+          compress: gzip,
+        }
+
+  doet-merge:
+    description: "Merge multiple digest-sorted DOET/WET files into a single deduplicated stream"
+    chain: [archive-chunked, doet-accumulator, codec]
+    overrides:
+      engine.concurrency: 1
+      producer.archive-chunked:
+        doet-merge: true
+        threads: 1
+      processor.doet-accumulator:
+        doet-merge: true
+        track-baseline-date: true
+      consumer.codec:
+        split-provenance: true
+        compress: gzip
+
+  doet-baseline:
+    description: "Merge multiple digest-sorted DOET/WET files into a single baseline stream"
+    chain: [archive-chunked, doet-accumulator, codec]
+    overrides:
+      engine.concurrency: 1
+      producer.archive-chunked:
+        doet-merge: true
+        threads: 1
+      processor.doet-accumulator:
+        doet-merge: true
+        track-baseline-date: true
+      consumer.codec:
+        split-provenance: false
+        compress: gzip
+
+  warc-validate:
+    description: "WARC compliance validation (decode + headers + magic)"
+    producer: archive-jwarc
+    processors: []
+    consumer: noop
+    after: [warc-jwarc, warc-codec, warc-headers, warc-magic]
+    overrides:
+      producer.archive-jwarc:
+        { files: [], output: bytes }
+      checker.warc-jwarc:
+        { path: "" }
+      checker.warc-codec:
+        { path: "" }
+      checker.warc-headers:
+        { path: "", requireNacHeaders: true }
+      checker.warc-magic:
+        { path: "" }
+
+  warc-info:
+    description: "WARC info checker pipeline"
+    before: []
+    producer: noop
+    processors: []
+    consumer: noop
+    after: [warc-codec]
+    overrides:
+      checker.warc-codec: { path: "" }
+
+  es-loader:
+    description: "Load WET or DOET files into Elasticsearch 9"
+    before: []
+    producer: archive-chunked
+    processors: []
+    consumer: elasticsearch-vt
+    after: [noop]
+    args:
+      - [null, "--es-url", "string", "consumer.elasticsearch-vt.es-url"]
+      - [null, "--index", "string", "consumer.elasticsearch-vt.index"]
+      - [null, "--stream", "string", "consumer.elasticsearch-vt.stream"]
+      - [null, "--url-id", "string", "consumer.elasticsearch-vt.url-id"]
+      - [null, "--batch-size", "integer", "consumer.elasticsearch-vt.batch-size"]
+      - [null, "--concurrent-batches", "integer", "consumer.elasticsearch-vt.max-concurrent-batches"]
+      - [null, "--crawl-id", "string", "consumer.elasticsearch-vt.crawl-id"]
+      - [null, "--start-date", "string", "consumer.elasticsearch-vt.start-date"]
+      - [null, "--es-user", "string", "consumer.elasticsearch-vt.es-user"]
+      - [null, "--es-pass", "string", "consumer.elasticsearch-vt.es-pass"]
+      - [0, "string", "producer.archive-chunked.files"]
+      - ["string[]", "producer.archive-chunked.files"]
+    overrides:
+      producer.archive-chunked:
+        files: []
+        emittedOutputTypes: [RecordWet, RecordWarcUniversal]
+      consumer.elasticsearch-vt:
+        es-url: "http://localhost:9200"
+        index: "docs-nac"
+        stream: ""
+        batch-size: 500
+        max-concurrent-batches: 20
+        retry-count: 5
+        retry-backoff-ms: 200
+        url-id: ""
+        crawl-id: ""
+        start-date: ""
+        es-user: "${ES_USER:-}"
+        es-pass: "${ES_PASS:-}"
+modules:
+  # ------------------------------------------------------------
+  # PRODUCERS
+  # ------------------------------------------------------------
+  producers:
+    noop:
+      className: pl.gov.nac.warc.producers.NoOpExtractor
+      logLevel: WARN
+      config: {}
+
+    # Unified Archive Producers (WARC)
+    archive-jwarc:
+      className: pl.gov.nac.warc.producers.ArchiveExtractorJwarc
+      logLevel: WARN
+      config:
+        files: []
+        output: bytes # bytes | native | universal
+        parallelism: 4
+
+    archive-chunked:
+      className: pl.gov.nac.warc.producers.ChunkedArchiveExtractor
+      logLevel: WARN
+      config:
+        files: []
+        threads: 1
+        minChunkSize: 100000000  # 100MB
+
+  # ------------------------------------------------------------
+  # PROCESSORS
+  # ------------------------------------------------------------
+  processors:
+    extract-text:
+      className: pl.gov.nac.warc.processors.WarcDecoratorTextExtract
+      logLevel: WARN
+      args:
+        - [
+            null,
+            "--extract-min-text-length",
+            "integer",
+            "extract-min-text-length",
+          ]
+        - [
+            null,
+            "--extract-max-text-length",
+            "integer",
+            "extract-max-text-length",
+          ]
+        - [null, "--extract-title", "boolean", "extract-title"]
+        - [null, "--extract-normalize", "boolean", "extract-normalize"]
+      config:
+        extract-min-text-length: 20
+        extract-max-text-length: 0 # 0 = no limit
+        extract-title: true
+
+    lang-detect:
+      className: pl.gov.nac.warc.processors.WarcDecoratorLanguageDetect
+      logLevel: WARN
+      config:
+        min-text-length: 50
+        confidence-threshold: 0.8
+
+    digest:
+      className: pl.gov.nac.warc.processors.WarcDecoratorDigest
+      logLevel: WARN
+      args:
+        - [null, "--digest", "string", "digest"]
+      config: {}
+
+    provenance:
+      className: pl.gov.nac.warc.processors.WarcDecoratorProvenance
+      logLevel: WARN
+      config:
+        url-id: ""
+        crawl-id: ""
+
+    doet-accumulator:
+      className: pl.gov.nac.warc.processors.WarcAccumulatorDeduplicateDoet
+      logLevel: WARN
+      args:
+        - [null, "--deduplicate-scope", "string", "deduplicate-scope"]
+        - [null, "--bucket-prefix", "string", "bucket-prefix"]
+      config:
+        rocksdb-path: "${WARC_DIST_DIR}/var/db/doet"
+        deduplicate-scope: "global"  # "global" | "url" | "none" | "sort-only"
+        bucket-prefix: "extract"
+
+    cdxj-sorter:
+      className: pl.gov.nac.warc.processors.WarcAccumulatorCdxjSort
+      logLevel: WARN
+      args:
+        - [null, "--cdxj-memory-mb", "integer", "memory-threshold-mb"]
+        - [null, "--cdxj-max-records", "integer", "max-records-in-memory"]
+        - [null, "--cdxj-db-path", "string", "rocksdb-path"]
+      config:
+        memory-threshold-mb: 100
+        max-records-in-memory: 10000
+        rocksdb-path: "${WARC_DIST_DIR}/var/db/cdxj-sort"
+
+    grep:
+      className: pl.gov.nac.warc.processors.WarcFilter
+      logLevel: WARN
+      args:
+        # Processing mode
+        - [null, "--deny-allow-drop", "boolean", "mode-deny-allow-drop"]
+        - [null, "--allow-deny-count", "boolean", "mode-allow-deny-count"]
+        - [null, "--deny-allow-count", "boolean", "mode-deny-allow-count"]
+        # Control flags
+        - [null, "--allow-groups-and", "boolean", "allow-groups-and"]
+        - [null, "--deny-groups-and", "boolean", "deny-groups-and"]
+        - [null, "--allow-warcinfo", "boolean", "allow-warcinfo"]
+        - [null, "--deny-warcinfo", "boolean", "deny-warcinfo"]
+        # Pagination
+        - [null, "--allow-row-start-with", "integer", "row-start"]
+        - [null, "--allow-row-limit", "integer", "row-limit"]
+        # WARC types
+        - [null, "--allow-warc-record-type", "string[]", "allow-warc-types"]
+        - [null, "--deny-warc-record-type", "string[]", "deny-warc-types"]
+        # MIME types
+        - [null, "--allow-mime-type", "string[]", "allow-mime-types"]
+        - [null, "--deny-mime-type", "string[]", "deny-mime-types"]
+        - [null, "--allow-mime-regex", "string[]", "allow-mime-regexes"]
+        - [null, "--deny-mime-regex", "string[]", "deny-mime-regexes"]
+        # HTTP codes (supports ranges like 200-299 and ^negation)
+        - [null, "--allow-http-code", "string[]", "allow-http-codes"]
+        - [null, "--deny-http-code", "string[]", "deny-http-codes"]
+        # Content-length
+        - [
+            null,
+            "--allow-content-length-less-than",
+            "integer",
+            "allow-content-length-lt",
+          ]
+        - [
+            null,
+            "--deny-content-length-less-than",
+            "integer",
+            "deny-content-length-lt",
+          ]
+        - [
+            null,
+            "--allow-content-length-more-than",
+            "integer",
+            "allow-content-length-gt",
+          ]
+        - [
+            null,
+            "--deny-content-length-more-than",
+            "integer",
+            "deny-content-length-gt",
+          ]
+        # URL filters
+        - [null, "--allow-url-regex", "string[]", "allow-url-regexes"]
+        - [null, "--deny-url-regex", "string[]", "deny-url-regexes"]
+        - [null, "--allow-url-prefix", "string[]", "allow-url-prefixes"]
+        - [null, "--deny-url-prefix", "string[]", "deny-url-prefixes"]
+        - [null, "--allow-url-contains", "string[]", "allow-url-contains"]
+        - [null, "--deny-url-contains", "string[]", "deny-url-contains"]
+        # Header filters
+        - [null, "--allow-header", "string[]", "allow-headers"]
+        - [null, "--deny-header", "string[]", "deny-headers"]
+        # Date filters
+        - [null, "--allow-date-before", "string", "allow-date-before"]
+        - [null, "--allow-date-after", "string", "allow-date-after"]
+        - [null, "--deny-date-before", "string", "deny-date-before"]
+        - [null, "--deny-date-after", "string", "deny-date-after"]
+        # Row filters
+        - [null, "--allow-row-before", "integer", "allow-row-before"]
+        - [null, "--allow-row-after", "integer", "allow-row-after"]
+        - [null, "--deny-row-before", "integer", "deny-row-before"]
+        - [null, "--deny-row-after", "integer", "deny-row-after"]
+        # Filename filters
+        - [null, "--allow-filename", "string[]", "allow-filenames"]
+        - [null, "--deny-filename", "string[]", "deny-filenames"]
+      config:
+        mode: "allow-deny-pass"
+        allow-groups-and: false
+        deny-groups-and: false
+        allow-warcinfo: false
+        deny-warcinfo: false
+        row-start: 0
+        row-limit: 9223372036854775807
+        allow-warc-types: []
+        deny-warc-types: []
+        allow-mime-types: []
+        deny-mime-types: []
+        allow-http-codes: []
+        deny-http-codes: []
+        allow-content-length-lt: null
+        allow-content-length-gt: null
+        deny-content-length-lt: null
+        deny-content-length-gt: null
+        allow-url-regexes: []
+        deny-url-regexes: []
+        allow-url-prefixes: []
+        deny-url-prefixes: []
+        allow-headers: []
+        deny-headers: []
+        allow-date-before: null
+        allow-date-after: null
+        deny-date-before: null
+        deny-date-after: null
+        allow-row-before: null
+        allow-row-after: null
+        deny-row-before: null
+        deny-row-after: null
+        allow-filenames: []
+        deny-filenames: []
+
+  # ------------------------------------------------------------
+  # CONSUMERS
+  # ------------------------------------------------------------
+  # Compression Performance (1.7GB plock file, 12,609 records):
+  # | Type | Time   | Size     | RAM     | Throughput |
+  # | ZSTD | 17.3s  | 1675 MB  | 658 MB  | 100 MB/s   | ← Recommended
+  # | None | 17.5s  | 1749 MB  | 465 MB  | 105 MB/s   |
+  # | LZ4  | 31.2s  | 1701 MB  | 758 MB  | 55 MB/s    |
+  # | GZIP | 52.7s  | 1689 MB  | 690 MB  | 33 MB/s    |
+  # | XZ   | 700s   | 1663 MB  | 862 MB  | 2.6 MB/s   |
+  # Use: compress: zstd | lz4 | gzip | xz | none
+  consumers:
+    codec:
+      className: pl.gov.nac.warc.consumers.ConsumerCodec
+      logLevel: WARN
+      config:
+        file: "./warc/output.warc.gz"
+        output-format: warc+cdx # warc | wet | doet | warc+cdx
+        compress: gzip     # gzip | zstd | none
+        fileSizeLimit: 0   # 0 = no limit
+
+    noop:
+      className: pl.gov.nac.warc.consumers.NoOpExporter
+      logLevel: WARN
+      config: {}
+
+
+
+    elasticsearch-vt:
+      className: pl.gov.nac.warc.consumers.ElasticsearchExporterVT
+      logLevel: WARN
+      config:
+        es-url: "http://localhost:9200"
+        index: "docs-test"
+        batch-size: 100
+        max-concurrent-batches: 10
+        retry-count: 3
+        retry-backoff-ms: 500
+        retry-backoff-multiplier: 2.0
+        url-id: ""
+        crawl-id: ""
+        start-date: ""
+
+  checkers:
+
+    warc-codec:
+      className: pl.gov.nac.warc.checkers.CheckerWarcCodec
+      logLevel: WARN
+      config:
+        path: ""
+
+    noop:
+      className: pl.gov.nac.warc.checkers.CheckerNoOp
+      logLevel: WARN
+      config: {}
+
+    warc-jwarc:
+      className: pl.gov.nac.warc.checkers.CheckerWarcJwarc
+      logLevel: WARN
+      config:
+        path: ""
+
+    warc-headers:
+      className: pl.gov.nac.warc.checkers.CheckerWarcHeaders
+      logLevel: WARN
+      config:
+        path: ""
+        requireNacHeaders: true
+
+    warc-magic:
+      className: pl.gov.nac.warc.checkers.CheckerWarcMagic
+      logLevel: WARN
+      config:
+        path: ""

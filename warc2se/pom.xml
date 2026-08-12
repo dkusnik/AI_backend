@@ -1,0 +1,505 @@
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 https://maven.apache.org/xsd/maven-4.0.0.xsd">
+  <modelVersion>4.0.0</modelVersion>
+  <groupId>pl.gov.nac.warc</groupId>
+  <artifactId>pipeline</artifactId>
+  <version>1.0.0</version>
+  <name>WARC pipeline</name>
+
+<properties>
+  <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+  <maven.compiler.source>25</maven.compiler.source>
+  <maven.compiler.target>25</maven.compiler.target>
+  <maven.compiler.release>25</maven.compiler.release>
+
+  <snakeyaml.version>2.6</snakeyaml.version>
+  <jwarc.version>0.36.0</jwarc.version>
+  <slf4j.version>2.0.17</slf4j.version>
+  <log4j2.version>2.26.1</log4j2.version>
+  <disruptor.version>4.0.0</disruptor.version>
+  <commons-compress.version>1.28.0</commons-compress.version>
+  <junit.jupiter.version>6.1.1</junit.jupiter.version>
+
+  <maven.compiler.plugin.version>3.14.1</maven.compiler.plugin.version>
+  <maven.shade.plugin.version>3.6.1</maven.shade.plugin.version>
+  <exec.maven.plugin.version>3.6.3</exec.maven.plugin.version>
+  <maven.surefire.plugin.version>3.5.4</maven.surefire.plugin.version>
+</properties>
+
+<dependencies>
+  <dependency>
+    <groupId>org.yaml</groupId>
+    <artifactId>snakeyaml</artifactId>
+    <version>${snakeyaml.version}</version>
+  </dependency>
+  <dependency>
+    <groupId>org.netpreserve</groupId>
+    <artifactId>jwarc</artifactId>
+    <version>${jwarc.version}</version>
+  </dependency>
+  <dependency>
+    <groupId>org.slf4j</groupId>
+    <artifactId>slf4j-api</artifactId>
+    <version>${slf4j.version}</version>
+  </dependency>
+  <dependency>
+    <groupId>org.apache.logging.log4j</groupId>
+    <artifactId>log4j-api</artifactId>
+    <version>${log4j2.version}</version>
+  </dependency>
+  <dependency>
+    <groupId>org.apache.logging.log4j</groupId>
+    <artifactId>log4j-core</artifactId>
+    <version>${log4j2.version}</version>
+  </dependency>
+  <dependency>
+    <groupId>org.apache.logging.log4j</groupId>
+    <artifactId>log4j-slf4j2-impl</artifactId>
+    <version>${log4j2.version}</version>
+  </dependency>
+  <dependency>
+    <groupId>com.lmax</groupId>
+    <artifactId>disruptor</artifactId>
+    <version>${disruptor.version}</version>
+  </dependency>
+  <dependency>
+    <groupId>org.apache.commons</groupId>
+    <artifactId>commons-compress</artifactId>
+    <version>${commons-compress.version}</version>
+  </dependency>
+  <dependency>
+    <groupId>org.junit.jupiter</groupId>
+    <artifactId>junit-jupiter</artifactId>
+    <version>${junit.jupiter.version}</version>
+    <scope>test</scope>
+  </dependency>
+  <!-- GZIP optimization: aircompressor (Change 1, Phase V4) -->
+  <dependency>
+    <groupId>io.airlift</groupId>
+    <artifactId>aircompressor</artifactId>
+    <version>2.0.2</version>
+  </dependency>
+<dependency>
+    <groupId>org.jline</groupId>
+    <artifactId>jline</artifactId>
+    <version>3.30.6</version>
+</dependency>
+<dependency>
+    <groupId>org.slf4j</groupId>
+    <artifactId>jul-to-slf4j</artifactId>
+    <version>2.0.17</version>
+</dependency>
+    <dependency>
+      <groupId>org.jsoup</groupId>
+      <artifactId>jsoup</artifactId>
+      <version>1.22.2</version>
+    </dependency>
+    <dependency>
+      <groupId>net.dankito.readability4j</groupId>
+      <artifactId>readability4j</artifactId>
+      <version>1.0.8</version>
+    </dependency>
+    <dependency>
+      <groupId>org.apache.tika</groupId>
+      <artifactId>tika-core</artifactId>
+      <version>3.3.1</version>
+    </dependency>
+    <dependency>
+      <groupId>org.apache.tika</groupId>
+      <artifactId>tika-parsers-standard-package</artifactId>
+      <version>3.3.1</version>
+      <exclusions>
+          <exclusion>
+              <groupId>commons-logging</groupId>
+              <artifactId>commons-logging</artifactId>
+          </exclusion>
+      </exclusions>
+    </dependency>
+    <dependency>
+      <groupId>org.apache.tika</groupId>
+      <artifactId>tika-langdetect-optimaize</artifactId>
+      <version>3.3.1</version>
+      <exclusions>
+          <exclusion>
+              <groupId>commons-logging</groupId>
+              <artifactId>commons-logging</artifactId>
+          </exclusion>
+      </exclusions>
+    </dependency>
+    <dependency>
+      <groupId>org.rocksdb</groupId>
+      <artifactId>rocksdbjni</artifactId>
+      <version>9.11.2</version>
+    </dependency>
+
+    <!-- Elasticsearch Java client — aligned to production ES 9.4 (operator ruling 2026-07-08, REVIEW-08 X-2) -->
+    <dependency>
+      <groupId>co.elastic.clients</groupId>
+      <artifactId>elasticsearch-java</artifactId>
+      <version>9.4.3</version>
+    </dependency>
+    <dependency>
+      <groupId>com.fasterxml.jackson.core</groupId>
+      <artifactId>jackson-databind</artifactId>
+      <version>2.22.1</version>
+    </dependency>
+
+    <!-- Heritrix webarchive-commons for WARC reading -->
+    <dependency>
+      <groupId>org.netpreserve.commons</groupId>
+      <artifactId>webarchive-commons</artifactId>
+      <version>3.0.4</version>
+      <exclusions>
+        <exclusion>
+          <groupId>commons-logging</groupId>
+          <artifactId>commons-logging</artifactId>
+        </exclusion>
+      </exclusions>
+    </dependency>
+
+    <!-- Compression support -->
+    <dependency>
+      <groupId>com.github.luben</groupId>
+      <artifactId>zstd-jni</artifactId>
+      <version>1.5.7-11</version>
+    </dependency>
+    <dependency>
+      <groupId>at.yawk.lz4</groupId>
+      <artifactId>lz4-java</artifactId>
+      <version>1.8.1</version>
+    </dependency>
+    <dependency>
+      <groupId>org.tukaani</groupId>
+      <artifactId>xz</artifactId>
+      <version>1.12</version>
+    </dependency>
+    <dependency>
+      <groupId>commons-codec</groupId>
+      <artifactId>commons-codec</artifactId>
+      <version>1.22.0</version>
+    </dependency>
+    <dependency>
+      <groupId>net.openhft</groupId>
+      <artifactId>zero-allocation-hashing</artifactId>
+      <version>2026.0</version>
+    </dependency>
+
+    <!-- Testing: Mockito for JUnit 5 -->
+    <dependency>
+      <groupId>org.mockito</groupId>
+      <artifactId>mockito-core</artifactId>
+      <version>5.23.0</version>
+      <scope>test</scope>
+    </dependency>
+    <dependency>
+      <groupId>org.mockito</groupId>
+      <artifactId>mockito-junit-jupiter</artifactId>
+      <version>5.23.0</version>
+      <scope>test</scope>
+    </dependency>
+
+</dependencies>
+
+<build>
+  <finalName>pipeline</finalName>
+  <plugins>
+    <plugin>
+      <groupId>org.apache.maven.plugins</groupId>
+      <artifactId>maven-compiler-plugin</artifactId>
+      <version>${maven.compiler.plugin.version}</version>
+      <configuration>
+        <release>${maven.compiler.release}</release>
+
+      </configuration>
+    </plugin>
+
+    <plugin>
+      <groupId>org.apache.maven.plugins</groupId>
+      <artifactId>maven-shade-plugin</artifactId>
+      <version>${maven.shade.plugin.version}</version>
+      <!-- shade configuration -->
+    </plugin>
+
+    <plugin>
+      <groupId>org.codehaus.mojo</groupId>
+      <artifactId>exec-maven-plugin</artifactId>
+      <version>${exec.maven.plugin.version}</version>
+    </plugin>
+
+    <plugin>
+      <groupId>org.apache.maven.plugins</groupId>
+      <artifactId>maven-surefire-plugin</artifactId>
+      <version>${maven.surefire.plugin.version}</version>
+      <configuration>
+        <argLine>@{argLine} -Xmx1g -Dnet.bytebuddy.experimental=true -Djdk.attach.allowAttachSelf=true -XX:+EnableDynamicAgentLoading --enable-native-access=ALL-UNNAMED --sun-misc-unsafe-memory-access=allow -Dwarc.logging.dir=${project.build.directory}/log -Dwarc.logging.file=${project.build.directory}/log/pipeline.log</argLine>
+        <excludes>
+          <exclude>**/*Benchmark*.java</exclude>
+          <exclude>**/*Performance*.java</exclude>
+        </excludes>
+      </configuration>
+    </plugin>
+
+    <!-- Remove legacy root dist/ directory (no longer produced; runtime is out/, build output is target/dist/) -->
+    <plugin>
+      <groupId>org.apache.maven.plugins</groupId>
+      <artifactId>maven-clean-plugin</artifactId>
+      <version>3.4.0</version>
+      <configuration>
+        <filesets>
+          <fileset>
+            <directory>${project.basedir}/dist</directory>
+            <followSymlinks>false</followSymlinks>
+          </fileset>
+        </filesets>
+      </configuration>
+    </plugin>
+
+    <!-- Copy dist directory structure to target -->
+    <plugin>
+      <groupId>org.apache.maven.plugins</groupId>
+      <artifactId>maven-resources-plugin</artifactId>
+      <version>3.3.1</version>
+      <executions>
+        <!-- Copy dist directory structure -->
+        <execution>
+          <id>copy-dist</id>
+          <phase>process-resources</phase>
+          <goals>
+            <goal>copy-resources</goal>
+          </goals>
+          <configuration>
+            <outputDirectory>${project.build.directory}/dist</outputDirectory>
+            <resources>
+              <resource>
+                <directory>src/main/dist</directory>
+                <filtering>false</filtering>
+              </resource>
+            </resources>
+          </configuration>
+        </execution>
+        <!-- Copy config.yaml to dist/conf -->
+        <execution>
+          <id>copy-config</id>
+          <phase>process-resources</phase>
+          <goals>
+            <goal>copy-resources</goal>
+          </goals>
+          <configuration>
+            <outputDirectory>${project.build.directory}/dist/conf</outputDirectory>
+            <resources>
+              <resource>
+                <directory>src/main/resources</directory>
+                <includes>
+                  <include>config.yaml</include>
+                </includes>
+                <filtering>false</filtering>
+              </resource>
+            </resources>
+          </configuration>
+        </execution>
+      </executions>
+    </plugin>
+
+    <!-- Copy dependencies to dist/lib -->
+    <plugin>
+      <groupId>org.apache.maven.plugins</groupId>
+      <artifactId>maven-dependency-plugin</artifactId>
+      <version>3.10.0</version>
+      <executions>
+        <execution>
+          <id>copy-dependencies</id>
+          <phase>package</phase>
+          <goals>
+            <goal>copy-dependencies</goal>
+          </goals>
+          <configuration>
+            <outputDirectory>${project.build.directory}/dist/lib</outputDirectory>
+            <includeScope>runtime</includeScope>
+          </configuration>
+        </execution>
+      </executions>
+    </plugin>
+
+    <!-- Copy main JAR to dist/lib -->
+    <plugin>
+      <groupId>org.apache.maven.plugins</groupId>
+      <artifactId>maven-jar-plugin</artifactId>
+      <version>3.3.0</version>
+      <configuration>
+        <outputDirectory>${project.build.directory}/dist/lib</outputDirectory>
+        <archive>
+          <manifest>
+            <mainClass>pl.gov.nac.warc.Pipeline</mainClass>
+            <addClasspath>true</addClasspath>
+          </manifest>
+          <manifestEntries>
+            <Implementation-Version>${project.version}</Implementation-Version>
+          </manifestEntries>
+        </archive>
+      </configuration>
+    </plugin>
+
+    <!-- Prepare out/ runtime distribution from target/dist build output -->
+    <plugin>
+      <groupId>org.apache.maven.plugins</groupId>
+      <artifactId>maven-antrun-plugin</artifactId>
+      <version>3.1.0</version>
+      <executions>
+        <execution>
+          <id>prepare-out-distribution</id>
+          <phase>package</phase>
+          <goals>
+            <goal>run</goal>
+          </goals>
+          <configuration>
+            <target>
+              <echo level="info" message="Preparing out/ distribution layout..." />
+              <!-- Native library comes from the Rust build; use -Dnative.optional=true only for source-only validation builds. -->
+              <condition property="native.so.missing.required">
+                <and>
+                  <not>
+                    <available file="${project.basedir}/src/native/target/release/libreadability_jni.so" />
+                  </not>
+                  <not>
+                    <equals arg1="${native.optional}" arg2="true" />
+                  </not>
+                </and>
+              </condition>
+              <fail if="native.so.missing.required"
+                    message="src/native/target/release/libreadability_jni.so not found — build it first: make -C src/native (or 'make' from warc2es/), or pass -Dnative.optional=true for source-only validation builds" />
+              <mkdir dir="${project.build.directory}/dist/native" />
+              <copy todir="${project.build.directory}/dist/native" overwrite="true">
+                <fileset dir="${project.basedir}/src/native/target/release" erroronmissingdir="false">
+                  <include name="libreadability_jni.so" />
+                </fileset>
+              </copy>
+              <!-- Restore executable bits lost by the Maven resources copy -->
+              <chmod dir="${project.build.directory}/dist/bin" perm="755" includes="*" />
+              <chmod dir="${project.build.directory}/dist" perm="755" includes="*.sh" />
+              <chmod file="${project.build.directory}/dist/testing/test-cli" perm="755" />
+              <chmod dir="${project.build.directory}/dist/testing/scripts" perm="755" includes="**/*.sh" />
+              <chmod dir="${project.build.directory}/dist/lib/scripts" perm="755" includes="*" />
+
+              <!--
+                out/ is a mixed generated/runtime-state tree. Refresh everything
+                owned by the build while retaining deployment configuration and
+                every operator data directory byte-for-byte.
+              -->
+              <delete includeemptydirs="true" quiet="true">
+                <fileset dir="${project.basedir}/out"
+                         erroronmissingdir="false"
+                         followsymlinks="false">
+                  <exclude name=".profile" />
+                  <exclude name="in" />
+                  <exclude name="in/**" />
+                  <exclude name="wet" />
+                  <exclude name="wet/**" />
+                  <exclude name="doet" />
+                  <exclude name="doet/**" />
+                  <exclude name="all" />
+                  <exclude name="all/**" />
+                  <!-- Lock files are stable coordination inodes and are never unlinked. -->
+                  <exclude name="var" />
+                  <exclude name="var/locks" />
+                  <exclude name="var/locks/warc2es" />
+                  <exclude name="var/locks/warc2es/**" />
+                </fileset>
+              </delete>
+              <mkdir dir="${project.basedir}/out/app" />
+              <mkdir dir="${project.basedir}/out/in" />
+              <mkdir dir="${project.basedir}/out/all" />
+              <mkdir dir="${project.basedir}/out/wet" />
+              <mkdir dir="${project.basedir}/out/doet" />
+              <copy todir="${project.basedir}/out/app/bin" overwrite="true">
+                <fileset dir="${project.build.directory}/dist/bin">
+                  <include name="warc-cli" />
+                  <include name="es-cli" />
+                </fileset>
+              </copy>
+              <copy todir="${project.basedir}/out/app/lib" overwrite="true">
+                <fileset dir="${project.build.directory}/dist/lib">
+                  <exclude name="scripts/pipeline-direct" />
+                </fileset>
+              </copy>
+              <copy todir="${project.basedir}/out/app/native" overwrite="true">
+                <fileset dir="${project.build.directory}/dist/native" />
+              </copy>
+              <copy todir="${project.basedir}/out/app/var" overwrite="true">
+                <fileset dir="${project.build.directory}/dist/var" />
+              </copy>
+              <copy todir="${project.basedir}/out/app/conf/elasticsearch" overwrite="true">
+                <fileset dir="${project.build.directory}/dist/conf/elasticsearch" />
+              </copy>
+              <copy file="${project.basedir}/src/main/resources/config-out.yaml"
+                    tofile="${project.basedir}/out/app/conf/config.yaml"
+                    overwrite="true" />
+              <!-- Copy all top-level scripts from src/main/dist/ -->
+              <copy file="${project.basedir}/src/main/dist/warc2wet.sh"
+                    tofile="${project.basedir}/out/warc2wet.sh" overwrite="true" />
+              <copy file="${project.basedir}/src/main/dist/wet-merge.sh"
+                    tofile="${project.basedir}/out/wet-merge.sh" overwrite="true" />
+              <copy file="${project.basedir}/src/main/dist/es-upsert.sh"
+                    tofile="${project.basedir}/out/es-upsert.sh" overwrite="true" />
+              <copy file="${project.basedir}/src/main/dist/es-upsert-all.sh"
+                    tofile="${project.basedir}/out/es-upsert-all.sh" overwrite="true" />
+              <copy file="${project.basedir}/src/main/dist/es-reinit.sh"
+                    tofile="${project.basedir}/out/es-reinit.sh" overwrite="true" />
+              <copy file="${project.basedir}/src/main/dist/es-delete.sh"
+                    tofile="${project.basedir}/out/es-delete.sh" overwrite="true" />
+              <copy file="${project.basedir}/src/main/dist/README.md"
+                    tofile="${project.basedir}/out/README.md" overwrite="true" />
+              <!-- Ship a safe template; create the live profile only on first assembly. -->
+              <copy file="${project.basedir}/src/main/dist/.profile"
+                    tofile="${project.build.directory}/dist/.profile.example"
+                    overwrite="true" />
+              <copy file="${project.basedir}/src/main/dist/.profile"
+                    tofile="${project.basedir}/out/.profile.example"
+                    overwrite="true" />
+              <copy file="${project.basedir}/src/main/dist/.profile"
+                    tofile="${project.basedir}/out/.profile" overwrite="false" />
+              <chmod dir="${project.basedir}/out/app/bin" perm="755" includes="*" />
+              <chmod dir="${project.basedir}/out/app/lib/scripts" perm="755" includes="*" />
+              <chmod file="${project.basedir}/out/warc2wet.sh" perm="755" />
+              <chmod file="${project.basedir}/out/wet-merge.sh" perm="755" />
+              <chmod file="${project.basedir}/out/es-upsert.sh" perm="755" />
+              <chmod file="${project.basedir}/out/es-upsert-all.sh" perm="755" />
+              <chmod file="${project.basedir}/out/es-reinit.sh" perm="755" />
+              <chmod file="${project.basedir}/out/es-delete.sh" perm="755" />
+              <!-- Record the exact source/build-input and output digests after assembly. -->
+              <exec executable="bash" failonerror="true">
+                <env key="WARC_GUARD_SRC_ROOT" value="${project.basedir}" />
+                <env key="WARC_GUARD_OUT_ROOT" value="${project.basedir}/out" />
+                <env key="WARC_GUARD_MANIFEST" value="${project.build.directory}/assembly-manifest" />
+                <arg value="${project.basedir}/src/main/dist/testing/scripts/fast/s0-packaging-freshness.sh" />
+                <arg value="--write-manifest" />
+              </exec>
+            </target>
+          </configuration>
+        </execution>
+      </executions>
+    </plugin>
+
+    <!-- Code Coverage: JaCoCo -->
+    <plugin>
+      <groupId>org.jacoco</groupId>
+      <artifactId>jacoco-maven-plugin</artifactId>
+      <version>0.8.14</version>
+      <executions>
+        <execution>
+          <id>default-prepare-agent</id>
+          <goals>
+            <goal>prepare-agent</goal>
+          </goals>
+        </execution>
+        <execution>
+          <id>default-report</id>
+          <phase>test</phase>
+          <goals>
+            <goal>report</goal>
+          </goals>
+        </execution>
+      </executions>
+    </plugin>
+  </plugins>
+</build>
+
+</project>
