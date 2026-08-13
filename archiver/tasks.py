@@ -524,7 +524,7 @@ def remove_snapshot_from_production(snapshot_uid: str):
             "--crawl-id",
             crawl_id,
         ],
-        cwd=warc2se_dir,
+        cwd=warces_dir,
         capture_output=True,
         text=True,
     )
@@ -660,7 +660,7 @@ def move_snapshot_to_production(snapshot_uid: str):
 
     result = subprocess.run(
         cmd,
-        cwd=warc2se_dir,
+        cwd=warc2es_dir,
         capture_output=True,
         text=True,
     )
@@ -680,7 +680,7 @@ def move_snapshot_to_production(snapshot_uid: str):
             "--crawl-id",
             crawl_id,
         ],
-        cwd=warc2se_dir,
+        cwd=warc2es_dir,
         capture_output=True,
         text=True,
     )
