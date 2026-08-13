@@ -502,7 +502,42 @@ def remove_snapshot_from_production(snapshot_uid: str):
             os.remove(warc.path)
 
     # --------------------------------------------------
-    # 3. Update DB state
+    # 3. Remove from Elasticsearch
+    # --------------------------------------------------
+
+    warc2es_dir = settings.WARC2ES_PATH
+    es_delete_script = os.path.join(warc2es_dir, "es-delete.sh")
+
+    crawl_id = str(snapshot.uid)
+
+    # Dostosuj jeśli url-id pochodzi z innego pola
+    url_id = str(snapshot.website.id)
+
+    if not os.access(es_delete_script, os.X_OK):
+        raise RuntimeError(f"Not executable: {es_delete_script}")
+
+    result = subprocess.run(
+        [
+            es_delete_script,
+            "--url-id",
+            url_id,
+            "--crawl-id",
+            crawl_id,
+        ],
+        cwd=warc2se_dir,
+        capture_output=True,
+        text=True,
+    )
+
+    if result.returncode != 0:
+        raise RuntimeError(
+            f"es-delete.sh failed:\n"
+            f"stdout:\n{result.stdout}\n\n"
+            f"stderr:\n{result.stderr}"
+        )
+
+    # --------------------------------------------------
+    # 4. Update DB state
     # --------------------------------------------------
     snapshot.publication_status = Snapshot.PUBLICATION_INTERNAL
     snapshot.published = False
@@ -598,6 +633,64 @@ def move_snapshot_to_production(snapshot_uid: str):
             },
         )
         warc_list.append(dst_warc)
+
+    # --------------------------------------------------
+    # 3. Index WARC -> Elasticsearch
+    # --------------------------------------------------
+
+    warc2es_dir = settings.WARC2ES_PATH
+
+    warc2es_script = os.path.join(warc2es_dir, "warc2es.sh")
+    es_upsert_script = os.path.join(warc2es_dir, "es-upsert.sh")
+
+    crawl_id = str(snapshot.uid)
+
+    # Dostosuj do swojego modelu:
+    url_id = str(snapshot.website.id)
+
+    # wariant: przekazujemy wszystkie skopiowane WARCi
+    cmd = [
+        warc2es_script,
+        "--url-id",
+        url_id,
+        "--crawl-id",
+        crawl_id,
+        *warc_list,
+    ]
+
+    result = subprocess.run(
+        cmd,
+        cwd=warc2se_dir,
+        capture_output=True,
+        text=True,
+    )
+
+    if result.returncode != 0:
+        raise RuntimeError(
+            f"warc2es.sh failed:\n"
+            f"stdout:\n{result.stdout}\n\n"
+            f"stderr:\n{result.stderr}"
+        )
+
+    result = subprocess.run(
+        [
+            es_upsert_script,
+            "--url-id",
+            url_id,
+            "--crawl-id",
+            crawl_id,
+        ],
+        cwd=warc2se_dir,
+        capture_output=True,
+        text=True,
+    )
+
+    if result.returncode != 0:
+        raise RuntimeError(
+            f"es-upsert.sh failed:\n"
+            f"stdout:\n{result.stdout}\n\n"
+            f"stderr:\n{result.stderr}"
+        )
 
     # TODO: jak z lista warcow
     snapshot.publication_status = snapshot.PUBLICATION_PUBLIC

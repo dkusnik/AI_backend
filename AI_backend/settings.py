@@ -257,3 +257,7 @@ EXCLUDED_LOCK_QUEUES = ("task_sync", )
 
 #FRONTEND_API_URL = os.environ.get("FRONTEND_API_URL", 'http://10.2.17.37/api/v1/task/api')
 #http://10.2.17.37/api/v1/task/api
+
+# WARC2ES  Elastic search
+ES_URL = os.environ.get("ES_URL", 'http://localhost:9200/')
+WARC2ES_PATH = os.path.join(BASE_DIR, "warc2es", "out")

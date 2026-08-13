@@ -4,7 +4,7 @@ WORKDIR /app
 
 RUN apt-get update && apt-get install -y --no-install-recommends \
     build-essential libpq-dev docker-cli \
-    libisal2 maven cargo rustc poppler-utils
+    libisal2 maven cargo rustc poppler-utils \
     && rm -rf /var/lib/apt/lists/*
 
 # Oracle JDK 26
@@ -25,7 +25,7 @@ COPY . .
 
 # Build Java project
 WORKDIR /app/warc2se
-RUN mvn -B clean package -DskipTests
+RUN make
 
 WORKDIR /app
 
