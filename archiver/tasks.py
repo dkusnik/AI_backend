@@ -509,8 +509,6 @@ def remove_snapshot_from_production(snapshot_uid: str):
     es_delete_script = os.path.join(warc2es_dir, "es-delete.sh")
 
     crawl_id = str(snapshot.uid)
-
-    # Dostosuj jeśli url-id pochodzi z innego pola
     url_id = str(snapshot.website.id)
 
     if not os.access(es_delete_script, os.X_OK):
@@ -524,7 +522,7 @@ def remove_snapshot_from_production(snapshot_uid: str):
             "--crawl-id",
             crawl_id,
         ],
-        cwd=warces_dir,
+        cwd=warc2es_dir,
         capture_output=True,
         text=True,
     )
@@ -640,15 +638,12 @@ def move_snapshot_to_production(snapshot_uid: str):
 
     warc2es_dir = settings.WARC2ES_PATH
 
-    warc2es_script = os.path.join(warc2es_dir, "warc2es.sh")
+    warc2es_script = os.path.join(warc2es_dir, "warc2wet.sh")
     es_upsert_script = os.path.join(warc2es_dir, "es-upsert.sh")
 
     crawl_id = str(snapshot.uid)
-
-    # Dostosuj do swojego modelu:
     url_id = str(snapshot.website.id)
 
-    # wariant: przekazujemy wszystkie skopiowane WARCi
     cmd = [
         warc2es_script,
         "--url-id",

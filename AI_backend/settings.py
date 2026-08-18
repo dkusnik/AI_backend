@@ -260,4 +260,6 @@ EXCLUDED_LOCK_QUEUES = ("task_sync", )
 
 # WARC2ES  Elastic search
 ES_URL = os.environ.get("ES_URL", 'http://localhost:9200/')
-WARC2ES_PATH = os.path.join(BASE_DIR, "warc2es", "out")
+WARC2ES_PATH = os.environ.get("WARC2ES_PATH", os.path.join(BASE_DIR, "warc2es", "out"))
+
+
