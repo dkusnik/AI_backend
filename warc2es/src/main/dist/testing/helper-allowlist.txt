@@ -1,0 +1,13 @@
+# Scripts intentionally not registered in registry.yaml.
+# Keep paths relative to src/main/dist/testing/scripts/
+bench-optimization.sh
+benchmark/throughput-001.sh
+integration/bench-b1-b2-parallel.sh
+integration/bench-b1-b2.sh
+integration/bench-matrix-suite.sh
+integration/bench-optimization.sh
+integration/bench-plock-extraction.sh
+integration/bench-process-sharding.sh
+pre-commit/review-signoff-gate.sh
+repro_merge_single.sh
+test-doet-ordering.sh

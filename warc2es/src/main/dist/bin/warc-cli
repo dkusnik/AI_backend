@@ -1,0 +1,1097 @@
+#!/bin/bash
+# warc-cli - End-user WARC processing CLI
+# Usage: warc-cli [--profile=<profile>] <command> [options] <input> [output]
+
+set -euo pipefail
+
+# Capture original directory before pushd (for resolving relative paths)
+ORIGINAL_PWD="$(pwd)"
+
+pushd "$(dirname "$0")" > /dev/null
+DIST_DIR="$(dirname "$(pwd)")"
+WORK_ROOT="$(dirname "$DIST_DIR")"
+source "$DIST_DIR/lib/scripts/pipeline-lib"
+
+# -------------------------------------------------------------------
+# Configuration - Profile selects config file or profile within YAML
+# -------------------------------------------------------------------
+
+PROFILE="${WARC_CLI_PROFILE:-light}"
+CONFIG_DIR="$DIST_DIR/conf"
+
+# Profile maps to config file: config-<profile>.yaml or config.yaml with --profile
+resolve_config() {
+    local cfg="$CONFIG_DIR/config-${PROFILE}.yaml"
+    [[ -f "$cfg" ]] && echo "$cfg" && return
+    echo "$CONFIG_DIR/config.yaml"
+}
+
+# -------------------------------------------------------------------
+# Argument Preprocessing
+# -------------------------------------------------------------------
+
+# Normalize --no-<flag> to --<flag>=false for boolean flags without re-splitting argv.
+append_normalized_args() {
+    local -n out_ref="$1"
+    shift
+    local arg
+    for arg in "$@"; do
+        case "$arg" in
+            --no-cdx-sidecar)
+                out_ref+=("--cdx-sidecar=false")
+                ;;
+            *)
+                out_ref+=("$arg")
+                ;;
+        esac
+    done
+}
+
+# Resolve relative path to absolute (relative to original PWD before pushd)
+resolve_path() {
+    local path="$1"
+    # If already absolute, return as-is
+    [[ "$path" = /* ]] && { echo "$path"; return; }
+    # Resolve relative path from original directory
+    echo "$ORIGINAL_PWD/$path"
+}
+
+runtime_tmp_dir() {
+    local dir="${WARC_TMP_DIR:-${TMPDIR:-$WORK_ROOT/testing/tmp/runtime}}"
+    mkdir -p "$dir"
+    echo "$dir"
+}
+
+# -------------------------------------------------------------------
+# Output Path Resolution
+# -------------------------------------------------------------------
+
+resolve_output() {
+    local input="$1" op="$2" explicit="${3:-}"
+    [[ -n "$explicit" ]] && { echo "$explicit"; return; }
+
+    local base="${input%.warc.gz}"; base="${base%.warc}"; base="${base%.wet.gz}"; base="${base%.wet}"
+    case "$op" in
+        extract-text)      echo "${base}.wet.gz" ;;
+        dedupe)            echo "${base}.deduped.wet.gz" ;;
+        grep)              echo "${base}.filtered.warc.gz" ;;
+        regen-digests)     echo "${base}.digests.warc.gz" ;;
+        regen-zip)         echo "${base}.recompressed.warc.gz" ;;
+        convert)           echo "${base}.converted.warc.gz" ;;
+        *)                 echo "${base}.out.warc.gz" ;;
+    esac
+}
+
+# -------------------------------------------------------------------
+# Commands
+# -------------------------------------------------------------------
+
+# Expand merge/baseline inputs:
+# - file path: keep as-is
+# - directory: recursively include *.wet|*.doet|*.warc (optionally compressed)
+# Returned list is sorted for deterministic baseline/scan ordering.
+expand_archive_inputs() {
+    local -a expanded=()
+    local p rp
+    for p in "$@"; do
+        rp="$(resolve_path "$p")"
+        if [[ -d "$rp" ]]; then
+            while IFS= read -r f; do
+                expanded+=("$f")
+            done < <(find "$rp" -type f \( \
+                -name "*.wet" -o -name "*.wet.gz" -o -name "*.wet.zst" -o -name "*.wet.lz4" -o -name "*.wet.xz" -o \
+                -name "*.doet" -o -name "*.doet.gz" -o -name "*.doet.zst" -o -name "*.doet.lz4" -o -name "*.doet.xz" -o \
+                -name "*.warc" -o -name "*.warc.gz" -o -name "*.warc.zst" -o -name "*.warc.lz4" -o -name "*.warc.xz" \
+            \) | LC_ALL=C sort)
+        else
+            expanded+=("$rp")
+        fi
+    done
+    printf '%s\n' "${expanded[@]}"
+}
+
+cmd_extract() {
+    # Collect positional arguments (files or a directory) that precede the first
+    # option flag.  The last positional that is neither an existing file nor an
+    # existing directory is treated as the output path (single-crawl only).
+    local -a inputs=()
+    local output=""
+    local output_dir=""
+    local output_prefix="extract"
+    local deduplicate_scope="sort-only"
+    local per_day=false
+
+    while [[ $# -gt 0 && "$1" != -* ]]; do
+        inputs+=("$1"); shift
+    done
+
+    if [[ ${#inputs[@]} -eq 0 ]]; then
+        cat << 'EOF' >&2
+Usage: warc-cli extract-text <input...> [output] [options...]
+
+Extract text from HTML/PDF/documents and emit date-bucketed/crawl-bucketed DOET files.
+Default mode is sort-only (no deduplication).
+
+<input> may be one or more files/directories.
+
+OPTIONS:
+    --output-dir=<dir>                               Output directory for per-date DOETs (default: ./var/extracted-crawls)
+    --output-prefix=<name>                           Output file prefix (default: extract)
+    --per-day                                       Emit one output per record-level WARC-Date
+    --force                                         Replace resolved outputs only after successful processing
+    --processor.lang-detect.lang-filter=<lang>       Filter by language (pl, en, de, etc.)
+    --deduplicate-scope=<scope>                      sort-only (default) | global | url | none
+    --processor.extract-text.extract-min-text-length=<N>  Minimum text length
+    --processor.extract-text.extract-title=<bool>    Extract title (default: true)
+    -t, --threads=<N>                                Concurrent operations
+    --no-cdx-sidecar                                 Disable CDX index generation
+
+EXAMPLES:
+    # Single file
+    warc-cli extract-text archive.warc.gz archive.wet.gz
+
+    # Extract and split by WARC-Date (prefix-yyyymmdd.doet.gz)
+    warc-cli extract-text crawl-batch.warc.gz --output-dir=out/ --output-prefix=baseline
+
+    # Multiple inputs/directories
+    warc-cli extract-text crawl-a/ crawl-b/ --output-dir=out/
+EOF
+        exit 1
+    fi
+
+    # Intercept extract-specific options before forwarding remaining args to pipeline.
+    local -a pipeline_args=()
+    for arg in "$@"; do
+        case "$arg" in
+            --output-dir=*) output_dir="${arg#*=}" ;;
+            --output-prefix=*) output_prefix="${arg#*=}" ;;
+            --per-day) per_day=true ;;
+            --deduplicate-scope=*) deduplicate_scope="${arg#*=}" ;;
+            --dedupe|--dedupe=*)
+                echo "Error: --dedupe is no longer supported. Use 'warc-cli dedupe' explicitly." >&2
+                exit 2 ;;
+            *) pipeline_args+=("$arg") ;;
+        esac
+    done
+
+    # If the last positional is neither an existing file nor directory it is treated
+    # as an output hint; in date-bucket mode we interpret it as output directory.
+    local last="${inputs[-1]}"
+    local last_resolved
+    last_resolved="$(resolve_path "$last")"
+    if [[ ! -f "$last_resolved" && ! -d "$last_resolved" ]]; then
+        output="$last"
+        unset 'inputs[-1]'
+    fi
+
+    # Resolve and validate inputs.
+    local -a abs_inputs=()
+    for inp in "${inputs[@]}"; do
+        local abs
+        abs="$(resolve_path "$inp")"
+        if [[ ! -f "$abs" && ! -d "$abs" ]]; then
+            echo "Error: input not found: $inp" >&2
+            exit 1
+        fi
+        abs_inputs+=("$abs")
+    done
+
+    [[ ${#abs_inputs[@]} -eq 0 ]] && { echo "Error: no input files specified" >&2; exit 1; }
+
+    local -a normalized_args=()
+    append_normalized_args normalized_args "${pipeline_args[@]+"${pipeline_args[@]}"}"
+
+    local target_dir="$output_dir"
+    [[ -z "$target_dir" && -n "$output" ]] && target_dir="$output"
+    [[ -z "$target_dir" ]] && target_dir="$WORK_ROOT/var/extracted-crawls"
+    target_dir="$(resolve_path "$target_dir")"
+    mkdir -p "$target_dir"
+
+    local tmp_root
+    tmp_root="$(runtime_tmp_dir)"
+    local tmp_rdb
+    tmp_rdb="$(mktemp -d "$tmp_root/warc-rdb.XXXXXX")"
+    local rc
+    if run_pipeline warc2wet \
+        -o "$target_dir" \
+        "${abs_inputs[@]}" \
+        --consumer.codec.output-format=multi-warc \
+        --consumer.codec.output-name-template="{source}.doet.gz" \
+        --processor.doet-accumulator.deduplicate-scope="${deduplicate_scope}" \
+        --processor.doet-accumulator.bucket-prefix="${output_prefix}" \
+        --processor.doet-accumulator.per-day="${per_day}" \
+        --processor.doet-accumulator.rocksdb-path="${tmp_rdb}" \
+        "${normalized_args[@]+"${normalized_args[@]}"}"; then
+        rc=0
+    else
+        rc=$?
+    fi
+    rm -rf "$tmp_rdb"
+    return "$rc"
+}
+
+cmd_dedupe() {
+    local input="${1:-}"; shift || true
+    [[ -z "$input" ]] && {
+        cat << 'EOF' >&2
+Usage: warc-cli dedupe <input> [output] [options...]
+
+Deduplicate WET/DOET files by content digest using RocksDB.
+
+DEDUPLICATION SCOPE:
+    Global (default)         Dedupe by content digest only (across all URLs)
+    URL (opt-in)            Dedupe by digest+URL (same content at different URLs kept)
+
+OPTIONS:
+    --deduplicate-scope=<scope>
+        global (default): Dedupe by content digest only
+        url: Dedupe by digest+URL combination
+
+    --processor.doet-accumulator.rocksdb-path=<path>
+        Custom RocksDB directory (default: ${WARC_DIST_DIR}/var/db/doet)
+
+    --processor.digest.algorithm=<alg>
+        xxh128 (default), sha256, blake3, sha512, sha1
+
+    --no-cdx-sidecar
+        Disable CDX index generation
+
+EXAMPLES:
+    # Standard deduplication (global - content-based)
+    warc-cli dedupe input.wet.gz deduped.wet.gz
+
+    # URL-based deduplication (track same content at different URLs separately)
+    warc-cli dedupe input.wet.gz deduped.wet.gz --deduplicate-scope=url
+
+    # Use custom RocksDB location
+    warc-cli dedupe input.wet.gz output.wet.gz \
+        --processor.doet-accumulator.rocksdb-path=var/dedup-db
+EOF
+        exit 1
+    }
+
+    local inputs=("$input")
+
+    # Collect additional input files (non-option positionals)
+    while [[ $# -gt 0 && "$1" != -* ]]; do
+        inputs+=("$1"); shift
+    done
+
+    # Last positional is output when more than one positional was given
+    local output=""
+    if [[ ${#inputs[@]} -gt 1 ]]; then
+        output="${inputs[-1]}"
+        unset 'inputs[-1]'
+    fi
+
+    # Parse --deduplicate-scope shorthand and convert to full path
+    local -a extra_args=()
+    while [[ $# -gt 0 ]]; do
+        case "$1" in
+            --deduplicate-scope=*)
+                extra_args+=("--processor.doet-accumulator.deduplicate-scope=${1#*=}")
+                shift
+                ;;
+            --deduplicate-scope)
+                extra_args+=("--processor.doet-accumulator.deduplicate-scope=$2")
+                shift 2
+                ;;
+            *)
+                extra_args+=("$1")
+                shift
+                ;;
+        esac
+    done
+
+    local -a resolved_inputs=()
+    local resolved_input
+    for resolved_input in "${inputs[@]}"; do
+        resolved_inputs+=("$(resolve_path "$resolved_input")")
+    done
+    output=$(resolve_output "${resolved_inputs[0]}" "dedupe" "$output")
+    output=$(resolve_path "$output")
+    local -a normalized_args=()
+    append_normalized_args normalized_args "${extra_args[@]}"
+    run_pipeline dedupe -o "$output" "${resolved_inputs[@]}" "${normalized_args[@]}"
+}
+
+cmd_grep() {
+    local input="${1:-}"; shift || true
+    [[ -z "$input" ]] && {
+        cat << 'EOF' >&2
+Usage: warc-cli grep <input> [output] [options...]
+
+Filter WARC records by MIME type, HTTP status, URL patterns, or record type.
+
+OPTIONS:
+    --processor.grep.allow-mime-types=<list>     Comma-separated MIME types to keep
+    --processor.grep.deny-mime-types=<list>      Comma-separated MIME types to drop
+    --processor.grep.allow-warc-types=<list>     response, request, metadata, resource
+    --processor.grep.allow-http-codes=<list>     HTTP status codes (e.g., 200,301)
+    --processor.grep.allow-url-contains=<text>   Keep URLs containing text
+    --processor.grep.deny-url-contains=<text>    Drop URLs containing text
+    --processor.grep.mode=<mode>                 deny-allow-drop | allow-deny-pass
+    --no-cdx-sidecar                             Disable CDX index generation
+    -t, --threads=<N>                            Concurrent operations
+
+EXAMPLES:
+    # Keep only HTML responses with 200 status
+    warc-cli grep input.warc.gz output.warc.gz \
+        --processor.grep.allow-mime-types=text/html \
+        --processor.grep.allow-warc-types=response \
+        --processor.grep.allow-http-codes=200
+
+    # Remove images and stylesheets
+    warc-cli grep input.warc.gz clean.warc.gz \
+        --processor.grep.deny-mime-types=image/,text/css,application/javascript
+
+    # Filter by URL pattern
+    warc-cli grep input.warc.gz filtered.warc.gz \
+        --processor.grep.allow-url-contains=example.com
+EOF
+        exit 1
+    }
+
+    local output=""
+    if [[ $# -gt 0 && "$1" != -* ]]; then
+        output="$1"; shift
+    fi
+
+    input=$(resolve_path "$input")
+    output=$(resolve_output "$input" "grep" "$output")
+    output=$(resolve_path "$output")
+    local -a normalized_args=()
+    append_normalized_args normalized_args "$@"
+    run_pipeline warc-grep -o "$output" "$input" "${normalized_args[@]}"
+}
+
+cmd_regen_cdxj() {
+    [[ $# -eq 0 ]] && {
+        cat << 'EOF' >&2
+Usage: warc-cli regen-cdxj <file1> [file2] [file3] ... [options]
+
+Regenerate CDX index from WARC file(s). Batch mode supported.
+
+The CDX index provides fast URL-based lookup for web archive records.
+Output format: CDXJ (CDX with JSON metadata)
+
+OUTPUT:
+    Generates <filename>.cdxj for each input file
+
+OPTIONS:
+    --cdx-output.format=<fmt>   cdxj (default), cdx11, cdx9
+
+EXAMPLES:
+    # Generate CDX for single file
+    warc-cli regen-cdxj archive.warc.gz
+    # Output: archive.cdxj
+
+    # Generate CDX for multiple files (batch mode)
+    warc-cli regen-cdxj file1.warc.gz file2.warc.gz file3.warc.gz
+    # Output: file1.cdxj, file2.cdxj, file3.cdxj
+
+    # All files in directory
+    warc-cli regen-cdxj *.warc.gz
+EOF
+        exit 1
+    }
+
+    # Process each file
+    local failures=0
+    for input in "$@"; do
+        # Skip if it's an option
+        [[ "$input" == -* ]] && continue
+
+        # Resolve path from the original invocation directory.
+        local abs_input
+        abs_input="$(resolve_path "$input")"
+
+        if [[ ! -f "$abs_input" ]]; then
+            echo "  ERROR: File not found: $input" >&2
+            failures=$((failures + 1))
+            continue
+        fi
+
+        echo "Generating CDX for: $input" >&2
+
+        # Handle absolute vs relative paths for output
+        local cdx_output
+        if [[ "$input" = /* ]]; then
+            local base="${abs_input%.warc.gz}"; base="${base%.warc}"
+            cdx_output="${base}.cdxj"
+        else
+            local base="${input%.warc.gz}"; base="${base%.warc}"
+            cdx_output="$(resolve_path "${base}.cdxj")"
+        fi
+        local tmp_root temp_warc
+        tmp_root="$(runtime_tmp_dir)"
+        temp_warc="$(mktemp "$tmp_root/warc-cli-cdx.XXXXXX.warc.gz")"
+
+        # Use warc2warc with cdx-sidecar to generate CDX
+        if run_pipeline warc2warc -o "$temp_warc" "$abs_input" --cdx-sidecar 2>&1 | grep -v "^$"; then
+            # Move the generated CDX to desired location
+            # CDX sidecar strips .warc.gz extension, so temp_warc.gz -> temp.cdxj
+            local temp_cdx="${temp_warc%.warc.gz}.cdxj"
+            if [[ -f "$temp_cdx" ]]; then
+                mv "$temp_cdx" "$cdx_output"
+                rm -f "$temp_warc"
+                echo "  Created: $cdx_output" >&2
+            else
+                echo "  ERROR: CDX generation failed for $input" >&2
+                rm -f "$temp_warc"
+                failures=$((failures + 1))
+            fi
+        else
+            echo "  ERROR: Pipeline failed for $input" >&2
+            rm -f "$temp_warc"
+            failures=$((failures + 1))
+        fi
+    done
+    [[ $failures -eq 0 ]] || exit 1
+}
+
+cmd_regen_digests() {
+    local input="${1:-}"; shift || true
+    [[ -z "$input" ]] && {
+        cat << 'EOF' >&2
+Usage: warc-cli regen-digests <input> [output] [options...]
+
+Recalculate and add/update content digests in WARC records.
+
+Adds WARC-Payload-Digest headers with content hashes for deduplication.
+
+OPTIONS:
+    --processor.digest.algorithm=<alg>   xxh128 (default), sha256, sha512, blake3, sha1
+    --processor.digest.header=<name>     Header name (default: WARC-Payload-Digest)
+    --processor.digest.prefix=<bool>     Include algorithm prefix (default: true)
+    --no-cdx-sidecar                     Disable CDX index generation
+    -t, --threads=<N>                    Concurrent operations
+
+EXAMPLES:
+    # Add SHA-256 digests
+    warc-cli regen-digests input.warc.gz output.warc.gz \
+        --processor.digest.algorithm=sha256
+
+    # Add fast xxHash digests (default, recommended)
+    warc-cli regen-digests input.warc.gz output.warc.gz
+
+    # Use BLAKE3 (fastest cryptographic hash)
+    warc-cli regen-digests input.warc.gz output.warc.gz \
+        --processor.digest.algorithm=blake3
+EOF
+        exit 1
+    }
+
+    local output=""
+    if [[ $# -gt 0 && "$1" != -* ]]; then
+        output="$1"; shift
+    fi
+
+    input=$(resolve_path "$input")
+    output=$(resolve_output "$input" "regen-digests" "$output")
+    output=$(resolve_path "$output")
+
+    # Run warc2warc with digest processor enabled
+    local -a normalized_args=()
+    append_normalized_args normalized_args "$@"
+    run_pipeline warc2warc -o "$output" "$input" "${normalized_args[@]}"
+}
+
+cmd_regen_zip() {
+    local input="${1:-}"; shift || true
+    [[ -z "$input" ]] && {
+        cat << 'EOF' >&2
+Usage: warc-cli regen-zip <input> [output] [options...]
+
+Recompress WARC files with different compression level (same format).
+
+Maintains one block per record structure (no structural changes).
+
+COMPRESSION LEVELS:
+    GZIP: 1-9 (1=fastest/largest, 9=slowest/smallest, 6=default)
+    ZSTD: 1-22 (future support)
+
+USE CASES:
+    Level 9: Maximize compression for long-term archival storage
+    Level 1: Fast compression for temporary working files
+    Level 6: Balanced (default)
+
+OPTIONS:
+    --output.compression-level=<1-9>     Compression level
+    --no-cdx-sidecar                     Disable CDX index generation
+    -t, --threads=<N>                    Concurrent operations
+
+EXAMPLES:
+    # Maximize compression for archival storage
+    warc-cli regen-zip input.warc.gz archive.warc.gz \
+        --output.compression-level=9
+
+    # Fast recompression for temporary files
+    warc-cli regen-zip input.warc.gz temp.warc.gz \
+        --output.compression-level=1
+
+NOTE: This command maintains the same compression format (e.g., gzip to gzip).
+      Cross-format conversion (gzip to zstd) is a Phase 2 feature.
+EOF
+        exit 1
+    }
+
+    local output=""
+    if [[ $# -gt 0 && "$1" != -* ]]; then
+        output="$1"; shift
+    fi
+
+    input=$(resolve_path "$input")
+    output=$(resolve_output "$input" "regen-zip" "$output")
+    output=$(resolve_path "$output")
+    local -a normalized_args=()
+    append_normalized_args normalized_args "$@"
+    run_pipeline warc2warc -o "$output" "$input" "${normalized_args[@]}"
+}
+
+cmd_convert() {
+    local input="${1:-}"; shift || true
+    [[ -z "$input" ]] && {
+        cat << 'EOF' >&2
+Usage: warc-cli convert <input...> <output> [options...]
+
+Merge or split WARC files.
+
+USE CASES:
+    - Merge multiple files into single archive
+    - Split large file into segments
+    - Reorganize without transformation
+
+OPTIONS:
+    --output-size-limit=<bytes>    Split output into segments (e.g., 100000000 for 100MB)
+    --no-cdx-sidecar              Disable CDX index generation
+    -t, --threads=<N>             Concurrent operations
+
+EXAMPLES:
+    # Merge multiple files
+    warc-cli convert file1.warc.gz file2.warc.gz merged.warc.gz
+
+    # Split into 100MB segments
+    warc-cli convert large.warc.gz segments.warc.gz \
+        --output-size-limit=100000000
+
+    # Merge without CDX
+    warc-cli convert file1.warc.gz file2.warc.gz merged.warc.gz \
+        --no-cdx-sidecar
+
+NOTE: For compression level changes, use 'regen-zip' command.
+      Cross-format compression conversion is a Phase 2 feature.
+EOF
+        exit 1
+    }
+
+    local output=""
+    local inputs=("$input")  # Include the first arg that was shifted off earlier
+
+    # Collect remaining inputs and find output
+    while [[ $# -gt 0 ]]; do
+        if [[ "$1" == -* ]]; then
+            # It's an option, will be passed through
+            break
+        fi
+        inputs+=("$1")
+        shift
+    done
+
+    # Last non-option argument is output
+    if [[ ${#inputs[@]} -gt 1 ]]; then
+        output="${inputs[-1]}"
+        unset 'inputs[-1]'
+    elif [[ ${#inputs[@]} -eq 1 ]]; then
+        output=$(resolve_output "${inputs[0]}" "convert" "")
+    fi
+
+    local -a resolved_inputs=()
+    local resolved_input
+    for resolved_input in "${inputs[@]}"; do
+        resolved_inputs+=("$(resolve_path "$resolved_input")")
+    done
+    output=$(resolve_path "$output")
+
+    # Run pipeline with all inputs
+    local -a normalized_args=()
+    append_normalized_args normalized_args "$@"
+    run_pipeline warc2warc -o "$output" "${resolved_inputs[@]}" "${normalized_args[@]}"
+}
+
+cmd_merge() {
+    local base_out=""
+    local diff_out=""
+    local inputs=()
+    local original_input_count=0
+    local extra_args=()
+
+    # Parse arguments
+    while [[ $# -gt 0 ]]; do
+        case "$1" in
+            --output-base=*) base_out="${1#*=}"; shift ;;
+            --output-diff=*) diff_out="${1#*=}"; shift ;;
+            --output-base) base_out="$2"; shift 2 ;;
+            --output-diff) diff_out="$2"; shift 2 ;;
+            --deduplicate-scope=*)
+                extra_args+=("--processor.doet-accumulator.deduplicate-scope=${1#*=}")
+                shift ;;
+            --deduplicate-scope)
+                extra_args+=("--processor.doet-accumulator.deduplicate-scope=$2")
+                shift 2 ;;
+            -*) extra_args+=("$1"); shift ;;
+            *) inputs+=("$1"); shift ;;
+        esac
+    done
+
+    # Validate
+    if [[ -z "$base_out" ]] || [[ -z "$diff_out" ]]; then
+        cat << 'EOF' >&2
+Usage: warc-cli merge --output-base=<base> --output-diff=<diff> <baseline|folder> <scan|folder...> [options]
+
+Merge DOET/WET files with deduplication and URI tracking.
+Compares baseline vs new crawls, outputs base + diff streams.
+
+DEDUPLICATION SCOPE:
+    Global (default)         Same digest = same record (ignores URL differences)
+    URL (opt-in)            Same digest at different URLs = different records
+
+OPTIONS:
+    --output-base=<file>     Merged base output file (required)
+    --output-diff=<file>     New/updated records output file (required)
+    --deduplicate-scope=<scope>
+        global (default): Dedupe by content digest only
+        url: Dedupe by digest+URL combination
+
+PROVENANCE VALUES (in nac-merge-result header):
+    base-only     Content from baseline not in new scan
+    merged        Content present in both baseline and scan
+    new           New content from scan not in baseline
+    uri-changed   Same content moved to different URL
+    uri-reverted  Content URL changed back to previous URL
+
+EXAMPLES:
+    # Standard merge (global dedup - content-based)
+    warc-cli merge --output-base=merged.doet.gz --output-diff=new.doet.gz \
+        baseline.doet.gz scan1.doet.gz scan2.doet.gz
+
+    # URL-based dedup (track URL changes separately)
+    warc-cli merge --output-base=merged.doet.gz --output-diff=new.doet.gz \
+        --deduplicate-scope=url baseline.doet.gz scan1.doet.gz
+EOF
+        exit 1
+    fi
+
+    [[ ${#inputs[@]} -lt 1 ]] && {
+        echo "Error: Need at least 1 input file" >&2
+        exit 1
+    }
+    original_input_count=${#inputs[@]}
+
+    # Resolve and expand inputs (directories are scanned recursively for wet/doet/warc files)
+    local -a resolved_inputs=()
+    while IFS= read -r expanded; do
+        [[ -z "$expanded" ]] && continue
+        if [[ ! -f "$expanded" ]]; then
+            echo "Error: input file not found: $expanded" >&2
+            exit 1
+        fi
+        resolved_inputs+=("$expanded")
+    done < <(expand_archive_inputs "${inputs[@]}")
+
+    if [[ ${#resolved_inputs[@]} -eq 0 ]]; then
+        echo "Error: no merge input files found" >&2
+        exit 1
+    fi
+
+    # First input is baseline, rest are scans (if any)
+    # Auto-detect primary file pattern from first input filename
+    # UNLESS: single file provided (treat as "new scan" for initial baseline creation)
+    local primary_pattern=""
+    if [[ $original_input_count -eq 1 ]]; then
+        # Single input argument (file or directory): treat as initial merge.
+        # No baseline designated; every record is considered "new".
+        primary_pattern=""
+    elif [[ ${#resolved_inputs[@]} -eq 1 ]]; then
+        # Single file: treat as new scan (provenance="new"), not baseline
+        # Records will appear in BOTH base and diff outputs
+        primary_pattern=""
+    elif [[ ${#resolved_inputs[@]} -gt 1 ]]; then
+        # Multiple files: first is baseline, rest are scans
+        primary_pattern="$(basename "${resolved_inputs[0]}")"
+    fi
+
+    run_pipeline doet-merge \
+        --consumer.codec.file="$base_out" \
+        --consumer.codec.diff-output="$diff_out" \
+        --consumer.codec.split-provenance=true \
+        --processor.doet-accumulator.primary-file="$primary_pattern" \
+        "${extra_args[@]}" \
+        "${resolved_inputs[@]}"
+}
+
+cmd_baseline() {
+    local output=""
+    local inputs=()
+    local extra_args=()
+
+    while [[ $# -gt 0 ]]; do
+        case "$1" in
+            --output=*) output="${1#*=}"; shift ;;
+            --output|-o) output="$2"; shift 2 ;;
+            --deduplicate-scope=*)
+                extra_args+=("--processor.doet-accumulator.deduplicate-scope=${1#*=}")
+                shift ;;
+            --deduplicate-scope)
+                extra_args+=("--processor.doet-accumulator.deduplicate-scope=$2")
+                shift 2 ;;
+            -*) extra_args+=("$1"); shift ;;
+            *) inputs+=("$1"); shift ;;
+        esac
+    done
+
+    if [[ -z "$output" || ${#inputs[@]} -lt 1 ]]; then
+        cat << 'EOF' >&2
+Usage: warc-cli baseline --output=<baseline.wet.gz> <input|folder...> [options]
+
+Merge extracted crawl files into a single baseline stream (no diff output).
+Inputs can be files or folders (folders are scanned recursively).
+EOF
+        exit 1
+    fi
+
+    local -a resolved_inputs=()
+    while IFS= read -r expanded; do
+        [[ -z "$expanded" ]] && continue
+        if [[ ! -f "$expanded" ]]; then
+            echo "Error: input file not found: $expanded" >&2
+            exit 1
+        fi
+        resolved_inputs+=("$expanded")
+    done < <(expand_archive_inputs "${inputs[@]}")
+
+    if [[ ${#resolved_inputs[@]} -eq 0 ]]; then
+        echo "Error: no baseline input files found" >&2
+        exit 1
+    fi
+
+    local primary_pattern=""
+    if [[ ${#resolved_inputs[@]} -gt 1 ]]; then
+        primary_pattern="$(basename "${resolved_inputs[0]}")"
+    fi
+
+    run_pipeline doet-baseline \
+        --consumer.codec.file="$output" \
+        --processor.doet-accumulator.primary-file="$primary_pattern" \
+        "${extra_args[@]}" \
+        "${resolved_inputs[@]}"
+}
+
+cmd_extract_merge_baseline() {
+    local output=""
+    local work_dir=""
+    local inputs=()
+    local extra_args=()
+
+    while [[ $# -gt 0 ]]; do
+        case "$1" in
+            --output=*) output="${1#*=}"; shift ;;
+            --output|-o) output="$2"; shift 2 ;;
+            --work-dir=*) work_dir="${1#*=}"; shift ;;
+            --work-dir) work_dir="$2"; shift 2 ;;
+            -*) extra_args+=("$1"); shift ;;
+            *) inputs+=("$1"); shift ;;
+        esac
+    done
+
+    if [[ -z "$output" || ${#inputs[@]} -lt 1 ]]; then
+        cat << 'EOF' >&2
+Usage: warc-cli extract-merge-baseline --output=<baseline.wet.gz> <input...> [options]
+
+Runs extract-text (per-crawl split) and then baseline merge in one command.
+EOF
+        exit 1
+    fi
+
+    if [[ -z "$work_dir" ]]; then
+        work_dir="$(mktemp -d "${TMPDIR:-/tmp}/warc-extract-merge.XXXXXX")"
+    else
+        work_dir="$(resolve_path "$work_dir")"
+        mkdir -p "$work_dir"
+    fi
+    local extracted_dir="$work_dir/extracted"
+    mkdir -p "$extracted_dir"
+
+    ( cmd_extract "${inputs[@]}" --output-dir="$extracted_dir" "${extra_args[@]}" )
+    cmd_baseline --output="$output" "$extracted_dir" "${extra_args[@]}"
+}
+
+cmd_info() {
+    local input="${1:-}"
+    [[ -z "$input" ]] && { echo "Usage: warc-cli info <input>" >&2; exit 1; }
+    shift || true
+
+    echo "========================================" >&2
+    echo "  WARC File Analysis" >&2
+    echo "========================================" >&2
+    echo "File: $input" >&2
+    echo "" >&2
+    echo "Statistics will include:" >&2
+    echo "  - Record counts by type (response, request, metadata, etc.)" >&2
+    echo "  - MIME type distribution" >&2
+    echo "  - Size statistics (min/max/avg/total)" >&2
+    echo "  - HTTP status distribution" >&2
+    echo "  - Compression analysis" >&2
+    echo "  - File integrity verification" >&2
+    echo "========================================" >&2
+    echo "" >&2
+
+    local abs_input
+    abs_input="$(resolve_path "$input")"
+    if [[ ! -f "$abs_input" ]]; then
+        echo "Error: input file not found: $input" >&2
+        exit 1
+    fi
+
+    local -a normalized_args=()
+    append_normalized_args normalized_args "$@"
+    run_pipeline warc-info --checker.warc-codec.path="$abs_input" -t 1 "${normalized_args[@]}"
+}
+
+cmd_validate() {
+    [[ $# -eq 0 ]] && {
+        cat <<'EOF' >&2
+Usage: warc-cli validate <file1> [file2] [file3] ...
+
+Validate one or more WARC files and display per-file status.
+
+VALIDATION CHECKS:
+    - jwarc producer decoding
+    - jwarc checker decode pass
+    - codec checker decode pass
+    - WARC headers (required headers + version 1.0/1.1)
+    - NAC-* headers present
+    - Magic bytes / compression signature
+
+EXAMPLES:
+    warc-cli validate archive.warc.gz
+    warc-cli validate a.warc.gz b.warc.gz c.warc.gz
+EOF
+        exit 1
+    }
+
+    for input in "$@"; do
+        if [[ "$input" == -* ]]; then
+            echo "Error: validate does not accept options. Pass only file paths." >&2
+            echo "Usage: warc-cli validate <file1> [file2] [file3] ..." >&2
+            exit 1
+        fi
+    done
+
+    local failures=0
+    local validated=0
+
+    for input in "$@"; do
+        local abs_input
+        abs_input="$(resolve_path "$input")"
+
+        if [[ ! -f "$abs_input" ]]; then
+            echo "$input: FAIL (file not found)" >&2
+            failures=$((failures + 1))
+            continue
+        fi
+
+        local run_log
+        local tmp_root
+        tmp_root="$(runtime_tmp_dir)"
+        run_log="$(mktemp "$tmp_root/warc-validate.XXXXXX.log")"
+        if ( run_pipeline warc-validate \
+            "$abs_input" \
+            --producer.archive-jwarc.files="$abs_input" \
+            --checker.warc-jwarc.path="$abs_input" \
+            --checker.warc-codec.path="$abs_input" \
+            --checker.warc-headers.path="$abs_input" \
+            --checker.warc-headers.requireNacHeaders=true \
+            --checker.warc-magic.path="$abs_input" \
+            -t 1 \
+            > "$run_log" 2>&1 ); then
+            echo "$input: OK"
+            validated=$((validated + 1))
+            rm -f "$run_log"
+        else
+            echo "$input: FAIL"
+            failures=$((failures + 1))
+            echo "  log: $run_log" >&2
+        fi
+    done
+
+    echo "Validated: $validated, Failed: $failures"
+    [[ $failures -eq 0 ]] || exit 1
+}
+
+show_help() {
+    cat << 'EOF'
+warc-cli - WARC Archive Processing Tool
+
+USAGE:
+    warc-cli [--profile=<p>] <command> <input> [output] [options...]
+
+COMMANDS:
+    extract-text      Extract text and write date/crawl-bucketed DOET files
+                      Output: <prefix>-yyyymmdd.doet.gz
+
+    dedupe            Deduplicate WET/DOET files by content digest
+                      Modes: URL-based (default) or crawler-based
+
+    grep              Filter records by MIME, URL, HTTP status, record type
+                      Useful for: removing images, filtering by domain
+
+    convert           Merge or split WARC files
+                      Use cases: combine multiple files, split large archives
+
+    merge             Merge DOET/WET files with deduplication and URI tracking
+                      Compares baseline vs new crawls, outputs base + diff
+                      Accepts files and/or folders
+
+    baseline          Merge files/folders into a single baseline output
+                      No diff stream; ready for es-cli ingestion
+
+    extract-merge-baseline
+                      Extract per crawl and merge directly to one baseline file
+
+    info              Display statistics and verify file integrity
+    validate          Validate decoding, headers, NAC presence, and magic bytes
+
+    regen-cdxj        Regenerate CDX index for WARC files (batch supported)
+
+    regen-digests     Recalculate content digests for deduplication
+
+    regen-zip         Recompress with different compression level
+                      Use cases: optimize size (level 9) or speed (level 1)
+
+COMMON OPTIONS:
+  Performance:
+    -t, --threads=<N>           Concurrent operations (default: profile-dependent)
+    -r, --max-records=<N>       Queue capacity floor; caps parallel GZIP workers
+
+  Output:
+    -o, --output=<file>         Output file path
+    --no-cdx-sidecar           Disable CDX index (enabled by default)
+    --output-size-limit=<MB>   Split output into segments
+
+  Deduplication:
+    --deduplicate-scope=<scope>
+        global (default): Dedupe by content digest only
+        url: Dedupe by digest+URL combination
+
+  Filtering (grep command):
+    --processor.grep.allow-mime-types=<list>
+    --processor.grep.deny-mime-types=<list>
+    --processor.grep.allow-warc-types=response,request,metadata
+    --processor.grep.allow-http-codes=200,301,302
+
+  Text Extraction:
+    --processor.lang-detect.lang-filter=pl|en|de|fr
+    --processor.extract-text.extract-min-text-length=<N>
+
+  Compression:
+    --output.compression-level=<1-9>    For regen-zip (default: 6)
+
+  Verbosity:
+    -v, --verbose              Detailed progress
+    -s, --silent               Suppress output
+
+PROFILES:
+    light           1GB heap, 1 core,  10 vthreads, 5-record queue floor (default, safe)
+    light-optimized 1GB heap, 3 cores, 50 vthreads, 5-record queue floor (180 MB/s)
+    light-parallel  1GB heap, 4 cores, 25 vthreads, 10-record queue floor
+    parallel        4GB heap, 4 cores, 100 vthreads, 20-record queue floor
+
+EXAMPLES:
+  # Extract text to date-bucketed DOET outputs
+  warc-cli extract-text archive.warc.gz --output-dir=out --output-prefix=baseline
+
+  # Deduplicate WET file (URL-based)
+  warc-cli dedupe input.wet.gz deduped.wet.gz
+
+  # Deduplicate with crawler mode (trust crawler dedup)
+  warc-cli dedupe input.wet.gz deduped.wet.gz \
+      --processor.doet-accumulator.crawler-dedup-mode=true
+
+  # Filter to HTML responses only
+  warc-cli grep input.warc.gz output.warc.gz \
+      --processor.grep.allow-mime-types=text/html \
+      --processor.grep.allow-warc-types=response
+
+  # Merge multiple WARC files
+  warc-cli convert file1.warc.gz file2.warc.gz merged.warc.gz
+
+  # Regenerate CDX for all archives
+  warc-cli regen-cdxj *.warc.gz
+
+  # Merge crawls (baseline + new scans)
+  warc-cli merge --output-base=merged.doet.gz --output-diff=new.doet.gz \
+      baseline.doet.gz scan1.doet.gz scan2.doet.gz
+
+  # Merge a folder of extracted per-crawl outputs into one baseline
+  warc-cli baseline --output=baseline.wet.gz extracted-crawls/
+
+  # Recompress with maximum compression
+  warc-cli regen-zip input.warc.gz archive.warc.gz \
+      --output.compression-level=9
+
+  # Show file statistics
+  warc-cli info archive.warc.gz
+
+For detailed command help, run: warc-cli <command> (without arguments)
+EOF
+}
+
+# -------------------------------------------------------------------
+# Main
+# -------------------------------------------------------------------
+
+# Parse global options
+while [[ $# -gt 0 ]]; do
+    case "$1" in
+        --profile=*) PROFILE="${1#*=}"; shift ;;
+        --version|-V) run_pipeline_global --version; popd > /dev/null; exit $? ;;
+        --help|-h)   show_help; exit 0 ;;
+        *)           break ;;
+    esac
+done
+
+# Load config and set JAVA_OPTS
+[[ -z "${WARC_CONFIG_FILE:-}" ]] && WARC_CONFIG_FILE="$(resolve_config)"
+export WARC_CONFIG_FILE
+# JAVA_OPTS can be set externally; library handles internal mandatory flags
+export JAVA_OPTS="${JAVA_OPTS:-}"
+
+# Dispatch command
+cmd="${1:-help}"; shift || true
+case "$cmd" in
+    # Core operations (most common)
+    extract-text|extract) cmd_extract "$@" ;;
+    dedupe)               cmd_dedupe "$@" ;;
+    merge)                cmd_merge "$@" ;;
+    baseline)             cmd_baseline "$@" ;;
+    extract-merge-baseline|extract-merge) cmd_extract_merge_baseline "$@" ;;
+
+    # Universal tools
+    convert)              cmd_convert "$@" ;;
+
+    # Specialized tools
+    grep)                 cmd_grep "$@" ;;
+    regen-cdxj)           cmd_regen_cdxj "$@" ;;
+    regen-digests)        cmd_regen_digests "$@" ;;
+    regen-zip)            cmd_regen_zip "$@" ;;
+
+    # Analysis tools
+    info|stats)           cmd_info "$@" ;;
+    validate)             cmd_validate "$@" ;;
+
+    # Help
+    help|--help)          show_help ;;
+    *)                    echo "Unknown command: $cmd. Try 'warc-cli --help'" >&2; exit 1 ;;
+esac
+popd > /dev/null

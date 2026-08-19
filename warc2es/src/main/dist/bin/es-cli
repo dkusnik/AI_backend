@@ -1,0 +1,513 @@
+#!/bin/bash
+# Project ELM: Elasticsearch Orchestrator (es-cli)
+# For management of 1TB+ NAC clusters.
+
+set -euo pipefail
+
+ORIGINAL_PWD="$(pwd)"
+pushd "$(dirname "$0")" > /dev/null
+DIST_DIR="$(dirname "$(pwd)")"
+source "$DIST_DIR/lib/scripts/pipeline-lib"
+
+# Load deployment-specific ES connection settings from out/.profile
+# es-cli lives in out/app/bin/ → out/ is two levels up (../../)
+# shellcheck source=../../.profile
+[[ -f "../../.profile" ]] && source "../../.profile"
+
+ES_URL="${ES_URL:-http://localhost:9200}"
+ES_USER="${ES_USER:-elastic}"
+# Map ELASTIC_PASSWORD (puppet) → ES_PASS when not already set
+ES_PASS="${ES_PASS:-${ELASTIC_PASSWORD:-}}"
+KIBANA_URL="${KIBANA_URL:-http://localhost:5601}"
+ES_GUI_URL="${ES_GUI_URL:-$ES_URL}"
+CONF_DIR="$DIST_DIR/conf/elasticsearch"
+TEMPLATES_DIR="$CONF_DIR/templates"
+
+# Load cluster.config if exists
+CLUSTER_CONFIG="${ES_CLI_CONF:-$HOME/.es-cli/cluster.config}"
+# shellcheck source=/dev/null
+[ -f "$CLUSTER_CONFIG" ] && . "$CLUSTER_CONFIG"
+
+# Utility function for ES calls
+function es_call() {
+    local method="$1"
+    local path="$2"
+    shift 2
+
+    local auth_args=()
+    [ -n "$ES_PASS" ] && auth_args=("-u" "$ES_USER:$ES_PASS")
+
+    local response http_code body
+    response="$(curl -sS -w $'\n%{http_code}' -X "$method" "${auth_args[@]}" "$ES_URL$path" \
+        -H "Content-Type: application/json" \
+        "$@")" || return 1
+    http_code="${response##*$'\n'}"
+    body="${response%$'\n'*}"
+    printf '%s\n' "$body"
+    if [[ ! "$http_code" =~ ^2[0-9][0-9]$ ]]; then
+        echo "ERROR: Elasticsearch $method $path returned HTTP $http_code" >&2
+        return 1
+    fi
+}
+
+function die() {
+    echo "ERROR: $1" >&2
+    exit 1
+}
+
+function resolve_path() {
+    local path="$1"
+    [[ "$path" = /* ]] && { printf '%s\n' "$path"; return; }
+    printf '%s/%s\n' "$ORIGINAL_PWD" "$path"
+}
+
+function require_args() {
+    local min_args="$1"
+    local usage_text="$2"
+    shift 2
+    if [[ $# -lt "$min_args" ]]; then
+        die "$usage_text"
+    fi
+}
+
+function exact_stream_arg() {
+    local command="$1"
+    shift
+    if [[ $# -gt 1 ]]; then
+        die "Usage: es-cli $command [nac-data|nac-data-...]"
+    fi
+    if [[ $# -eq 0 ]]; then
+        printf 'nac-data-default\n'
+        return
+    fi
+    if [[ ! "$1" =~ ^nac-data(-[a-z0-9][a-z0-9._-]{0,245})?$ ]]; then
+        die "$command requires one exact safe Elasticsearch stream name"
+    fi
+    printf '%s\n' "$1"
+}
+
+function json_escape() {
+    local value="$1"
+    value="${value//\\/\\\\}"
+    value="${value//\"/\\\"}"
+    value="${value//$'\n'/\\n}"
+    value="${value//$'\r'/\\r}"
+    value="${value//$'\t'/\\t}"
+    printf '%s' "$value"
+}
+
+function url_encode() {
+    local LC_ALL=C
+    local string="${1}"
+    local strlen=${#string}
+    local encoded=""
+    local pos c o
+    for (( pos=0 ; pos<strlen ; pos++ )); do
+        c=${string:$pos:1}
+        case "$c" in
+            [a-zA-Z0-9.~_-]) encoded="${encoded}${c}" ;;
+            *) printf -v o '%%%02X' "'$c"
+               encoded="${encoded}${o}" ;;
+        esac
+    done
+    printf '%s' "${encoded}"
+}
+
+function require_ack() {
+    local desc="$1"
+    shift
+    local body
+    body="$(es_call "$@")"
+    if ! grep -Eq '"acknowledged"[[:space:]]*:[[:space:]]*true' <<< "$body"; then
+        echo "$body"
+        die "$desc was not acknowledged by Elasticsearch"
+    fi
+}
+
+function require_ack_or_exists() {
+    local desc="$1"
+    shift
+    local body
+    if body="$(es_call "$@" 2>&1)"; then
+        if grep -Eq '"acknowledged"[[:space:]]*:[[:space:]]*true' <<< "$body"; then
+            return 0
+        fi
+        echo "$body"
+        die "$desc was not acknowledged by Elasticsearch"
+    fi
+    if grep -q '"resource_already_exists_exception"' <<< "$body"; then
+        echo "$desc already exists."
+        return 0
+    fi
+    echo "$body"
+    die "$desc failed"
+}
+
+function es_delete_if_exists() {
+    local desc="$1"
+    local path="$2"
+    local body
+    if body="$(es_call DELETE "$path" 2>&1)"; then
+        return 0
+    fi
+    if grep -Eq '"status"[[:space:]]*:[[:space:]]*404' <<< "$body"; then
+        echo "$desc already absent."
+        return 0
+    fi
+    echo "$body"
+    die "$desc delete failed"
+}
+
+function usage() {
+    echo "Project ELM: es-cli Orchestrator"
+    echo "Usage: es-cli <command> [args]"
+    echo ""
+    echo "Tier 1: Setup & Bootstrap"
+    echo "  init [stream]             Setup + exact data stream (default: nac-data-default)"
+    echo "  purge [stream]            Reset exact stream (preserves shared ILM/template by default)"
+    echo "  check-health              Full cluster health & diagnostics"
+    echo ""
+    echo "Tier 2: Stream & Alias Management"
+    echo "  create-stream <n>         Define a new data stream template"
+    echo "  get-stream <n>            Get stream status and metadata"
+    echo "  atomic-swap <old> <new> <a> Zero-downtime alias swap"
+    echo "  stream-rollover <n>       Force rollover to a new backing index"
+    echo "  delete-stream <n>         Delete data stream and backing indices"
+    echo ""
+    echo "Tier 3: Data Operations (Java Engine)"
+    echo "  load <file>               Smart load (auto-detect target)"
+    echo "  load-index <file> <idx>   Load to specific index"
+    echo "  load-stream <file> <s>    Load to specific data stream"
+    echo "  unload <file>             Remove documents by file metadata"
+    echo "  merge <file>              Apply changes (upsert/delete/no-change)"
+    echo ""
+    echo "Tier 4: Manual Document Operations"
+    echo "  put-doc <target> <id> <json>  Manual document creation"
+    echo "  get-doc <target> <id>     Direct document retrieval"
+    echo "  del-doc <target> <id>     Manual document deletion"
+    echo "  batch-delete <target> <q> [p] Mass removal via query (defaults conflicts=proceed)"
+    echo ""
+    echo "Tier 5: Maintenance & Performance"
+    echo "  schema-upsert <file>      Upload index template"
+    echo "  force-merge <index>       Lucene segment consolidation"
+    echo "  refresh <target>          Make recent writes searchable"
+    echo "  reload-analyzers          Hot-reload Hunspell dictionaries"
+    echo "  show-ilm <index>          Explain ILM lifecycle status"
+    echo "  retry-ilm <index>         Retry stalled ILM steps"
+    echo ""
+    echo "Tier 6: Diagnostics"
+    echo "  search <kql>              Quick search query"
+    echo "  list-indices              List backing indices"
+    echo "  list-shards               List shard distribution"
+    echo "  list-recovery             List shard restoration progress"
+    echo "  get-settings              Display cluster settings"
+    echo ""
+    echo "Tier 7: URL Discovery"
+    echo "  where-es-url              Print ES REST API URL"
+    echo "  where-es-gui              Print ES GUI URL (Cerebro/Head)"
+    echo "  where-kibana              Print Kibana dashboard URL"
+}
+
+if [[ "${1:-}" == "--version" || "${1:-}" == "-V" ]]; then
+    run_pipeline_global --version
+    popd > /dev/null
+    exit $?
+fi
+
+if [[ $# -eq 0 ]]; then
+    usage
+    popd > /dev/null
+    exit 1
+fi
+
+case "$1" in
+    init)
+        stream_name="$(exact_stream_arg init "${@:2}")"
+        echo "Starting Project ELM Initialization..."
+
+        echo "[1/4] Pushing ILM Policy: nac-1tb-policy"
+        require_ack "ILM policy update" PUT "/_ilm/policy/nac-1tb-policy" -d @"$TEMPLATES_DIR/nac-1tb-policy.json"
+
+        echo "[2/4] Pushing Index Template: nac-data-template"
+        require_ack "Index template update" PUT "/_index_template/nac-data-template" -d @"$TEMPLATES_DIR/nac-data-template.json"
+
+        echo "[3/4] Initializing Data Stream: $stream_name"
+        require_ack_or_exists "Data stream creation" PUT "/_data_stream/$stream_name"
+
+        echo "[4/4] Creating Audit Trail index"
+        require_ack_or_exists "Audit index creation" PUT "/.project-elm-audit" -d '{"settings":{"number_of_shards":1,"number_of_replicas":0}}'
+
+        echo "Bootstrap Complete."
+        ;;
+
+    check-health)
+        health="$(es_call GET "/_cluster/health?pretty")"
+        echo "$health"
+        if grep -Eq '"status"[[:space:]]*:[[:space:]]*"red"' <<< "$health"; then
+            die "Elasticsearch cluster health is red"
+        fi
+        ;;
+
+    purge)
+        stream_name="$(exact_stream_arg purge "${@:2}")"
+        purge_global="${ES_CLI_PURGE_GLOBAL:-false}"
+        echo "WARNING: Purging Project ELM stream state for: $stream_name"
+        echo "[1/2] Deleting Data Stream: $stream_name"
+        es_delete_if_exists "Data stream $stream_name" "/_data_stream/$stream_name"
+        if [[ "$purge_global" == "true" ]]; then
+            echo "[2/2] Deleting shared audit index, template + ILM policy (ES_CLI_PURGE_GLOBAL=true)"
+            es_delete_if_exists "Audit Trail index" "/.project-elm-audit"
+            es_delete_if_exists "Index template nac-data-template" "/_index_template/nac-data-template"
+            es_delete_if_exists "ILM policy nac-1tb-policy" "/_ilm/policy/nac-1tb-policy"
+        else
+            echo "[2/2] Keeping shared audit index, template + ILM policy (set ES_CLI_PURGE_GLOBAL=true to delete)"
+        fi
+        echo "Purge Complete."
+        ;;
+
+    create-stream)
+        require_args 2 "Usage: es-cli create-stream <name>" "$@"
+        name="$2"
+        es_call PUT "/_index_template/$name" -d @"$TEMPLATES_DIR/nac-data-template.json"
+        ;;
+
+    atomic-swap)
+        require_args 4 "Usage: es-cli atomic-swap <old> <new> <alias>" "$@"
+        old="$2"
+        new="$3"
+        alias="$4"
+        old_escaped="$(json_escape "$old")"
+        new_escaped="$(json_escape "$new")"
+        alias_escaped="$(json_escape "$alias")"
+        es_call POST "/_aliases" -d "$(printf '{"actions":[{"remove":{"index":"%s","alias":"%s"}},{"add":{"index":"%s","alias":"%s"}}]}' \
+            "$old_escaped" "$alias_escaped" "$new_escaped" "$alias_escaped")"
+        ;;
+
+    stream-rollover)
+        require_args 2 "Usage: es-cli stream-rollover <name>" "$@"
+        name="$2"
+        es_call POST "/$name/_rollover"
+        ;;
+
+    delete-stream)
+        require_args 2 "Usage: es-cli delete-stream <name>" "$@"
+        name="$2"
+        es_call DELETE "/_data_stream/$name"
+        ;;
+
+    get-stream)
+        require_args 2 "Usage: es-cli get-stream <name>" "$@"
+        name="$2"
+        es_call GET "/_data_stream/$name?pretty"
+        ;;
+
+    load)
+        [[ $# -lt 2 ]] && die "Usage: es-cli load <file> [options...]"
+        file="$(resolve_path "$2")"
+        shift 2
+        run_pipeline es-loader --es-url="$ES_URL" "$file" "$@"
+        ;;
+
+    put-doc)
+        require_args 4 "Usage: es-cli put-doc <target> <id> <json>" "$@"
+        target="$2"
+        id="$3"
+        json="$4"
+        # Use _create for data streams compatibility
+        es_call PUT "/$target/_create/$id" -d "$json"
+        ;;
+
+    get-doc)
+        require_args 3 "Usage: es-cli get-doc <target> <id>" "$@"
+        target="$2"
+        id="$3"
+        es_call GET "/$target/_doc/$id?pretty"
+        ;;
+
+    del-doc)
+        require_args 3 "Usage: es-cli del-doc <target> <id>" "$@"
+        target="$2"
+        id="$3"
+        es_call DELETE "/$target/_doc/$id"
+        ;;
+
+    batch-delete)
+        if [[ $# -lt 3 ]]; then
+            cat << 'EOF' >&2
+Usage: es-cli batch-delete <target> <query_json> [url_params]
+
+Mass removal of documents matching a query.
+By default, the query uses conflicts=proceed to avoid aborting on version conflicts.
+
+Examples:
+  # Delete all documents matching query
+  es-cli batch-delete my-index '{"query":{"match_all":{}}}'
+
+  # Delete with immediate refresh to make changes visible to search
+  es-cli batch-delete my-index '{"query":{"match_all":{}}}' "?refresh=true"
+EOF
+            exit 1
+        fi
+        target="$2"
+        query="$3"
+        url_params="${4:-}"
+        if [[ -n "$url_params" ]]; then
+            url_params="${url_params#\?}"
+            url_params="&${url_params}"
+        fi
+        es_call POST "/$target/_delete_by_query?conflicts=proceed${url_params}" -d "$query"
+        ;;
+
+    schema-upsert)
+        file="${2:-$TEMPLATES_DIR/nac-data-template.json}"
+        name="${3:-nac-data-template}"
+        [[ ! -f "$file" ]] && die "Schema file not found: $file"
+        echo "Pushing schema $name from $file..."
+        es_call PUT "/_index_template/$name" -d @"$file"
+        ;;
+
+    drain-node)
+        require_args 2 "Usage: es-cli drain-node <node_name>" "$@"
+        node="$2"
+        node_escaped="$(json_escape "$node")"
+        es_call PUT "/_cluster/settings" -d "$(printf '{"persistent":{"cluster.routing.allocation.exclude._name":"%s"}}' "$node_escaped")"
+        ;;
+
+    add-node)
+        require_args 2 "Usage: es-cli add-node <node_name>" "$@"
+        node="$2"
+        # Note: This removes the exclusion, letting ES rebalance
+        es_call PUT "/_cluster/settings" -d "{
+          \"persistent\": {
+            \"cluster.routing.allocation.exclude._name\": \"\"
+          }
+        }"
+        ;;
+
+    search)
+        [[ $# -lt 2 ]] && die "Usage: es-cli search <query_string> [--stream=<name>]"
+        query="$2"
+        shift 2
+        target=""
+        while [[ $# -gt 0 ]]; do
+            case "$1" in
+                --stream=*)
+                    target="${1#*=}"
+                    ;;
+                --stream)
+                    shift
+                    [[ $# -gt 0 ]] || die "Usage: es-cli search <query_string> [--stream=<name>]"
+                    target="$1"
+                    ;;
+                *)
+                    die "Unknown search option: $1"
+                    ;;
+            esac
+            shift
+        done
+        query_encoded="$(url_encode "$query")"
+        search_path="/_search"
+        [[ -n "$target" ]] && search_path="/$target/_search"
+        es_call GET "$search_path?q=$query_encoded&pretty"
+        ;;
+
+    force-merge)
+        require_args 2 "Usage: es-cli force-merge <index>" "$@"
+        index="$2"
+        es_call POST "/$index/_forcemerge?max_num_segments=1"
+        ;;
+
+    refresh)
+        require_args 2 "Usage: es-cli refresh <target>" "$@"
+        target="$2"
+        es_call POST "/$target/_refresh"
+        ;;
+
+    reload-analyzers)
+        es_call POST "/_reload_search_analyzers"
+        ;;
+
+    show-ilm)
+        require_args 2 "Usage: es-cli show-ilm <index>" "$@"
+        index="$2"
+        es_call GET "/$index/_ilm/explain?pretty"
+        ;;
+
+    retry-ilm)
+        require_args 2 "Usage: es-cli retry-ilm <index>" "$@"
+        index="$2"
+        es_call POST "/$index/_ilm/retry"
+        ;;
+
+    list-indices)
+        es_call GET "/_cat/indices?v"
+        ;;
+
+    list-shards)
+        es_call GET "/_cat/shards?v"
+        ;;
+
+    list-recovery)
+        es_call GET "/_cat/recovery?v"
+        ;;
+
+    get-settings)
+        es_call GET "/_settings?pretty"
+        ;;
+
+    load-index)
+        [[ $# -lt 3 ]] && die "Usage: es-cli load-index <file> <index> [options...]"
+        file="$(resolve_path "$2")"
+        idx="$3"
+        shift 3
+        run_pipeline es-loader --es-url="$ES_URL" --index="$idx" "$file" "$@"
+        ;;
+
+    load-stream)
+        [[ $# -lt 3 ]] && die "Usage: es-cli load-stream <file> <stream> [options...]"
+        file="$(resolve_path "$2")"
+        stream="$3"
+        shift 3
+        # es-loader maps positional 0 and the positional remainder to the same
+        # files key. When a remainder exists it replaces positional 0, so repeat
+        # the first path to keep the complete ordered input list in that remainder.
+        run_pipeline es-loader --es-url="$ES_URL" \
+            ${ES_USER:+--es-user="$ES_USER"} \
+            ${ES_PASS:+--es-pass="$ES_PASS"} \
+            --stream="$stream" "$file" "$file" "$@"
+        ;;
+
+    unload)
+        [[ $# -lt 2 ]] && die "Usage: es-cli unload <file> [options...]"
+        file="$(resolve_path "$2")"
+        shift 2
+        run_pipeline es-loader --es-url="$ES_URL" --mode=delete "$file" "$@"
+        ;;
+
+    merge)
+        [[ $# -lt 2 ]] && die "Usage: es-cli merge <file> [options...]"
+        file="$(resolve_path "$2")"
+        shift 2
+        run_pipeline es-loader --es-url="$ES_URL" --mode=merge "$file" "$@"
+        ;;
+
+    where-es-url)
+        echo "$ES_URL"
+        ;;
+
+    where-es-gui)
+        echo "$ES_GUI_URL"
+        ;;
+
+    where-kibana)
+        echo "$KIBANA_URL"
+        ;;
+
+    *)
+        echo "ERROR: Unknown command: $1" >&2
+        usage
+        popd > /dev/null
+        exit 1
+        ;;
+esac
+popd > /dev/null

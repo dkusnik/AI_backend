@@ -1,0 +1,1227 @@
+tests:
+  # Fast Loop - Smoke Tests
+  - id: s0-packaging-freshness
+    scope: fast
+    script: scripts/fast/s0-packaging-freshness.sh
+    estimate: 1s
+    tags: [smoke, setup, packaging]
+
+  - id: s0-harness-selftest
+    scope: fast
+    script: scripts/fast/s0-harness-selftest.sh
+    estimate: 1s
+    tags: [smoke, harness, fault-injection]
+
+  - id: s0-binary-check
+    scope: fast
+    script: scripts/fast/s0-binary-check.sh
+    estimate: 1s
+    tags: [smoke, setup]
+
+  - id: s0-config-load
+    scope: fast
+    script: scripts/fast/s0-config-load.sh
+    estimate: 20s
+    tags: [smoke, config]
+
+  - id: s0-es-help-text
+    scope: fast
+    script: scripts/fast/s0-es-help-text.sh
+    estimate: 1s
+    tags: [smoke, es]
+
+  - id: s0-help-command-order
+    scope: fast
+    script: scripts/fast/s0-help-command-order.sh
+    estimate: 1s
+    tags: [smoke]
+
+  - id: s0-help-has-commands
+    scope: fast
+    script: scripts/fast/s0-help-has-commands.sh
+    estimate: 1s
+    tags: [smoke]
+
+  - id: s0-help-text
+    scope: fast
+    script: scripts/fast/s0-help-text.sh
+    estimate: 1s
+    tags: [smoke]
+
+  - id: s0-unknown-command-fails
+    scope: fast
+    script: scripts/fast/s0-unknown-command-fails.sh
+    estimate: 1s
+    tags: [smoke, error]
+
+  - id: s0-unknown-option-fails
+    scope: fast
+    script: scripts/fast/s0-unknown-option-fails.sh
+    estimate: 2s
+    tags: [smoke, error]
+
+  - id: s0-version-check
+    scope: fast
+    script: scripts/fast/s0-version-check.sh
+    estimate: 4s
+    tags: [smoke]
+
+  - id: s0-version-semver
+    scope: fast
+    script: scripts/fast/s0-version-semver.sh
+    estimate: 2s
+    tags: [smoke, version]
+
+  - id: s0-test-cli-scope-matching
+    scope: fast
+    script: scripts/fast/s0-test-cli-scope-matching.sh
+    estimate: 1s
+    tags: [smoke, harness, T-190]
+
+  - id: s0-policy-path-guard
+    scope: fast
+    script: scripts/fast/s0-policy-path-guard.sh
+    estimate: 1s
+    tags: [smoke, policy, T-246]
+
+  - id: s0-gitignore-layout-guard
+    scope: fast
+    script: scripts/fast/s0-gitignore-layout-guard.sh
+    estimate: 1s
+    tags: [smoke, policy, gitignore, cleanup]
+
+  - id: s0-source-artifact-guard
+    scope: fast
+    script: scripts/fast/s0-source-artifact-guard.sh
+    estimate: 1s
+    tags: [smoke, policy, artifacts, cleanup]
+
+  - id: s0-registry-consistency
+    scope: fast
+    script: scripts/fast/s0-registry-consistency.sh
+    estimate: 1s
+    tags: [smoke, registry, T-257]
+
+  - id: s1-command-usage-nonempty
+    scope: fast
+    script: scripts/fast/s1-command-usage-nonempty.sh
+    estimate: 1s
+    tags: [smoke, cli]
+
+  - id: s1-es-where-url
+    scope: fast
+    script: scripts/fast/s1-es-where-url.sh
+    estimate: 1s
+    tags: [smoke, es]
+
+  - id: s1-info-missing-input-fails
+    scope: fast
+    script: scripts/fast/s1-info-missing-input-fails.sh
+    estimate: 1s
+    tags: [smoke, error]
+
+  - id: s1-info-silent
+    scope: fast
+    script: scripts/fast/s1-info-silent.sh
+    estimate: 2s
+    tags: [smoke, info]
+
+  - id: s1-info-verbose
+    scope: fast
+    script: scripts/fast/s1-info-verbose.sh
+    estimate: 2s
+    tags: [smoke, info]
+
+  - id: s1-missing-required-args-matrix
+    scope: fast
+    script: scripts/fast/s1-missing-required-args-matrix.sh
+    estimate: 1s
+    tags: [smoke, cli, error]
+
+  - id: s1-profile-config-selection
+    scope: fast
+    script: scripts/fast/s1-profile-config-selection.sh
+    estimate: 6s
+    tags: [smoke, config, profile]
+
+  - id: s1-profile-light-info
+    scope: fast
+    script: scripts/fast/s1-profile-light-info.sh
+    estimate: 2s
+    tags: [smoke, profile]
+
+  - id: s1-validate-mixed-files-fails
+    scope: fast
+    script: scripts/fast/s1-validate-mixed-files-fails.sh
+    estimate: 2s
+    tags: [smoke, validate, error]
+
+  - id: s1-validate-multi-file-ok
+    scope: fast
+    script: scripts/fast/s1-validate-multi-file-ok.sh
+    estimate: 4s
+    tags: [smoke, validate]
+
+  - id: s1-validate-nac-headers
+    scope: fast
+    script: scripts/fast/s1-validate-nac-headers.sh
+    estimate: 2s
+    tags: [smoke, validate, provenance]
+
+  - id: s1-validate-directory-fails
+    scope: fast
+    script: scripts/fast/s1-validate-directory-fails.sh
+    estimate: 1s
+    tags: [smoke, validate, directory, error]
+
+  - id: s1-validate-no-args-fails
+    scope: fast
+    script: scripts/fast/s1-validate-no-args-fails.sh
+    estimate: 1s
+    tags: [smoke, validate, error]
+
+  - id: s1-validate-rejects-options
+    scope: fast
+    script: scripts/fast/s1-validate-rejects-options.sh
+    estimate: 1s
+    tags: [smoke, validate]
+
+  - id: s1-validate-single-file-ok
+    scope: fast
+    script: scripts/fast/s1-validate-single-file-ok.sh
+    estimate: 2s
+    tags: [smoke, validate]
+
+  - id: s1-warc-info
+    scope: fast
+    script: scripts/fast/s1-warc-info.sh
+    estimate: 2s
+    tags: [smoke, warc]
+
+  - id: s2-extract-basic
+    scope: fast
+    script: scripts/fast/s2-extract-basic.sh
+    estimate: 6s
+    tags: [smoke, extract]
+
+  - id: s2-extract-lang-filter
+    scope: fast
+    script: scripts/fast/s2-extract-lang-filter.sh
+    estimate: 4s
+    tags: [smoke, extract, lang]
+
+  - id: s2-extract-min-length
+    scope: fast
+    script: scripts/fast/s2-extract-min-length.sh
+    estimate: 4s
+    tags: [smoke, extract, min-length]
+
+  - id: s2-extract-missing-input-fails
+    scope: fast
+    script: scripts/fast/s2-extract-missing-input-fails.sh
+    estimate: 1s
+    tags: [smoke, extract, error]
+
+  - id: s2-extract-no-cdx
+    scope: fast
+    script: scripts/fast/s2-extract-no-cdx.sh
+    estimate: 4s
+    tags: [smoke, extract, cdx]
+
+  - id: s2-extract-deduplicate-none
+    scope: fast
+    script: scripts/fast/s2-extract-deduplicate-none.sh
+    estimate: 8s
+    tags: [smoke, extract, deduplicate, regression, path]
+
+  - id: s2-merge-basic
+    scope: fast
+    script: scripts/fast/s2-merge-basic.sh
+    estimate: 10s
+    tags: [smoke, merge]
+
+  - id: s2-merge-global-scope
+    scope: fast
+    script: scripts/fast/s2-merge-global-scope.sh
+    estimate: 10s
+    tags: [smoke, merge]
+
+  - id: s2-merge-missing-input-fails
+    scope: fast
+    script: scripts/fast/s2-merge-missing-input-fails.sh
+    estimate: 1s
+    tags: [smoke, merge, error]
+
+  - id: s2-merge-url-scope
+    scope: fast
+    script: scripts/fast/s2-merge-url-scope.sh
+    estimate: 10s
+    tags: [smoke, merge]
+
+  - id: s3-corrupted-warc-handling
+    scope: fast
+    script: scripts/fast/s3-corrupted-warc-handling.sh
+    estimate: 4s
+    tags: [smoke, error, warc]
+
+  - id: s3-mixed-good-corrupt-fails
+    scope: fast
+    script: scripts/fast/s3-mixed-good-corrupt-fails.sh
+    estimate: 4s
+    tags: [smoke, error, warc, W1]
+
+  - id: s3-warc-cli-missing-input-matrix
+    scope: fast
+    script: scripts/fast/s3-warc-cli-missing-input-matrix.sh
+    estimate: 11s
+    tags: [smoke, cli, error, W1]
+
+  - id: s3-edge-empty-tiny-core-commands
+    scope: fast
+    script: scripts/fast/s3-edge-empty-tiny-core-commands.sh
+    estimate: 35s
+    tags: [smoke, edge, core]
+
+  - id: s3-long-path-unusual-filename
+    scope: fast
+    script: scripts/fast/s3-long-path-unusual-filename.sh
+    estimate: 4s
+    tags: [smoke, path, io]
+
+  - id: s3-test-cli-parallel-stability
+    scope: fast
+    script: scripts/fast/s3-test-cli-parallel-stability.sh
+    estimate: 6s
+    tags: [smoke, parallel, harness]
+
+  - id: s3-test-cli-target-resolution
+    scope: fast
+    script: scripts/fast/s3-test-cli-target-resolution.sh
+    estimate: 12s
+    tags: [smoke, harness, target-resolution]
+
+  - id: s3-test-cli-print-timeout
+    scope: fast
+    script: scripts/fast/s3-test-cli-print-timeout.sh
+    estimate: 5s
+    tags: [smoke, harness, print-timeout]
+
+  - id: s3-repeat-run-idempotence
+    scope: fast
+    script: scripts/fast/s3-repeat-run-idempotence.sh
+    estimate: 8s
+    tags: [smoke, idempotence]
+
+  - id: s3-verbosity-semantic-invariance
+    scope: fast
+    script: scripts/fast/s3-verbosity-semantic-invariance.sh
+    estimate: 12s
+    tags: [smoke, verbosity]
+
+  - id: s3-warc2wet-unknown-option-fails
+    scope: fast
+    script: scripts/fast/s3-warc2wet-unknown-option-fails.sh
+    estimate: 1s
+    tags: [smoke, warc2wet, error]
+
+  - id: s3-warc2wet-missing-input-clean-error
+    scope: fast
+    script: scripts/fast/s3-warc2wet-missing-input-clean-error.sh
+    estimate: 1s
+    tags: [smoke, warc2wet, error, path]
+
+  - id: s3-warc2wet-per-day-grouping-guard
+    scope: fast
+    script: scripts/fast/s3-warc2wet-per-day-grouping-guard.sh
+    estimate: 1s
+    tags: [smoke, warc2wet, regression]
+
+  - id: s3-warc2wet-pipeline-lib-delegation-guard
+    scope: fast
+    script: scripts/fast/s3-warc2wet-pipeline-lib-delegation-guard.sh
+    estimate: 1s
+    tags: [smoke, warc2wet, pipeline-lib]
+
+  - id: s3-warc2wet-rocksdb-isolation
+    scope: fast
+    script: scripts/fast/s3-warc2wet-rocksdb-isolation.sh
+    estimate: 1s
+    tags: [smoke, warc2wet, concurrency, rocksdb, B1-008]
+
+  - id: s3-es-upsert-unknown-option-fails
+    scope: fast
+    script: scripts/fast/s3-es-upsert-unknown-option-fails.sh
+    estimate: 1s
+    tags: [smoke, es-upsert, error]
+
+  - id: s3-es-upsert-missing-input-clean-error
+    scope: fast
+    script: scripts/fast/s3-es-upsert-missing-input-clean-error.sh
+    estimate: 1s
+    tags: [smoke, es-upsert, error, path]
+
+  - id: s3-es-upsert-default-stream
+    scope: fast
+    script: scripts/fast/s3-es-upsert-default-stream.sh
+    estimate: 1s
+    tags: [smoke, es-upsert, stream]
+
+  - id: s3-es-upsert-default-wet
+    scope: fast
+    script: scripts/fast/s3-es-upsert-default-wet.sh
+    estimate: 1s
+    tags: [smoke, es-upsert, layout, W2-B]
+
+  - id: s3-es-upsert-file-equivalence
+    scope: fast
+    script: scripts/fast/s3-es-upsert-file-equivalence.sh
+    estimate: 1s
+    tags: [smoke, es-upsert, archive]
+
+  - id: s3-es-upsert-nac-data-preserved
+    scope: fast
+    script: scripts/fast/s3-es-upsert-nac-data-preserved.sh
+    estimate: 1s
+    tags: [smoke, es-upsert, stream]
+
+  - id: s3-es-upsert-runtime-layout-guard
+    scope: fast
+    script: scripts/fast/s3-es-upsert-runtime-layout-guard.sh
+    estimate: 1s
+    tags: [smoke, es-upsert, layout]
+
+  - id: s3-es-delete-contracts
+    scope: fast
+    script: scripts/fast/s3-es-delete-contracts.sh
+    estimate: 1s
+    tags: [smoke, es-delete, destructive-guard, W2-B]
+
+  - id: s3-stream-name-authority
+    scope: fast
+    script: scripts/fast/s3-stream-name-authority.sh
+    estimate: 1s
+    tags: [smoke, es-delete, es-reinit, destructive-guard, B2-001]
+
+  - id: s3-operator-id-validation
+    scope: fast
+    script: scripts/fast/s3-operator-id-validation.sh
+    estimate: 1s
+    tags: [smoke, warc2wet, es-upsert, ids, B1-005]
+
+  - id: s3-config-drift-guard
+    scope: fast
+    script: scripts/fast/s3-config-drift-guard.sh
+    estimate: 1s
+    tags: [smoke, config, drift, W2-B]
+
+  - id: s3-mvp-config-e2e
+    scope: fast
+    script: scripts/fast/s3-mvp-config-e2e.sh
+    estimate: 4s
+    tags: [smoke, mvp, config, W2-B]
+
+  - id: s3-out-wrapper-generation-guard
+    scope: fast
+    script: scripts/fast/s3-out-wrapper-generation-guard.sh
+    estimate: 1s
+    tags: [smoke, out, wrapper]
+
+  - id: s3-out-wrapper-behavioral-smoke
+    scope: fast
+    script: scripts/fast/s3-out-wrapper-behavioral-smoke.sh
+    estimate: 2s
+    tags: [smoke, out, wrapper, W2-C]
+
+  - id: s3-entrypoint-arg-contracts
+    scope: fast
+    script: scripts/fast/s3-entrypoint-arg-contracts.sh
+    estimate: 1s
+    tags: [smoke, scripts, arguments, B1-004]
+
+  - id: characterization-es-upsert-directory
+    scope: fast
+    script: scripts/fast/characterization-es-upsert-directory.sh
+    estimate: 1s
+    tags: [characterization, es-upsert, directory, A+-009]
+
+  - id: characterization-no-archive-migration
+    scope: fast
+    script: scripts/fast/characterization-no-archive-migration.sh
+    estimate: 1s
+    tags: [characterization, archive, migration, A+-009]
+
+  # Red/expected-fail diagnostics (run explicitly)
+  - id: contract-traversal-b1-009
+    scope: fast
+    script: scripts/fast/contract-traversal-b1-009.sh
+    estimate: 2s
+    tags: [contract, traversal, B1-009]
+
+  - id: contract-upsert-transaction-b2-002
+    scope: fast
+    script: scripts/fast/contract-upsert-transaction-b2-002.sh
+    estimate: 5s
+    tags: [contract, es-upsert, B2-002]
+
+  - id: transaction-post-es-faults-d3-002
+    scope: fast
+    script: scripts/fast/transaction-post-es-faults-d3-002.sh
+    estimate: 8s
+    tags: [contract, transaction, faults, signals, D3-002]
+
+  - id: contract-operator-json-b1-010
+    scope: fast
+    script: scripts/fast/contract-operator-json-b1-010.sh
+    estimate: 3s
+    tags: [contract, json, B1-010]
+
+  - id: contract-delete-reinit-b2-003
+    scope: fast
+    script: scripts/fast/contract-delete-reinit-b2-003.sh
+    estimate: 8s
+    tags: [contract, delete, reinit, B2-003]
+
+  - id: contract-provenance-c2-003
+    scope: fast
+    script: scripts/fast/contract-provenance-c2-003.sh
+    estimate: 1s
+    tags: [contract, provenance, C2-003]
+
+  - id: contract-processing-json-c2-004
+    scope: fast
+    script: scripts/fast/contract-processing-json-c2-004.sh
+    estimate: 5s
+    tags: [contract, json, C2-004]
+
+  - id: s3-json-result-logging
+    scope: fast
+    script: scripts/fast/s3-json-result-logging.sh
+    estimate: 8s
+    tags: [logging, json, result, C2-004]
+
+  - id: contract-cross-layer-d3-005
+    scope: integration
+    script: scripts/integration/xlayer-result-envelope.sh
+    estimate: 30s
+    tags: [contract, integration, json, es, D3-005]
+
+  - id: contract-provenance-roundtrip-d3-001
+    scope: integration
+    script: scripts/integration/provenance-roundtrip.sh
+    estimate: 60s
+    tags: [contract, integration, es, provenance, destructive, D3-001]
+
+  - id: contract-warc2wet-shell-b1-011
+    scope: fast
+    script: scripts/fast/contract-warc2wet-shell-b1-011.sh
+    estimate: 2s
+    tags: [contract, warc2wet, B1-011]
+
+  - id: contract-per-day-c2-001
+    scope: fast
+    script: scripts/fast/contract-per-day-c2-001.sh
+    estimate: 8s
+    tags: [contract, per-day, C2-001]
+
+  - id: contract-output-publication-c2-002
+    scope: fast
+    script: scripts/fast/contract-output-publication-c2-002.sh
+    estimate: 3s
+    tags: [contract, publication, warc2wet, C2-002]
+
+  - id: red-known-failing-regression
+    scope: red
+    script: scripts/red/red-known-failing-regression.sh
+    estimate: 1s
+    tags: [red, diagnostics]
+
+  - id: release-product-gate-d3-004
+    scope: integration
+    script: scripts/acceptance/release-product-gate.sh
+    estimate: 180s
+    tags: [acceptance, release, es, destructive, D3-004]
+
+  # Task Loop - Functional Tests
+  # Build
+  - id: tc-build-001
+    scope: task/functional/build
+    script: scripts/task/functional/build/tc-build-001-maven-clean-package.sh
+    estimate: 139s
+    tags: [functional, build, maven, package]
+
+  - id: tc-build-002
+    scope: task/functional/build
+    script: scripts/task/functional/build/tc-build-002-unit-tests.sh
+    estimate: 171s
+    tags: [functional, build, maven, unit]
+
+  # Extract
+  - id: tc-ext-001
+    scope: task/functional/extract
+    script: scripts/task/functional/extract/tc-ext-001-basic.sh
+    estimate: 8s
+    tags: [functional, extract]
+
+  - id: tc-ext-002
+    scope: task/functional/extract
+    script: scripts/task/functional/extract/tc-ext-002-lang-filter.sh
+    estimate: 38s
+    tags: [functional, extract, lang]
+
+  - id: tc-ext-003
+    scope: task/functional/extract
+    script: scripts/task/functional/extract/tc-ext-003-min-length.sh
+    estimate: 4s
+    tags: [functional, extract]
+
+  - id: tc-ext-004
+    scope: task/functional/extract
+    script: scripts/task/functional/extract/tc-ext-004-no-cdx.sh
+    estimate: 4s
+    tags: [functional, extract]
+
+  - id: tc-ext-006
+    scope: task/functional/extract
+    script: scripts/task/functional/extract/tc-ext-006-empty-input.sh
+    estimate: 4s
+    tags: [functional, extract, edge]
+
+  # Dedupe
+  - id: tc-dup-001
+    scope: task/functional/dedupe
+    script: scripts/task/functional/dedupe/tc-dup-001-basic.sh
+    estimate: 11s
+    tags: [functional, dedupe]
+
+  - id: tc-dup-002
+    scope: task/functional/dedupe
+    script: scripts/task/functional/dedupe/tc-dup-002-crawler-mode.sh
+    estimate: 9s
+    tags: [functional, dedupe]
+
+  - id: tc-dup-005
+    scope: task/functional/dedupe
+    script: scripts/task/functional/dedupe/tc-dup-005-no-cdx.sh
+    estimate: 7s
+    tags: [functional, dedupe]
+
+  # Grep
+  - id: tc-grep-001
+    scope: task/functional/grep
+    script: scripts/task/functional/grep/tc-grep-001-mime-allow.sh
+    estimate: 4s
+    tags: [functional, grep]
+
+  - id: tc-grep-002
+    scope: task/functional/grep
+    script: scripts/task/functional/grep/tc-grep-002-mime-deny.sh
+    estimate: 2s
+    tags: [functional, grep]
+
+  - id: tc-grep-003
+    scope: task/functional/grep
+    script: scripts/task/functional/grep/tc-grep-003-record-type.sh
+    estimate: 2s
+    tags: [functional, grep]
+
+  - id: tc-grep-004
+    scope: task/functional/grep
+    script: scripts/task/functional/grep/tc-grep-004-http-status.sh
+    estimate: 4s
+    tags: [functional, grep]
+
+  - id: tc-grep-005
+    scope: task/functional/grep
+    script: scripts/task/functional/grep/tc-grep-005-url-filter.sh
+    estimate: 2s
+    tags: [functional, grep, url]
+
+  - id: tc-grep-006
+    scope: task/functional/grep
+    script: scripts/task/functional/grep/tc-grep-006-zero-match.sh
+    estimate: 2s
+    tags: [functional, grep, edge]
+
+  # Convert
+  - id: tc-conv-001
+    scope: task/functional/convert
+    script: scripts/task/functional/convert/tc-conv-001-merge-files.sh
+    estimate: 2s
+    tags: [functional, convert]
+
+  - id: tc-conv-002
+    scope: task/functional/convert
+    script: scripts/task/functional/convert/tc-conv-002-split-file.sh
+    estimate: 3s
+    tags: [functional, convert]
+
+  - id: tc-conv-003
+    scope: task/functional/convert
+    script: scripts/task/functional/convert/tc-conv-003-split-small.sh
+    estimate: 3s
+    tags: [functional, convert]
+
+  # Extract (additional)
+  - id: tc-ext-007
+    scope: task/functional/extract
+    script: scripts/task/functional/extract/tc-ext-007-min-length-boundary.sh
+    estimate: 17s
+    tags: [functional, extract, min-length, boundary]
+
+  - id: tc-ext-008
+    scope: task/functional/extract
+    script: scripts/task/functional/extract/tc-ext-008-empty-warc.sh
+    estimate: 9s
+    tags: [functional, extract, edge, empty]
+
+  - id: tc-ext-011
+    scope: task/functional/extract
+    script: scripts/task/functional/extract/tc-ext-011-multifile-equivalence.sh
+    estimate: 76s
+    tags: [functional, extract, multifile, plock]
+
+  - id: tc-ext-011-fast
+    scope: task/functional/extract
+    script: scripts/task/functional/extract/tc-ext-011-fast.sh
+    estimate: 17s
+    tags: [functional, extract, multifile, fast]
+
+  - id: tc-ext-012
+    scope: task/functional/extract
+    script: scripts/task/functional/extract/tc-ext-012-directory-input.sh
+    estimate: 8s
+    tags: [functional, extract, directory]
+
+  - id: tc-ext-013
+    scope: task/functional/extract
+    script: scripts/task/functional/extract/tc-ext-013-synthetic-multifile-multidate-order.sh
+    estimate: 4s
+    tags: [functional, extract, synthetic, multifile, multicrawl, ordering]
+
+  - id: tc-ext-014
+    scope: task/functional/extract
+    script: scripts/task/functional/extract/tc-ext-014-list-input-files.sh
+    estimate: 4s
+    tags: [functional, extract, synthetic, multifile, list-input]
+
+  - id: tc-ext-015
+    scope: task/functional/extract
+    script: scripts/task/functional/extract/tc-ext-015-mixed-file-and-directory-recursive.sh
+    estimate: 4s
+    tags: [functional, extract, synthetic, mixed-input, directory, recursive]
+
+  - id: tc-ext-016
+    scope: task/functional/extract
+    script: scripts/task/functional/extract/tc-ext-016-dedup-global-crawl-series.sh
+    estimate: 4s
+    tags: [functional, extract, dedup, global, crawl-series, synthetic]
+
+  - id: tc-ext-017
+    scope: task/functional/extract
+    script: scripts/task/functional/extract/tc-ext-017-dedup-url-crawl-series.sh
+    estimate: 4s
+    tags: [functional, extract, dedup, url, crawl-series, synthetic]
+
+  # Merge
+  - id: tc-merge-001
+    scope: task/functional/merge
+    script: scripts/task/functional/merge/tc-merge-001-alias.sh
+    estimate: 1s
+    tags: [functional, merge]
+
+  - id: tc-merge-003
+    scope: task/functional/merge
+    script: scripts/task/functional/merge/tc-merge-003-single-file.sh
+    estimate: 3s
+    tags: [functional, merge]
+
+  - id: tc-merge-005
+    scope: task/functional/merge
+    script: scripts/task/functional/merge/tc-merge-005-url-scoped.sh
+    estimate: 6s
+    tags: [functional, merge, url-scope]
+
+  - id: tc-merge-006
+    scope: task/functional/merge
+    script: scripts/task/functional/merge/tc-merge-006-empty-input.sh
+    estimate: 3s
+    tags: [functional, merge, edge]
+
+  - id: tc-merge-007
+    scope: task/functional/merge
+    script: scripts/task/functional/merge/tc-merge-007-header-completeness.sh
+    estimate: 1s
+    tags: [functional, merge, headers]
+
+  - id: tc-merge-008
+    scope: task/functional/merge
+    script: scripts/task/functional/merge/tc-merge-008-temporal-monotonicity.sh
+    estimate: 1s
+    tags: [functional, merge, temporal]
+
+  - id: tc-merge-009
+    scope: task/functional/merge
+    script: scripts/task/functional/merge/tc-merge-009-order-invariant.sh
+    estimate: 6s
+    tags: [functional, merge, order]
+
+  - id: tc-merge-010
+    scope: task/functional/merge
+    script: scripts/task/functional/merge/tc-merge-010-single-input-file-initial.sh
+    estimate: 2s
+    tags: [functional, merge, initial, single-input]
+
+  - id: tc-merge-011
+    scope: task/functional/merge
+    script: scripts/task/functional/merge/tc-merge-011-single-input-directory-initial.sh
+    estimate: 2s
+    tags: [functional, merge, initial, directory]
+
+  - id: tc-merge-012
+    scope: task/functional/merge
+    script: scripts/task/functional/merge/tc-merge-012-primary-plus-directory.sh
+    estimate: 2s
+    tags: [functional, merge, primary, directory]
+
+  - id: tc-merge-013
+    scope: task/functional/merge
+    script: scripts/task/functional/merge/tc-merge-013-primary-plus-files.sh
+    estimate: 2s
+    tags: [functional, merge, primary, multi-file]
+
+  # Info
+  - id: tc-info-001
+    scope: task/functional/info
+    script: scripts/task/functional/info/tc-info-001-basic.sh
+    estimate: 2s
+    tags: [functional, info]
+
+  - id: tc-info-002
+    scope: task/functional/info
+    script: scripts/task/functional/info/tc-info-002-empty.sh
+    estimate: 2s
+    tags: [functional, info, edge]
+
+  - id: tc-info-003
+    scope: task/functional/info
+    script: scripts/task/functional/info/tc-info-003-wet.sh
+    estimate: 2s
+    tags: [functional, info, wet]
+
+  - id: tc-info-004
+    scope: task/functional/info
+    script: scripts/task/functional/info/tc-info-004-count-accuracy.sh
+    estimate: 4s
+    tags: [functional, info, accuracy]
+
+  # Regen CDXJ
+  - id: tc-cdx-001
+    scope: task/functional/regen-cdxj
+    script: scripts/task/functional/regen-cdxj/tc-cdx-001-basic.sh
+    estimate: 4s
+    tags: [functional, regen-cdxj]
+
+  # Regen ZIP
+  - id: tc-zip-001
+    scope: task/functional/regen-zip
+    script: scripts/task/functional/regen-zip/tc-zip-001-basic.sh
+    estimate: 4s
+    tags: [functional, regen-zip]
+
+  # Pre-commit
+  - id: tc-precommit-001
+    scope: task/functional/pre-commit
+    script: scripts/task/functional/pre-commit/tc-precommit-001-review-signoff-gate.sh
+    estimate: 1s
+    tags: [functional, pre-commit, gate]
+
+  # ES-CLI
+  - id: tc-es-001
+    scope: task/functional/es-cli
+    script: scripts/task/functional/es-cli/tc-es-001-load-stream.sh
+    estimate: 11s
+    tags: [functional, es]
+
+  - id: tc-es-002
+    scope: task/functional/es-cli
+    script: scripts/task/functional/es-cli/tc-es-002-search-stream.sh
+    estimate: 12s
+    tags: [functional, es]
+
+  - id: tc-es-003
+    scope: task/functional/es-cli
+    script: scripts/task/functional/es-cli/tc-es-003-stream-mgmt.sh
+    estimate: 9s
+    tags: [functional, es]
+
+  - id: tc-es-004
+    scope: task/functional/es-cli
+    script: scripts/task/functional/es-cli/tc-es-004-field-contract.sh
+    estimate: 6s
+    tags: [functional, es, field-contract]
+
+  - id: tc-es-005
+    scope: task/functional/es-cli
+    script: scripts/task/functional/es-cli/tc-es-005-ingest-idempotency.sh
+    estimate: 11s
+    tags: [functional, es, idempotency, destructive]
+
+  - id: tc-es-006
+    scope: task/functional/es-cli
+    script: scripts/task/functional/es-cli/tc-es-006-search-semantic.sh
+    estimate: 6s
+    tags: [functional, es, search]
+
+  - id: tc-es-007
+    scope: task/functional/es-cli
+    script: scripts/task/functional/es-cli/tc-es-007-mapping-compat.sh
+    estimate: 6s
+    tags: [functional, es, mapping]
+
+  - id: tc-es-008
+    scope: task/functional/es-cli
+    script: scripts/task/functional/es-cli/tc-es-008-full-chain-consistency.sh
+    estimate: 16s
+    tags: [functional, es, consistency]
+
+  - id: tc-es-009
+    scope: task/functional/es-cli
+    script: scripts/task/functional/es-cli/tc-es-009-backpressure-stress.sh
+    estimate: 6s
+    tags: [functional, es, backpressure]
+
+  - id: tc-es-010
+    scope: task/functional/es-cli
+    script: scripts/task/functional/es-cli/tc-es-010-no-cdx-sidecar-chain.sh
+    estimate: 12s
+    tags: [functional, es, chain, cdx]
+
+  - id: tc-es-011
+    scope: task/functional/es-cli
+    script: scripts/task/functional/es-cli/tc-es-011-url-provenance.sh
+    estimate: 11s
+    tags: [functional, es, provenance, url]
+
+  - id: tc-es-012
+    scope: task/functional/es-cli
+    script: scripts/task/functional/es-cli/tc-es-012-connection-failure.sh
+    estimate: 1s
+    tags: [functional, es, error, T-199]
+
+  - id: tc-es-013
+    scope: task/functional/es-cli
+    script: scripts/task/functional/es-cli/tc-es-013-w1-failure-contracts.sh
+    estimate: 3s
+    tags: [functional, es, error, W1]
+
+  - id: tc-es-014
+    scope: task/integration
+    script: scripts/task/integration/tc-es-014-es-delete-roundtrip.sh
+    estimate: 30s
+    tags: [integration, es, destructive, TB-L1]
+
+  # Integration
+  - id: tc-e2e-001
+    scope: task/integration
+    script: scripts/task/integration/tc-e2e-001-full-pipeline.sh
+    estimate: 13s
+    tags: [integration, e2e]
+
+  - id: tc-e2e-002
+    scope: task/integration
+    script: scripts/task/integration/tc-e2e-002-python-search.sh
+    estimate: 180s
+    tags: [integration, e2e, cross-project, python-search]
+
+  - id: s3-relative-path-resolution
+    scope: fast
+    script: scripts/fast/s3-relative-path-resolution.sh
+    estimate: 10s
+    tags: [smoke, cli, paths, W3]
+
+  - id: int-extract-text
+    scope: integration
+    script: scripts/integration/test-extract-text.sh
+    estimate: 8s
+    tags: [integration, extract]
+
+  - id: int-merge-basic
+    scope: integration
+    script: scripts/integration/test-merge-basic.sh
+    estimate: 6s
+    tags: [integration, merge]
+
+  - id: int-merge-synthetic-s1
+    scope: integration
+    script: scripts/integration/test-merge-synthetic-s1-incremental.sh
+    estimate: 2s
+    tags: [integration, merge, synthetic]
+
+  - id: int-merge-synthetic-s2
+    scope: integration
+    script: scripts/integration/test-merge-synthetic-s2-sequential.sh
+    estimate: 5s
+    tags: [integration, merge, synthetic]
+
+  - id: int-merge-synthetic-s3
+    scope: integration
+    script: scripts/integration/test-merge-synthetic-s3-url-migration.sh
+    estimate: 5s
+    tags: [integration, merge, synthetic, url-migration]
+
+  - id: int-module-warcfilter
+    scope: integration
+    script: scripts/integration/test-module-WarcFilter.sh
+    estimate: 9s
+    tags: [integration, module, grep]
+
+  - id: int-module-language-detect
+    scope: integration
+    script: scripts/integration/test-module-WarcDecoratorLanguageDetect.sh
+    estimate: 4s
+    tags: [integration, module, lang]
+
+  - id: int-module-text-extract
+    scope: integration
+    script: scripts/integration/test-module-WarcDecoratorTextExtract.sh
+    estimate: 13s
+    tags: [integration, module, extract]
+
+  - id: int-module-digest
+    scope: integration
+    script: scripts/integration/test-module-WarcDecoratorDigest.sh
+    estimate: 21s
+    tags: [integration, module, digest]
+
+  - id: int-module-dedup-doet
+    scope: integration
+    script: scripts/integration/test-module-WarcAccumulatorDeduplicateDoet.sh
+    estimate: 1s
+    tags: [integration, module, dedupe]
+
+  - id: int-module-es-cli
+    scope: integration
+    script: scripts/integration/test-module-es-cli.sh
+    estimate: 3s
+    tags: [integration, module, es]
+
+  - id: int-replay-order-independence
+    scope: integration
+    script: scripts/integration/replay-order-independence.sh
+    estimate: 20s
+    tags: [integration, es, replay, B2-002]
+
+  # Smoke (legacy format)
+  - id: smoke-tools-availability
+    scope: smoke
+    script: scripts/smoke/tools-availability.sh
+    estimate: 1s
+    tags: [smoke, tools]
+
+  - id: smoke-help-flag
+    scope: smoke
+    script: scripts/smoke/help-flag-001.sh
+    estimate: 2s
+    tags: [smoke]
+
+  - id: smoke-version-flag
+    scope: smoke
+    script: scripts/smoke/version-flag-001.sh
+    estimate: 2s
+    tags: [smoke]
+
+  - id: smoke-silent-flag
+    scope: smoke
+    script: scripts/smoke/silent-flag-001.sh
+    estimate: 2s
+    tags: [smoke]
+
+  - id: smoke-verbose-flag
+    scope: smoke
+    script: scripts/smoke/verbose-flag-001.sh
+    estimate: 2s
+    tags: [smoke]
+
+  - id: smoke-extract
+    scope: smoke
+    script: scripts/smoke/extract-smoke-001.sh
+    estimate: 4s
+    tags: [smoke, extract]
+
+  - id: smoke-grep-mime
+    scope: smoke
+    script: scripts/smoke/grep-mime-types-001.sh
+    estimate: 4s
+    tags: [smoke, grep]
+
+  - id: smoke-grep-warc-types
+    scope: smoke
+    script: scripts/smoke/grep-warc-types-001.sh
+    estimate: 4s
+    tags: [smoke, grep]
+
+  - id: smoke-dry-run
+    scope: smoke
+    script: scripts/smoke/dry-run-001.sh
+    estimate: 2s
+    tags: [smoke, dry-run]
+
+  - id: smoke-config-load-external
+    scope: smoke
+    script: scripts/smoke/config-load-external-001.sh
+    estimate: 2s
+    tags: [smoke, config]
+
+  - id: smoke-invalid-pipeline
+    scope: smoke
+    script: scripts/smoke/invalid-pipeline-001.sh
+    estimate: 2s
+    tags: [smoke, error]
+
+  # Functional (legacy format)
+  - id: func-config-engine-overrides
+    scope: functional
+    script: scripts/functional/config-engine-overrides-001.sh
+    estimate: 4s
+    tags: [functional, config]
+
+  - id: func-config-env-subst
+    scope: functional
+    script: scripts/functional/config-env-subst-001.sh
+    estimate: 2s
+    tags: [functional, config]
+
+  - id: func-config-nested-overrides
+    scope: functional
+    script: scripts/functional/config-nested-overrides-001.sh
+    estimate: 6s
+    tags: [functional, config]
+
+  - id: func-config-positional-args
+    scope: functional
+    script: scripts/functional/config-positional-args-001.sh
+    estimate: 4s
+    tags: [functional, config]
+
+  - id: func-config-validation
+    scope: functional
+    script: scripts/functional/config-validation-001.sh
+    estimate: 4s
+    tags: [functional, config, validation]
+
+  - id: func-dry-run-inputs-outputs
+    scope: functional
+    script: scripts/functional/dry-run-inputs-outputs-001.sh
+    estimate: 8s
+    tags: [functional, dry-run]
+
+  - id: func-dry-run-json-format
+    scope: functional
+    script: scripts/functional/dry-run-json-format-001.sh
+    estimate: 2s
+    tags: [functional, dry-run]
+
+  - id: func-extract
+    scope: functional
+    script: scripts/functional/extract-001.sh
+    estimate: 4s
+    tags: [functional, extract]
+
+  - id: func-grep
+    scope: functional
+    script: scripts/functional/grep-001.sh
+    estimate: 2s
+    tags: [functional, grep]
+
+  # Error Handling
+  - id: tc-err-001
+    scope: task/functional/error
+    script: scripts/task/functional/error/tc-err-001-corrupt-input.sh
+    estimate: 6s
+    tags: [functional, error, corrupt]
+
+  - id: tc-err-002
+    scope: task/functional/error
+    script: scripts/task/functional/error/tc-err-002-missing-resource.sh
+    estimate: 1s
+    tags: [functional, error, missing]
+
+  - id: tc-err-003
+    scope: task/functional/error
+    script: scripts/task/functional/error/tc-err-003-permissions.sh
+    estimate: 4s
+    tags: [functional, error]
+
+  - id: tc-err-004
+    scope: task/functional/error
+    script: scripts/task/functional/error/tc-err-004-failure-propagation.sh
+    estimate: 1s
+    tags: [functional, error, propagation]
+
+  # Benchmarks
+  - id: tc-perf-001
+    scope: bench
+    script: scripts/bench/tc-perf-001-throughput.sh
+    estimate: 10s
+    tags: [bench, performance]
+
+  - id: tc-perf-002
+    scope: bench
+    script: scripts/bench/tc-perf-002-extract-mime-branches.sh
+    estimate: 15s
+    tags: [bench, performance, extract, mime]
+
+  - id: tc-perf-003
+    scope: bench
+    script: scripts/bench/tc-perf-003-jfr-wrapper.sh
+    estimate: 20s
+    tags: [bench, performance, jfr]
+
+  - id: tc-perf-004
+    scope: bench
+    script: scripts/bench/tc-perf-004-compliance-b1-throughput.sh
+    estimate: 10s
+    tags: [bench, compliance, b1]
+
+  - id: tc-perf-005
+    scope: bench
+    script: scripts/bench/tc-perf-005-compliance-b2-throughput.sh
+    estimate: 10s
+    tags: [bench, compliance, b2]
+
+  - id: tc-perf-006
+    scope: bench
+    script: scripts/bench/tc-perf-006-compliance-memory.sh
+    estimate: 10s
+    tags: [bench, compliance, memory]
+
+  - id: tc-perf-007
+    scope: bench
+    script: scripts/bench/tc-perf-007-compliance-output.sh
+    estimate: 10s
+    tags: [bench, compliance, output]
+
+  - id: tc-perf-008
+    scope: bench
+    script: scripts/bench/tc-perf-008-compliance-protocol-separation.sh
+    estimate: 5s
+    tags: [bench, compliance, protocol]
+
+  - id: tc-perf-009
+    scope: bench
+    script: scripts/bench/tc-perf-009-chain-jfr-smoke.sh
+    estimate: 30s
+    tags: [bench, jfr, chain]
+
+  # ── Golden-path multi-stage integration scenarios ──────────────────────────
+  - id: tc-golden-001
+    scope: golden
+    script: scripts/golden/tc-golden-001-initial-wet.sh
+    estimate: 107s
+    tags: [golden, e2e, full-cycle, file-output, purge, extract, dedupe, merge, es, python-search, exact-counts]
+
+  - id: tc-golden-002
+    scope: golden
+    script: scripts/golden/tc-golden-002-directory-output.sh
+    estimate: 101s
+    tags: [golden, e2e, full-cycle, directory-output, multi-warc, purge, extract, dedupe, merge, es, python-search, exact-counts]

@@ -1,0 +1,132 @@
+{
+  "index_patterns": ["nac-data", "nac-data-*"],
+  "data_stream": { },
+  "priority": 100,
+  "template": {
+    "settings": {
+      "index.lifecycle.name": "nac-1tb-policy",
+      "index.codec": "best_compression",
+      "index.refresh_interval": "30s",
+      "index.number_of_shards": 3,
+      "index.number_of_replicas": 1,
+      "index.query.default_field": ["content"],
+      "analysis": {
+        "analyzer": {
+          "other_icu": {
+            "type": "custom",
+            "tokenizer": "icu_tokenizer",
+            "filter": ["lowercase", "icu_folding"]
+          },
+          "multi_lang_search": {
+            "type": "custom",
+            "tokenizer": "standard",
+            "filter": [
+              "lowercase",
+              "ascii_fold",
+              "hunspell_pl",
+              "hunspell_lt",
+              "hunspell_be",
+              "hunspell_uk",
+              "porter_stem",
+              "german_stem",
+              "russian_stem",
+              "french_stem"
+            ]
+          },
+          "pl_analyzer": {
+            "type": "custom",
+            "tokenizer": "standard",
+            "filter": ["lowercase", "ascii_fold", "hunspell_pl"]
+          },
+          "lt_analyzer": {
+            "type": "custom",
+            "tokenizer": "standard",
+            "filter": ["lowercase", "ascii_fold", "hunspell_lt"]
+          },
+          "be_analyzer": {
+            "type": "custom",
+            "tokenizer": "standard",
+            "filter": ["lowercase", "ascii_fold", "hunspell_be"]
+          },
+          "uk_analyzer": {
+            "type": "custom",
+            "tokenizer": "standard",
+            "filter": ["lowercase", "ascii_fold", "hunspell_uk"]
+          },
+          "en_analyzer": {
+            "type": "custom",
+            "tokenizer": "standard",
+            "filter": ["lowercase", "ascii_fold", "porter_stem"]
+          },
+          "de_analyzer": {
+            "type": "custom",
+            "tokenizer": "standard",
+            "filter": ["lowercase", "ascii_fold", "german_stem"]
+          },
+          "ru_analyzer": {
+            "type": "custom",
+            "tokenizer": "standard",
+            "filter": ["lowercase", "ascii_fold", "russian_stem"]
+          },
+          "fr_analyzer": {
+            "type": "custom",
+            "tokenizer": "standard",
+            "filter": ["lowercase", "ascii_fold", "french_stem"]
+          }
+        },
+        "filter": {
+          "ascii_fold": { "type": "asciifolding", "preserve_original": true },
+          "hunspell_pl": { "type": "hunspell", "locale": "pl_PL", "dedup": true },
+          "hunspell_lt": { "type": "hunspell", "locale": "lt_LT", "dedup": true },
+          "hunspell_be": { "type": "hunspell", "locale": "be_BY", "dedup": true },
+          "hunspell_uk": { "type": "hunspell", "locale": "uk_UA", "dedup": true }
+        }
+      }
+    },
+    "mappings": {
+      "properties": {
+        "warc-id": { "type": "keyword" },
+        "warc-uri": { "type": "keyword" },
+        "warc-date": { "type": "date", "format": "strict_date_time_no_millis||strict_date_optional_time||yyyy-MM-dd||epoch_millis" },
+        "warc-digest": { "type": "keyword" },
+        "wet-lang": { "type": "keyword" },
+        "nac-url-id": { "type": "keyword" },
+        "nac-crawl-id": { "type": "keyword" },
+        "nac-first-seen": { "type": "date", "format": "strict_date_time_no_millis||strict_date_optional_time||yyyy-MM-dd||epoch_millis" },
+        "nac-last-seen": { "type": "date", "format": "strict_date_time_no_millis||strict_date_optional_time||yyyy-MM-dd||epoch_millis" },
+        "nac-missing-count": { "type": "integer" },
+        "nac-status": { "type": "keyword" },
+        "nac-merge-result": { "type": "keyword" },
+        "merge-provenance": { "type": "keyword" },
+        "nac-revisit-count": { "type": "integer" },
+        "nac-deduplicated": { "type": "keyword" },
+        "nac-primary-uri": { "type": "keyword" },
+        "nac-previous-uri": { "type": "keyword" },
+        "nac-chain-length": { "type": "integer" },
+        "metadata": {
+          "properties": {
+            "source_file": { "type": "keyword" },
+            "session_id": { "type": "keyword" },
+            "ingest_operator": { "type": "keyword" },
+            "gen": { "type": "keyword" }
+          }
+        },
+        "content": {
+          "type": "text",
+          "analyzer": "multi_lang_search",
+          "norms": false,
+          "fields": {
+            "pl": { "type": "text", "analyzer": "pl_analyzer", "norms": false },
+            "lt": { "type": "text", "analyzer": "lt_analyzer", "norms": false },
+            "be": { "type": "text", "analyzer": "be_analyzer", "norms": false },
+            "uk": { "type": "text", "analyzer": "uk_analyzer", "norms": false },
+            "en": { "type": "text", "analyzer": "en_analyzer", "norms": false },
+            "de": { "type": "text", "analyzer": "de_analyzer", "norms": false },
+            "ru": { "type": "text", "analyzer": "ru_analyzer", "norms": false },
+            "fr": { "type": "text", "analyzer": "fr_analyzer", "norms": false }
+          }
+        }
+      }
+    }
+  }
+}

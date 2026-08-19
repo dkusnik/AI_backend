@@ -1,0 +1,8 @@
+{
+  "type": "s3",
+  "settings": {
+    "bucket": "${ES_SNAPSHOT_BUCKET:-nac-backups}",
+    "region": "${ES_SNAPSHOT_REGION:-eu-central-1}",
+    "compress": true
+  }
+}
