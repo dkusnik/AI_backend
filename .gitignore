@@ -167,4 +167,5 @@ cython_debug/
 
 # javove rzeczy
 !warc2es/src/main/dist
+!warc2es/src/main/dist/**
 

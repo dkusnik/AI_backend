@@ -1,0 +1,184 @@
+#!/bin/bash
+# JVM-invocation helpers shared by warc-cli, es-cli, and operator workflows.
+#
+# This library owns config-file selection inputs, JAVA_OPTS, classpath/native/JFR
+# setup, and run_pipeline through the final Java exec. Runtime layout discovery,
+# operator paths, stream naming, and es-cli invocation belong in runtime-lib.
+
+# ---------------------------------------------------------------------------
+# _jvm_cfg <key> <default>
+# Extract a global.jvm value from WARC_CONFIG_FILE, with profile override.
+# Profile name comes from PROFILE (set by warc-cli before sourcing this lib).
+# Falls back to <default> when the file is absent or the key is missing.
+#
+# This is a deliberately small shell parser: values must be single YAML
+# scalars without embedded spaces or shell quoting.
+# ---------------------------------------------------------------------------
+_jvm_cfg() {
+    local key="$1" default="$2"
+    local cfg="${WARC_CONFIG_FILE:-}"
+    [[ -z "$cfg" || ! -f "$cfg" ]] && echo "$default" && return
+
+    # Read from global.jvm section (profile-specific files handled by warc-cli
+    # resolve_config, which selects config-<profile>.yaml when present).
+    local val
+    val=$(awk -v k="$key" '
+        /^global:/             { in_global=1 }
+        in_global && /^  jvm:/ { in_jvm=1; next }
+        in_jvm && $0 ~ "^[[:space:]]+"k":" { print $2; exit }
+        in_jvm && /^  [^[:space:]]/ { exit }
+    ' "$cfg")
+
+    echo "${val:-$default}"
+}
+
+_build_classpath() {
+    local dist_dir="$1"
+    local cp=""
+    local jar
+    local -a jars=()
+    local restore_nullglob
+
+    restore_nullglob="$(shopt -p nullglob || true)"
+    shopt -s nullglob
+    jars=("$dist_dir/lib"/*.jar)
+    eval "$restore_nullglob"
+
+    if [[ ${#jars[@]} -eq 0 ]]; then
+        echo "Error: no JAR files found in $dist_dir/lib" >&2
+        return 1
+    fi
+
+    for jar in "${jars[@]}"; do
+        if [ -z "$cp" ]; then cp="$jar"; else cp="$cp:$jar"; fi
+    done
+
+    if [[ -z "$cp" ]]; then
+        echo "Error: no usable JAR files found in $dist_dir/lib" >&2
+        return 1
+    fi
+
+    printf '%s\n' "$cp"
+}
+
+# ---------------------------------------------------------------------------
+# _apply_jvm_opts <java_opts_varname> <cfg>
+# Read jvm-* keys from config and append missing JVM flags.
+# ---------------------------------------------------------------------------
+_apply_jvm_opts() {
+    local -n _opts="$1"
+
+    if [[ "$_opts" != *"-Xmx"* ]]; then
+        local hmin hmax
+        hmin=$(_jvm_cfg jvm-memory-heap-min 1g)
+        hmax=$(_jvm_cfg jvm-memory-heap-max 1g)
+        _opts="$_opts -Xms${hmin} -Xmx${hmax}"
+    fi
+
+    if [[ "$_opts" != *"-XX:ActiveProcessorCount"* ]]; then
+        local cpus
+        cpus=$(_jvm_cfg jvm-cpu-count 1)
+        _opts="$_opts -XX:ActiveProcessorCount=${cpus}"
+    fi
+
+    if [[ "$_opts" != *"+Use"* ]]; then
+        local gc
+        gc=$(_jvm_cfg jvm-gc zgc)
+        case "$gc" in
+            zgc)      _opts="$_opts -XX:+UseZGC" ;;
+            g1)       _opts="$_opts -XX:+UseG1GC" ;;
+            parallel) _opts="$_opts -XX:+UseParallelGC" ;;
+            *)        _opts="$_opts -XX:+UseZGC" ;;
+        esac
+    fi
+
+    [[ "$_opts" != *"--sun-misc-unsafe-memory-access"* ]] && \
+        _opts="$_opts --sun-misc-unsafe-memory-access=allow"
+}
+
+run_pipeline() {
+    local pipeline_name="${1:-}"
+    [[ -z "$pipeline_name" ]] && { echo "Error: No pipeline name specified." >&2; return 1; }
+    shift
+
+    local SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+    # pipeline-lib lives in lib/scripts/ — DIST_DIR is two levels up
+    local DIST_DIR="$(dirname "$(dirname "$SCRIPT_DIR")")"
+
+    # Build classpath from lib directory
+    local CP
+    CP="$(_build_classpath "$DIST_DIR")" || return 1
+
+    # Absolute paths for RocksDB (config.yaml uses ${WARC_DIST_DIR}) and logging
+    export WARC_DIST_DIR="$DIST_DIR"
+    # Absolute config path so Java finds the right config.yaml regardless of CWD
+    [[ -z "${WARC_CONFIG_FILE:-}" ]] && export WARC_CONFIG_FILE="$DIST_DIR/conf/config.yaml"
+
+    local JAVA_OPTS="${JAVA_OPTS:-}"
+
+    # JVM settings from config.yaml global.jvm (profile overrides honoured)
+    _apply_jvm_opts JAVA_OPTS
+
+    # Base Java options (Native Access)
+    local INTERNAL_JAVA_OPTS=(
+        "--enable-native-access=ALL-UNNAMED"
+    )
+
+    # JFR Support
+    local JFR_OPTS=()
+    if [[ "${WARC_JFR_ENABLED:-}" == "true" ]]; then
+        local jfr_path="${WARC_JFR_PATH:-$DIST_DIR/recordings/$(date +%Y%m%d-%H%M%S)_${pipeline_name}.jfr}"
+        mkdir -p "$(dirname "$jfr_path")"
+        JFR_OPTS=(
+            "-XX:StartFlightRecording=filename=$jfr_path,dumponexit=true"
+            "-XX:FlightRecorderOptions=stackdepth=128"
+        )
+        echo "[JFR] Profiling Active: $jfr_path" >&2
+    fi
+
+    # Native library auto-detection (Panama FFI)
+    # Only set if not already overridden via JAVA_OPTS
+    if [[ "$JAVA_OPTS" != *"readability.native.path"* ]]; then
+        for f in "$DIST_DIR/native/libreadability_jni".*; do
+            [[ -f "$f" ]] && JAVA_OPTS="$JAVA_OPTS -Dreadability.native.path=$f" && break
+        done
+    fi
+
+    mkdir -p "$DIST_DIR/log"
+    [[ "$JAVA_OPTS" != *"warc.logging.file"* ]] && \
+        JAVA_OPTS="$JAVA_OPTS -Dwarc.logging.file=$DIST_DIR/log/pipeline.log"
+    [[ "$JAVA_OPTS" != *"warc.logging.dir"* ]] && \
+        JAVA_OPTS="$JAVA_OPTS -Dwarc.logging.dir=$DIST_DIR/log"
+
+    # Execute
+    # Combined order: external JAVA_OPTS -> internal mandatory -> JFR overrides
+    exec java $JAVA_OPTS "${INTERNAL_JAVA_OPTS[@]}" "${JFR_OPTS[@]}" -cp "$CP" pl.gov.nac.warc.Pipeline "$pipeline_name" "$@"
+}
+
+run_pipeline_global() {
+    local SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+    local DIST_DIR="$(dirname "$(dirname "$SCRIPT_DIR")")"
+
+    local CP
+    CP="$(_build_classpath "$DIST_DIR")" || return 1
+
+    export WARC_DIST_DIR="$DIST_DIR"
+    [[ -z "${WARC_CONFIG_FILE:-}" ]] && export WARC_CONFIG_FILE="$DIST_DIR/conf/config.yaml"
+
+    local JAVA_OPTS="${JAVA_OPTS:-}"
+
+    # JVM settings from config.yaml global.jvm
+    _apply_jvm_opts JAVA_OPTS
+
+    local INTERNAL_JAVA_OPTS=(
+        "--enable-native-access=ALL-UNNAMED"
+    )
+
+    mkdir -p "$DIST_DIR/log"
+    [[ "$JAVA_OPTS" != *"warc.logging.file"* ]] && \
+        JAVA_OPTS="$JAVA_OPTS -Dwarc.logging.file=$DIST_DIR/log/pipeline.log"
+    [[ "$JAVA_OPTS" != *"warc.logging.dir"* ]] && \
+        JAVA_OPTS="$JAVA_OPTS -Dwarc.logging.dir=$DIST_DIR/log"
+
+    java $JAVA_OPTS "${INTERNAL_JAVA_OPTS[@]}" -cp "$CP" pl.gov.nac.warc.Pipeline "$@"
+}
