@@ -1,0 +1,24 @@
+Django==5.2
+djangorestframework
+psycopg2
+redis
+django-redis
+django-environ
+ipython
+django-extensions
+
+# background tasks
+rq==2.10.0
+django_rq
+jwt
+docker
+
+# optional utils
+python-dotenv
+drf-spectacular
+
+#auth
+mozilla_django_oidc
+
+#gunicorn
+gunicorn
