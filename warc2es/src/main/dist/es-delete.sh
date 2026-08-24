@@ -30,9 +30,9 @@ runtime_resolve_layout "$SCRIPT_DIR"
 runtime_source_profile
 
 ES_CLI="$APP_DIR/bin/es-cli"
-STREAM_VALUE=""
+STREAM_VALUE="nac-data-default"
 STREAM_SET=false
-STREAM_NAME=""
+STREAM_ID=""
 URL_ID=""
 CRAWL_ID=""
 URL_ID_SET=false
@@ -47,6 +47,7 @@ publication_json='{"status":"skipped","paths":[],"cleanup":{"matched":0,"removed
 query='null'
 lock_plan_json='[]'
 lock_desc=""
+DATA_DIR=$RUNTIME_DIR
 
 declare -a archive_files=()
 declare -a archive_paths=()
@@ -95,7 +96,7 @@ operator_failure() {
 
 set_target_json() {
   target_json="$(jq -cn \
-    --arg stream "$STREAM_NAME" \
+    --arg stream "$STREAM_ID" \
     --arg scope "$mode" \
     --arg url_id "$URL_ID" \
     --arg crawl_id "$CRAWL_ID" \
@@ -185,10 +186,10 @@ append_pair_files() {
 collect_pair_files() {
   local directory
   local -a directories=(
-    "$RUNTIME_DIR/all"
-    "$RUNTIME_DIR/all/wet"
-    "$RUNTIME_DIR/all/wet/$URL_ID"
-    "$RUNTIME_DIR/all/wet/$URL_ID/$CRAWL_ID"
+    "$DATA_DIR/all"
+    "$DATA_DIR/all/wet"
+    "$DATA_DIR/all/wet/$URL_ID"
+    "$DATA_DIR/all/wet/$URL_ID/$CRAWL_ID"
   )
 
   archive_files=()
@@ -206,8 +207,8 @@ collect_pair_files() {
 }
 
 collect_all_files() {
-  local all_dir="$RUNTIME_DIR/all"
-  local wet_root="$RUNTIME_DIR/all/wet"
+  local all_dir="$DATA_DIR/all"
+  local wet_root="$DATA_DIR/all/wet"
   local url_dir crawl_dir entry url_id crawl_id
   local -a url_dirs=() crawl_dirs=()
 
@@ -265,7 +266,7 @@ collect_archive_files() {
   fi
   archive_paths=()
   for file in "${archive_files[@]}"; do
-    archive_paths+=("${file#"$RUNTIME_DIR"/}")
+    archive_paths+=("${file#"$DATA_DIR"/}")
   done
 }
 
@@ -327,6 +328,12 @@ while [[ $# -gt 0 ]]; do
       CRAWL_ID_SET=true
       shift 2
       ;;
+    --data-dir=*) DATA_DIR="${1#*=}"; shift ;;
+    --data-dir)
+      [[ $# -ge 2 ]] || { echo "Error: --data-dir requires a value" >&2; exit 1; }
+      DATA_DIR="${2:-}"
+      shift 2
+      ;;
     --all-documents) ALL_DOCUMENTS=true; shift ;;
     --es-url=*) ES_URL="${1#*=}"; shift ;;
     --es-url)
@@ -354,8 +361,6 @@ case "$RESULT_FORMAT" in
   human|json) ;;
   *) echo "Error: --result-format must be human or json" >&2; exit 1 ;;
 esac
-[[ "$STREAM_SET" == true && -n "$STREAM_VALUE" ]] || \
-  operator_failure stream_required "one non-empty --stream is required"
 
 if [[ "$ALL_DOCUMENTS" == true ]]; then
   mode="all-documents"
@@ -374,8 +379,8 @@ else
     "--crawl-id must match [A-Za-z0-9._-]{1,128} and must not be . or .."
 fi
 
-STREAM_NAME="$(stream_name "$STREAM_VALUE")"
-runtime_stream_name_is_safe "$STREAM_NAME" || operator_failure invalid_stream \
+STREAM_ID="$(stream_name "$STREAM_VALUE")"
+runtime_stream_name_is_safe "$STREAM_ID" || operator_failure invalid_stream \
   "resolved stream is not one exact safe Elasticsearch name"
 [[ -x "$ES_CLI" ]] || operator_failure dependency_missing \
   "$ES_CLI is missing or not executable"
@@ -404,7 +409,7 @@ collect_archive_files || operator_failure archive_unsafe \
 failed_paths=()
 set_publication_json skipped archive_paths "${#archive_paths[@]}" 0 0 failed_paths
 
-operator_log "[es-delete] target=$STREAM_NAME es=$ES_URL filter=$filter_desc"
+operator_log "[es-delete] target=$STREAM_ID es=$ES_URL filter=$filter_desc"
 operator_log "[es-delete] locks=$lock_desc"
 if [[ "$DRY_RUN" == true ]]; then
   set_publication_json planned archive_paths "${#archive_paths[@]}" 0 0 failed_paths
@@ -450,7 +455,7 @@ set_publication_json skipped archive_paths "${#archive_paths[@]}" 0 0 failed_pat
 DELETE_FILE="$(mktemp "${TMPDIR:-/tmp}/warc2es-delete.XXXXXX")" || \
   operator_failure temporary_failed "cannot create Elasticsearch response file"
 set +e
-runtime_es_cli batch-delete "$STREAM_NAME" "$query" >"$DELETE_FILE"
+runtime_es_cli batch-delete "$STREAM_ID" "$query" >"$DELETE_FILE"
 delete_exit=$?
 set -e
 if [[ "$delete_exit" -ne 0 ]]; then

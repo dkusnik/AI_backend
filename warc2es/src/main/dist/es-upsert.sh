@@ -38,7 +38,7 @@ runtime_source_profile
 ES_CLI="$APP_DIR/bin/es-cli"
 INPUT_PATH=""
 FROM_ARCHIVE=false
-STREAM_ID=""
+STREAM_ID="nac-data-default"
 URL_ID=""
 CRAWL_ID=""
 URL_ID_SET=false
@@ -50,6 +50,8 @@ RESULT_FORMAT="json"
 mode="explicit"
 IMPLICIT_STAGING=false
 inputs_json='[]'
+DATA_DIR=$RUNTIME_DIR
+
 
 usage() {
   cat <<'EOF'
@@ -73,7 +75,7 @@ Options:
   --result-format=<format>  json (default) or human
   -h, --help                show this help
 
-The retired --all mode is not supported; use es-upsert-all.sh for replay.
+Use es-upsert-all.sh to reload all.
 EOF
 }
 
@@ -142,10 +144,10 @@ validate_published_ancestors() {
   local create="$1"
   local directory canonical parent
   local -a directories=(
-    "$RUNTIME_DIR/all"
-    "$RUNTIME_DIR/all/wet"
-    "$RUNTIME_DIR/all/wet/$URL_ID"
-    "$RUNTIME_DIR/all/wet/$URL_ID/$CRAWL_ID"
+    "$DATA_DIR/all"
+    "$DATA_DIR/all/wet"
+    "$DATA_DIR/all/wet/$URL_ID"
+    "$DATA_DIR/all/wet/$URL_ID/$CRAWL_ID"
   )
 
   for directory in "${directories[@]}"; do
@@ -183,7 +185,7 @@ collect_published_wets() {
   local digests_name="$2"
   local -n files_ref="$files_name"
   local -n digests_ref="$digests_name"
-  local pair_dir="$RUNTIME_DIR/all/wet/$URL_ID/$CRAWL_ID"
+  local pair_dir="$DATA_DIR/all/wet/$URL_ID/$CRAWL_ID"
   local file base digest expected_digest entry_file
   local -a entries=()
 
@@ -241,11 +243,11 @@ collect_published_wets() {
 collect_staged_wets() {
   local files_name="$1"
   local -n files_ref="$files_name"
-  local pair_dir="$RUNTIME_DIR/wet/$URL_ID/$CRAWL_ID"
+  local pair_dir="$DATA_DIR/wet/$URL_ID/$CRAWL_ID"
   local directory canonical entry_file file base sort_file
   local -a directories=(
-    "$RUNTIME_DIR/wet"
-    "$RUNTIME_DIR/wet/$URL_ID"
+    "$DATA_DIR/wet"
+    "$DATA_DIR/wet/$URL_ID"
     "$pair_dir"
   )
   local -a entries=()
@@ -301,7 +303,7 @@ collect_staged_wets() {
 }
 
 cleanup_stale_publication_temps() {
-  local pair_dir="$RUNTIME_DIR/all/wet/$URL_ID/$CRAWL_ID"
+  local pair_dir="$DATA_DIR/all/wet/$URL_ID/$CRAWL_ID"
   local entry_file file base
   local -a entries=()
 
@@ -338,7 +340,7 @@ prepare_selected_snapshots() {
   for ((index = 0; index < ${#ingest_files[@]}; index++)); do
     source="${ingest_files[index]}"
     digest="${selected_digests[index]}"
-    temporary="$(mktemp "$RUNTIME_DIR/all/wet/$URL_ID/$CRAWL_ID/.$digest.tmp.XXXXXX")" || return 1
+    temporary="$(mktemp "$DATA_DIR/all/wet/$URL_ID/$CRAWL_ID/.$digest.tmp.XXXXXX")" || return 1
     PUBLICATION_TEMPS+=("$temporary")
     cp -- "$source" "$temporary" || return 1
     actual="$(runtime_sha256_file "$temporary")" || return 1
@@ -349,11 +351,11 @@ prepare_selected_snapshots() {
     sync -f "$temporary" || return 1
     SNAPSHOT_FILES+=("$temporary")
   done
-  sync -f "$RUNTIME_DIR/all/wet/$URL_ID/$CRAWL_ID"
+  sync -f "$DATA_DIR/all/wet/$URL_ID/$CRAWL_ID"
 }
 
 publish_selected_set() {
-  local pair_dir="$RUNTIME_DIR/all/wet/$URL_ID/$CRAWL_ID"
+  local pair_dir="$DATA_DIR/all/wet/$URL_ID/$CRAWL_ID"
   local source digest destination index old_file old_digest
   local cleanup_failed=false
   local -A selected_set=()
@@ -367,7 +369,7 @@ publish_selected_set() {
       selected_set["$old_digest"]=1
       if [[ -z "${publication_seen["$old_digest"]+x}" ]]; then
         publication_seen["$old_digest"]=1
-        publication_paths+=("${old_file#"$RUNTIME_DIR"/}")
+        publication_paths+=("${old_file#"$DATA_DIR"/}")
       fi
     done
   fi
@@ -384,7 +386,7 @@ publish_selected_set() {
     destination="$pair_dir/$digest.wet.gz"
     if [[ -z "${publication_seen["$digest"]+x}" ]]; then
       publication_seen["$digest"]=1
-      publication_paths+=("${destination#"$RUNTIME_DIR"/}")
+      publication_paths+=("${destination#"$DATA_DIR"/}")
     fi
     [[ -e "$destination" ]] && continue
     source="${representative["$digest"]}"
@@ -436,7 +438,7 @@ publish_selected_set() {
 }
 
 report_present_selected_paths() {
-  local pair_dir="$RUNTIME_DIR/all/wet/$URL_ID/$CRAWL_ID"
+  local pair_dir="$DATA_DIR/all/wet/$URL_ID/$CRAWL_ID"
   local digest destination actual
   local -A seen=()
 
@@ -448,7 +450,7 @@ report_present_selected_paths() {
     [[ -f "$destination" && ! -L "$destination" ]] || continue
     actual="$(runtime_sha256_file "$destination")" || continue
     [[ "$actual" == "$digest" ]] || continue
-    publication_paths+=("${destination#"$RUNTIME_DIR"/}")
+    publication_paths+=("${destination#"$DATA_DIR"/}")
   done
 }
 
@@ -484,10 +486,6 @@ while [[ $# -gt 0 ]]; do
       STREAM_ID="${2:-}"
       shift 2
       ;;
-    --stream-id=*|--stream-id)
-      echo "Error: --stream-id is not supported; use --stream instead" >&2
-      exit 1
-      ;;
     --url-id=*) URL_ID="${1#*=}"; URL_ID_SET=true; shift ;;
     --url-id)
       [[ $# -ge 2 ]] || { echo "Error: --url-id requires a value" >&2; exit 1; }
@@ -500,6 +498,12 @@ while [[ $# -gt 0 ]]; do
       [[ $# -ge 2 ]] || { echo "Error: --crawl-id requires a value" >&2; exit 1; }
       CRAWL_ID="${2:-}"
       CRAWL_ID_SET=true
+      shift 2
+      ;;
+    --data-dir=*) DATA_DIR="${1#*=}"; shift ;;
+    --data-dir)
+      [[ $# -ge 2 ]] || { echo "Error: --data-dir requires a value" >&2; exit 1; }
+      DATA_DIR="${2:-}"
       shift 2
       ;;
     --start-date=*) START_DATE="${1#*=}"; shift ;;
@@ -566,7 +570,7 @@ if [[ "$FROM_ARCHIVE" == false ]]; then
     operator_failure invalid_crawl_id \
       "--crawl-id must match [A-Za-z0-9._-]{1,128} and must not be . or .." 1
   if [[ "$IMPLICIT_STAGING" == true ]]; then
-    INPUT_PATH="$RUNTIME_DIR/wet/$URL_ID/$CRAWL_ID"
+    INPUT_PATH="$DATA_DIR/wet/$URL_ID/$CRAWL_ID"
   fi
 fi
 
@@ -584,8 +588,8 @@ if ! INPUT_PATH="$(runtime_resolve_path "$INPUT_PATH")"; then
 fi
 
 if [[ "$FROM_ARCHIVE" == true ]]; then
-  ARCHIVE_ROOT="$RUNTIME_DIR/all/wet"
-  if [[ -L "$RUNTIME_DIR/all" || -L "$ARCHIVE_ROOT" || ! -d "$ARCHIVE_ROOT" ]]; then
+  ARCHIVE_ROOT="$DATA_DIR/all/wet"
+  if [[ -L "$DATA_DIR/all" || -L "$ARCHIVE_ROOT" || ! -d "$ARCHIVE_ROOT" ]]; then
     operator_failure archive_unsafe "Archive replay root is missing or unsafe: $ARCHIVE_ROOT" 1
   fi
   if ! ARCHIVE_ROOT="$(realpath -e -- "$ARCHIVE_ROOT")"; then
@@ -615,8 +619,8 @@ if [[ "$FROM_ARCHIVE" == true ]]; then
   URL_ID="$derived_url_id"
   CRAWL_ID="$derived_crawl_id"
 else
-  if [[ "$IMPLICIT_STAGING" == false && -e "$RUNTIME_DIR/all" ]]; then
-    archive_guard="$(realpath -e -- "$RUNTIME_DIR/all")" || \
+  if [[ "$IMPLICIT_STAGING" == false && -e "$DATA_DIR/all" ]]; then
+    archive_guard="$(realpath -e -- "$DATA_DIR/all")" || \
       operator_failure archive_unsafe "Cannot resolve published root" 1
     if [[ "$INPUT_PATH" == "$archive_guard" || "$INPUT_PATH" == "$archive_guard"/* ]]; then
       operator_failure archive_scope_invalid \
@@ -658,7 +662,7 @@ collect_published_wets published_files published_digests || \
   operator_failure archive_corrupt "Published WET set validation failed" 1
 if [[ "$RESULT_FORMAT" == "json" ]]; then
   if [[ "$IMPLICIT_STAGING" == true ]]; then
-    inputs_json="$(runtime_operator_inputs_json "$RUNTIME_DIR" 0 \
+    inputs_json="$(runtime_operator_inputs_json "$DATA_DIR" 0 \
       "${published_files[@]}" "${ingest_files[@]}")" || \
       operator_failure input_json_failed "Cannot serialize the staged pair transaction" 1
   fi
@@ -676,8 +680,8 @@ if [[ "$FROM_ARCHIVE" == true ]]; then
 fi
 
 STAGING_ROOT=""
-if [[ -d "$RUNTIME_DIR/wet" && ! -L "$RUNTIME_DIR/wet" ]]; then
-  STAGING_ROOT="$(realpath -e -- "$RUNTIME_DIR/wet")"
+if [[ -d "$DATA_DIR/wet" && ! -L "$DATA_DIR/wet" ]]; then
+  STAGING_ROOT="$(realpath -e -- "$DATA_DIR/wet")"
 fi
 
 operator_log "[es-upsert] ${#ingest_files[@]} file(s), pair=$URL_ID/$CRAWL_ID → ES $ES_URL"
@@ -837,7 +841,7 @@ if [[ "$RESULT_FORMAT" == "json" && "$operator_exit" -ne 0 ]]; then
   publication_status="skipped"
 elif [[ "$FROM_ARCHIVE" == true ]]; then
   for file in "${ingest_files[@]}"; do
-    publication_paths+=("${file#"$RUNTIME_DIR"/}")
+    publication_paths+=("${file#"$DATA_DIR"/}")
   done
 else
   if ! publish_selected_set; then

@@ -53,6 +53,7 @@ Options:
   --url-id=<id>            required provenance URL identifier
   --crawl-id=<id>          required provenance crawl identifier
   --result-format=<format> json (default) or human
+  --data-dir=<path>        alternative WET_DIR output root folder
   -h, --help               show this help
 
 Single input: <runtime>/wet/<url-id>/<crawl-id>/<source>.wet.gz
@@ -69,6 +70,8 @@ URL_ID_SET=false
 CRAWL_ID_SET=false
 RESULT_FORMAT="json"
 POSITIONAL=()
+DATA_DIR=$RUNTIME_DIR
+
 
 while [[ $# -gt 0 ]]; do
   case "$1" in
@@ -96,6 +99,16 @@ while [[ $# -gt 0 ]]; do
       [[ $# -ge 2 ]] || { echo "Error: --crawl-id requires a value" >&2; exit 1; }
       CRAWL_ID="${2:-}"
       CRAWL_ID_SET=true
+      shift 2
+      ;;
+    --data-dir=*)
+      DATA_DIR="${1#*=}"
+      WET_DIR="$DATA_DIR/wet"
+      shift
+      ;;
+    --data-dir)
+      [[ $# -ge 2 ]] || { echo "Error: --data-dir requires a value" >&2; exit 1; }
+      DATA_DIR="${2:-}"
       shift 2
       ;;
     --result-format=*)

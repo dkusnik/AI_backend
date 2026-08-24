@@ -40,3 +40,10 @@ Configuration file is in app/conf/config.yaml, notable features:
 - filters, including MIME types
 
 See tool --help and dedicated README for each tool details.
+
+
+# update 2026.08.23
+
+./warc2wet.sh --data-dir=/opt/warc2es/out/tst/ --url-id=123 --crawl-id=456 ./in/plock.ap.gov.pl.warc.gz 
+./es-upsert.sh --url-id=123 --crawl-id=456 --data-dir=/opt/warc2es/out/tst
+./es-delete.sh --url-id=123 --crawl-id=456 --data-dir=/dev/null
