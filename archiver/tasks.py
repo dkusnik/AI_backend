@@ -652,8 +652,7 @@ def move_snapshot_to_production(snapshot_uid: str):
         url_id,
         "--crawl-id",
         crawl_id,
-        "--data-dir",
-        settings.WARC2ES_DATA_DIR,
+        f"--data-dir={settings.WARC2ES_DATA_DIR}",
         *warc_list,
     ]
 
@@ -678,8 +677,7 @@ def move_snapshot_to_production(snapshot_uid: str):
             url_id,
             "--crawl-id",
             crawl_id,
-            "--data-dir",
-            settings.WARC2ES_DATA_DIR,
+            f"--data-dir={settings.WARC2ES_DATA_DIR}",
         ],
         cwd=warc2es_dir,
         capture_output=True,
