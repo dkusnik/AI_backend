@@ -637,6 +637,8 @@ def move_snapshot_to_production(snapshot_uid: str):
     # --------------------------------------------------
 
     warc2es_dir = settings.WARC2ES_PATH
+    # ensure dir exists
+    os.makedirs(settings.WARC2ES_DATA_DIR, exist_ok=True)
 
     warc2es_script = os.path.join(warc2es_dir, "warc2wet.sh")
     es_upsert_script = os.path.join(warc2es_dir, "es-upsert.sh")
@@ -650,6 +652,8 @@ def move_snapshot_to_production(snapshot_uid: str):
         url_id,
         "--crawl-id",
         crawl_id,
+        "--data-dir",
+        settings.WARC2ES_DATA_DIR,
         *warc_list,
     ]
 
@@ -674,6 +678,8 @@ def move_snapshot_to_production(snapshot_uid: str):
             url_id,
             "--crawl-id",
             crawl_id,
+            "--data-dir",
+            settings.WARC2ES_DATA_DIR,
         ],
         cwd=warc2es_dir,
         capture_output=True,
