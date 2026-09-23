@@ -9,17 +9,31 @@ from archiver.models import Snapshot, Website
 
 
 def snapshot_list(request):
-    snapshots = Snapshot.objects.order_by("-created_at")
+    snapshots = (
+        Snapshot.objects
+        .select_related("website", "created_by")
+        .order_by("-created_at")
+    )
 
     return render(
         request,
         "snapshots/list.html",
-        {"snapshots": snapshots}
+        {
+            "snapshots": snapshots,
+        },
     )
 
 
 def snapshot_detail(request, snapshot_id: int):
-    snapshot = get_object_or_404(Snapshot, id=snapshot_id)
+    snapshot = get_object_or_404(
+        Snapshot.objects.select_related(
+            "website",
+            "created_by",
+        ).prefetch_related(
+            "warcs",
+        ),
+        id=snapshot_id,
+    )
 
     return render(
         request,
@@ -28,12 +42,20 @@ def snapshot_detail(request, snapshot_id: int):
             "snapshot": snapshot,
             "crawl": snapshot.crawl_stats or {},
             "process": snapshot.process_stats or {},
-        }
+            "container": snapshot.container_stats or {},
+            "stats": snapshot.stats or {},
+            "result": snapshot.result or {},
+            "crawler_config": snapshot.crawlerConfiguration or {},
+            "warcs": snapshot.warcs.order_by("filename"),
+        },
     )
 
 
 def snapshot_stats_partial(request, snapshot_id: int):
-    snapshot = get_object_or_404(Snapshot, id=snapshot_id)
+    snapshot = get_object_or_404(
+        Snapshot,
+        id=snapshot_id,
+    )
 
     return render(
         request,
@@ -42,7 +64,11 @@ def snapshot_stats_partial(request, snapshot_id: int):
             "snapshot": snapshot,
             "crawl": snapshot.crawl_stats or {},
             "process": snapshot.process_stats or {},
-        }
+            "container": snapshot.container_stats or {},
+            "stats": snapshot.stats or {},
+            "result": snapshot.result or {},
+            "crawler_config": snapshot.crawlerConfiguration or {},
+        },
     )
 
 
@@ -106,3 +132,15 @@ def seed_list(request):
         for website in websites
     ]
     return JsonResponse(data, safe=False)
+
+@csrf_exempt
+def mock_keycloak_token(request):
+    print("MOCK KEYCLOAK HIT")
+
+    return JsonResponse(
+        {
+            "access_token": "mock-access-token",
+            "expires_in": 3600,
+            "token_type": "Bearer",
+        }
+    )

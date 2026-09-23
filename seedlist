@@ -1,0 +1,1171 @@
+[
+  {
+    "id": 3438310,
+    "title": "Naczelna Dyrekcja Archiwów Państwowych",
+    "url": "http://archiwa.gov.pl",
+    "tags": "Archiwum Państwowe"
+  },
+  {
+    "id": 3438311,
+    "title": "Archiwum Akt Nowych",
+    "url": "http://aan.gov.pl",
+    "tags": "Archiwum Państwowe"
+  },
+  {
+    "id": 3438312,
+    "title": "Archiwum Główne Akt Dawnych",
+    "url": "http://agad.gov.pl",
+    "tags": "Archiwum Państwowe"
+  },
+  {
+    "id": 3438313,
+    "title": "Narodowe Archiwum Cyfrowe",
+    "url": "http://www.nac.gov.pl",
+    "tags": "Archiwum Państwowe"
+  },
+  {
+    "id": 3438314,
+    "title": "Archiwum Państwowe w Białymstoku",
+    "url": "http://bialystok.ap.gov.pl",
+    "tags": "Archiwum Państwowe"
+  },
+  {
+    "id": 3438315,
+    "title": "Archiwum Państwowe w Bydgoszczy",
+    "url": "http://bydgoszcz.ap.gov.pl",
+    "tags": "Archiwum Państwowe"
+  },
+  {
+    "id": 3438316,
+    "title": "Archiwum Państwowe w Częstochowie",
+    "url": "http://czestochowa.ap.gov.pl",
+    "tags": "Archiwum Państwowe"
+  },
+  {
+    "id": 3438317,
+    "title": "Archiwum Państwowe w Gdańsku",
+    "url": "http://gdansk.ap.gov.pl",
+    "tags": "Archiwum Państwowe"
+  },
+  {
+    "id": 3438318,
+    "title": "Archiwum Państwowe w Gorzowie Wielkopolskim",
+    "url": "http://gorzow.ap.gov.pl",
+    "tags": "Archiwum Państwowe"
+  },
+  {
+    "id": 3438319,
+    "title": "Archiwum Państwowe w Kaliszu",
+    "url": "http://archiwum.kalisz.pl",
+    "tags": "Archiwum Państwowe"
+  },
+  {
+    "id": 3438320,
+    "title": "Archiwum Państwowe w Katowicach",
+    "url": "http://katowice.ap.gov.pl",
+    "tags": "Archiwum Państwowe"
+  },
+  {
+    "id": 3438321,
+    "title": "Archiwum Państwowe w Kielcach",
+    "url": "http://kielce.ap.gov.pl",
+    "tags": "Archiwum Państwowe"
+  },
+  {
+    "id": 3438322,
+    "title": "Archiwum Państwowe w Koszalinie",
+    "url": "http://koszalin.ap.gov.pl",
+    "tags": "Archiwum Państwowe"
+  },
+  {
+    "id": 3438323,
+    "title": "Archiwum Narodowe w Krakowie",
+    "url": "http://ank.gov.pl",
+    "tags": "Archiwum Państwowe"
+  },
+  {
+    "id": 3438324,
+    "title": "Archiwum Państwowe w Lesznie",
+    "url": "http://archiwum.leszno.pl",
+    "tags": "Archiwum Państwowe"
+  },
+  {
+    "id": 3438325,
+    "title": "Archiwum Państwowe w Lublinie",
+    "url": "http://lublin.ap.gov.pl",
+    "tags": "Archiwum Państwowe"
+  },
+  {
+    "id": 3438326,
+    "title": "Archiwum Państwowe w Łodzi",
+    "url": "http://lodz.ap.gov.pl",
+    "tags": "Archiwum Państwowe"
+  },
+  {
+    "id": 3438327,
+    "title": "Archiwum Państwowe w Malborku",
+    "url": "http://malbork.ap.gov.pl",
+    "tags": "Archiwum Państwowe"
+  },
+  {
+    "id": 3438328,
+    "title": "Archiwum Państwowe w Olsztynie",
+    "url": "http://olsztyn.ap.gov.pl",
+    "tags": "Archiwum Państwowe"
+  },
+  {
+    "id": 3438329,
+    "title": "Archiwum Państwowe w Piotrkowie Trybunalskim",
+    "url": "http://piotrkow-tryb.ap.gov.pl",
+    "tags": "Archiwum Państwowe"
+  },
+  {
+    "id": 3438330,
+    "title": "Archiwum Państwowe w Płocku",
+    "url": "http://plock.ap.gov.pl",
+    "tags": "Archiwum Państwowe"
+  },
+  {
+    "id": 3438331,
+    "title": "Archiwum Państwowe w Poznaniu",
+    "url": "http://poznan.ap.gov.pl",
+    "tags": "Archiwum Państwowe"
+  },
+  {
+    "id": 3438332,
+    "title": "Archiwum Państwowe w Przemyślu",
+    "url": "http://przemysl.ap.gov.pl",
+    "tags": "Archiwum Państwowe"
+  },
+  {
+    "id": 3438333,
+    "title": "Archiwum Państwowe w Radomiu",
+    "url": "http://radom.ap.gov.pl",
+    "tags": "Archiwum Państwowe"
+  },
+  {
+    "id": 3438334,
+    "title": "Archiwum Państwowe w Rzeszowie",
+    "url": "http://rzeszow.ap.gov.pl",
+    "tags": "Archiwum Państwowe"
+  },
+  {
+    "id": 3438335,
+    "title": "Archiwum Państwowe w Siedlcach",
+    "url": "http://siedlce.ap.gov.pl",
+    "tags": "Archiwum Państwowe"
+  },
+  {
+    "id": 3438336,
+    "title": "Archiwum Państwowe w Suwałkach",
+    "url": "http://suwalki.ap.gov.pl",
+    "tags": "Archiwum Państwowe"
+  },
+  {
+    "id": 3438337,
+    "title": "Archiwum Państwowe w Toruniu",
+    "url": "http://torun.ap.gov.pl",
+    "tags": "Archiwum Państwowe"
+  },
+  {
+    "id": 3438338,
+    "title": "Archiwum Państwowe w Warszawie",
+    "url": "http://warszawa.ap.gov.pl",
+    "tags": "Archiwum Państwowe"
+  },
+  {
+    "id": 3438339,
+    "title": "Archiwum Państwowe we Wrocławiu",
+    "url": "http://ap.wroc.pl",
+    "tags": "Archiwum Państwowe"
+  },
+  {
+    "id": 3438340,
+    "title": "Archiwum Państwowe w Zamościu",
+    "url": "http://zamosc.ap.gov.pl",
+    "tags": "Archiwum Państwowe"
+  },
+  {
+    "id": 3438341,
+    "title": "Archiwum Państwowe w Zielonej Górze",
+    "url": "http://archiwum.zgora.pl",
+    "tags": "Archiwum Państwowe"
+  },
+  {
+    "id": 3438343,
+    "title": "Narodowe Muzeum Morskie w Gdańsku",
+    "url": "http://nmm.pl",
+    "tags": "Instytucja kultury lub nauki"
+  },
+  {
+    "id": 3438344,
+    "title": "Polska Akademia Nauk",
+    "url": "http://pan.pl",
+    "tags": "Instytucja kultury lub nauki"
+  },
+  {
+    "id": 3438345,
+    "title": "Polska Akademia Umiejętności",
+    "url": "http://pau.krakow.pl",
+    "tags": "Instytucja kultury lub nauki"
+  },
+  {
+    "id": 3438347,
+    "title": "Narodowy Bank Polski",
+    "url": "http://nbp.pl",
+    "tags": "Urząd centralny"
+  },
+  {
+    "id": 3438348,
+    "title": "Narodowe Centrum Kultury",
+    "url": "http://nck.pl",
+    "tags": "Instytucja kultury lub nauki"
+  },
+  {
+    "id": 3438349,
+    "title": "Instytut Książki",
+    "url": "http://instytutksiazki.pl",
+    "tags": "Instytucja kultury lub nauki"
+  },
+  {
+    "id": 3438350,
+    "title": "Narodowy Instytut Dziedzictwa",
+    "url": "http://nid.pl",
+    "tags": "Instytucja kultury lub nauki"
+  },
+  {
+    "id": 3438351,
+    "title": "Instytut Sportu",
+    "url": "http://insp.pl",
+    "tags": "Instytucja kultury lub nauki"
+  },
+  {
+    "id": 3438352,
+    "title": "Prezydent RP",
+    "url": "http://prezydent.pl",
+    "tags": "Urząd centralny"
+  },
+  {
+    "id": 3438353,
+    "title": "Najwyższa Izba Kontroli",
+    "url": "http://nik.gov.pl",
+    "tags": "Urząd centralny"
+  },
+  {
+    "id": 3438354,
+    "title": "Urząd Komunikacji Elektronicznej",
+    "url": "http://uke.gov.pl",
+    "tags": "Urząd centralny"
+  },
+  {
+    "id": 3438355,
+    "title": "Główny Inspektorat Rybołówstwa Morskiego",
+    "url": "http://girm.gov.pl",
+    "tags": "Urząd centralny"
+  },
+  {
+    "id": 3438357,
+    "title": "Dolnośląski Urząd Wojewódzki",
+    "url": "http://duw.pl",
+    "tags": "Urząd samorządowy"
+  },
+  {
+    "id": 3438358,
+    "title": "Dolnośląski Urząd Wojewódzki",
+    "url": "http://gdansk.uw.gov.pl",
+    "tags": "Urząd samorządowy"
+  },
+  {
+    "id": 3438359,
+    "title": "Podkarpacki Urząd Wojewódzki",
+    "url": "http://rzeszow.uw.gov.pl",
+    "tags": "Urząd samorządowy"
+  },
+  {
+    "id": 3438360,
+    "title": "Archiwum Państwowe w Szczecinie",
+    "url": "http://szczecin.ap.gov.pl",
+    "tags": "Archiwum Państwowe"
+  },
+  {
+    "id": 3438361,
+    "title": "Senat RP",
+    "url": "http://senat.gov.pl",
+    "tags": "Urząd centralny"
+  },
+  {
+    "id": 3438362,
+    "title": "Sąd Najwyższy",
+    "url": "http://sn.pl",
+    "tags": "Urząd centralny"
+  },
+  {
+    "id": 3438363,
+    "title": "Trybunał Konstytucyjny",
+    "url": "http://trybunal.gov.pl",
+    "tags": "Urząd centralny"
+  },
+  {
+    "id": 3438364,
+    "title": "Naczelny Sąd Administracyjny",
+    "url": "http://nsa.gov.pl",
+    "tags": "Urząd centralny"
+  },
+  {
+    "id": 3438365,
+    "title": "Główny Urząd Statystyczny",
+    "url": "http://stat.gov.pl",
+    "tags": "Urząd centralny"
+  },
+  {
+    "id": 3438366,
+    "title": "Urząd Ochrony Konkurencji i Konsumentów",
+    "url": "http://uokik.gov.pl",
+    "tags": "Urząd centralny"
+  },
+  {
+    "id": 3438367,
+    "title": "Wyższy Urząd Górniczy",
+    "url": "http://wug.gov.pl",
+    "tags": "Urząd centralny"
+  },
+  {
+    "id": 3438368,
+    "title": "Instytut Pamięci Narodowej",
+    "url": "http://ipn.gov.pl",
+    "tags": "Instytucja kultury lub nauki"
+  },
+  {
+    "id": 3438369,
+    "title": "Urząd ds. kombatantów i osób represjonowanych",
+    "url": "http://kombatanci.gov.pl",
+    "tags": "Urząd centralny"
+  },
+  {
+    "id": 3438370,
+    "title": "Krajowa Szkoła Administracji Publicznej",
+    "url": "http://ksap.gov.pl",
+    "tags": "Urząd centralny"
+  },
+  {
+    "id": 3438371,
+    "title": "Urząd Ochrony Danych Osobowych",
+    "url": "http://uodo.gov.pl",
+    "tags": "Urząd centralny"
+  },
+  {
+    "id": 3438372,
+    "title": "Rzecznik Praw Obywatelskich",
+    "url": "http://bip.brpo.gov.pl",
+    "tags": "Urząd centralny"
+  },
+  {
+    "id": 3438373,
+    "title": "Narodowy Fundusz Zdrowia",
+    "url": "http://nfz.gov.pl",
+    "tags": "Urząd centralny"
+  },
+  {
+    "id": 3438374,
+    "title": "Filmoteka Narodowa",
+    "url": "http://fina.gov.pl",
+    "tags": "Instytucja kultury lub nauki"
+  },
+  {
+    "id": 3438375,
+    "title": "Małopolski Urząd Wojewódzki",
+    "url": "http://malopolska.uw.gov.pl",
+    "tags": "Urząd samorządowy"
+  },
+  {
+    "id": 3438376,
+    "title": "Muzeum Narodowe w Warszawie",
+    "url": "http://mnw.art.pl",
+    "tags": "Instytucja kultury lub nauki"
+  },
+  {
+    "id": 3438377,
+    "title": "Muzeum Narodowe w Krakowie",
+    "url": "http://mnk.pl",
+    "tags": "Instytucja kultury lub nauki"
+  },
+  {
+    "id": 3438378,
+    "title": "Muzeum Narodowe w Szczecinie",
+    "url": "http://muzeum.szczecin.pl",
+    "tags": "Instytucja kultury lub nauki"
+  },
+  {
+    "id": 3438379,
+    "title": "Muzeum Narodowe we Wrocławiu",
+    "url": "http://mnwr.pl",
+    "tags": "Instytucja kultury lub nauki"
+  },
+  {
+    "id": 3438380,
+    "title": "Muzeum Narodowe w Kielcach",
+    "url": "http://mnki.pl",
+    "tags": "Instytucja kultury lub nauki"
+  },
+  {
+    "id": 3438381,
+    "title": "Muzeum Narodowe w Gdańsku",
+    "url": "http://mng.gda.pl",
+    "tags": "Instytucja kultury lub nauki"
+  },
+  {
+    "id": 3438382,
+    "title": "Sejm RP",
+    "url": "http://sejm.gov.pl",
+    "tags": "Urząd centralny"
+  },
+  {
+    "id": 3438383,
+    "title": "Kancelaria Prezesa Rady Ministrów",
+    "url": "http://www.gov.pl/web/premier",
+    "tags": "Urząd centralny"
+  },
+  {
+    "id": 3438384,
+    "title": "Ministerstwo Kultury i Dziedzictwa Narodowego",
+    "url": "http://www.gov.pl/web/kultura",
+    "tags": "Urząd centralny"
+  },
+  {
+    "id": 3438385,
+    "title": "Ministerstwo Spraw Zagranicznych",
+    "url": "http://www.gov.pl/web/dyplomacja",
+    "tags": "Urząd centralny"
+  },
+  {
+    "id": 3438386,
+    "title": "Ministerstwo Edukacji i Nauki",
+    "url": "http://www.gov.pl/web/edukacja-i-nauka",
+    "tags": "Urząd centralny"
+  },
+  {
+    "id": 3438387,
+    "title": "Ministerstwo Cyfryzacji",
+    "url": "http://www.gov.pl/web/cyfryzacja",
+    "tags": "Urząd centralny"
+  },
+  {
+    "id": 3438388,
+    "title": "Ministerstwo Obrony Narodowej",
+    "url": "http://www.gov.pl/web/obrona-narodowa",
+    "tags": "Urząd centralny"
+  },
+  {
+    "id": 3438389,
+    "title": "Ministerstwo Finansów",
+    "url": "http://www.gov.pl/web/finanse",
+    "tags": "Urząd centralny"
+  },
+  {
+    "id": 3438390,
+    "title": "Generalna Dyrekcja Dróg Krajowych i Autostrad",
+    "url": "http://www.gov.pl/web/gddkia/generalna-dyrekcja-drog-krajowych-i-autostrad",
+    "tags": "Urząd centralny"
+  },
+  {
+    "id": 3438391,
+    "title": "Urząd ds. Cudzoziemców",
+    "url": "http://www.gov.pl/web/udsc/urzad-do-spraw-cudzoziemcow",
+    "tags": "Urząd centralny"
+  },
+  {
+    "id": 3438392,
+    "title": "Generalna Dyrekcja Ochrony Środowiska",
+    "url": "http://www.gov.pl/web/gdos",
+    "tags": "Urząd centralny"
+  },
+  {
+    "id": 3438393,
+    "title": "Komenda Główna Państwowej Straży Pożarnej",
+    "url": "http://www.gov.pl/web/kgpsp",
+    "tags": "Urząd centralny"
+  },
+  {
+    "id": 3438394,
+    "title": "Prokuratoria Generalna",
+    "url": "http://www.gov.pl/web/prokuratoria",
+    "tags": "Urząd centralny"
+  },
+  {
+    "id": 3438395,
+    "title": "Mazowiecki Urząd Wojewódzki",
+    "url": "http://www.gov.pl/web/uw-mazowiecki",
+    "tags": "Urząd samorządowy"
+  },
+  {
+    "id": 3438396,
+    "title": "Państwowa Agencja Atomistyki",
+    "url": "http://www.gov.pl/web/paa/panstwowa-agencja-atomistyki",
+    "tags": "Urząd centralny"
+  },
+  {
+    "id": 3438397,
+    "title": "Serwis Służby Cywilnej",
+    "url": "http://www.gov.pl/web/sluzbacywilna",
+    "tags": "Urząd centralny"
+  },
+  {
+    "id": 3438398,
+    "title": "Samorząd Województwa Pomorskiego",
+    "url": "http://pomorskie.eu/samorzad-wojewodztwa-pomorskiego",
+    "tags": "Urząd samorządowy"
+  },
+  {
+    "id": 3438400,
+    "title": "Naczelna Dyrekcja Archiwów Państwowych BIP",
+    "url": "http://ndap.bip.gov.pl",
+    "tags": "Archiwum Państwowe, Biuletyn Informacji Publicznej"
+  },
+  {
+    "id": 3438401,
+    "title": "Archiwum Akt Nowych BIP",
+    "url": "http://www.aan.gov.pl/bip",
+    "tags": "Biuletyn Informacji Publicznej, Archiwum Państwowe"
+  },
+  {
+    "id": 3438402,
+    "title": "Archiwum Główne Akt Dawnych BIP",
+    "url": "http://agad.bip.gov.pl",
+    "tags": "Archiwum Państwowe, Biuletyn Informacji Publicznej"
+  },
+  {
+    "id": 3438403,
+    "title": "Narodowe Archiwum Cyfrowe BIP",
+    "url": "http://nac.ssdip.bip.gov.pl",
+    "tags": "Biuletyn Informacji Publicznej, Archiwum Państwowe"
+  },
+  {
+    "id": 3438404,
+    "title": "Archiwum Państwowe w Białymstoku BIP",
+    "url": "http://apbialystok.bip.gov.pl",
+    "tags": "Biuletyn Informacji Publicznej, Archiwum Państwowe"
+  },
+  {
+    "id": 3438405,
+    "title": "Archiwum Państwowe w Bydgoszczy BIP",
+    "url": "http://apbydgoszcz.bip.gov.pl",
+    "tags": "Archiwum Państwowe, Biuletyn Informacji Publicznej"
+  },
+  {
+    "id": 3438406,
+    "title": "Archiwum Państwowe w Częstochowie BIP",
+    "url": "http://apczestochowa.bip.gov.pl",
+    "tags": "Biuletyn Informacji Publicznej, Archiwum Państwowe"
+  },
+  {
+    "id": 3438407,
+    "title": "Archiwum Państwowe w Gdańsku BIP",
+    "url": "http://apgdansk.bip.gov.pl",
+    "tags": "Archiwum Państwowe, Biuletyn Informacji Publicznej"
+  },
+  {
+    "id": 3438408,
+    "title": "Archiwum Państwowe w Gorzowie Wielkopolskim BIP",
+    "url": "http://apg.bip.gov.pl",
+    "tags": "Biuletyn Informacji Publicznej, Archiwum Państwowe"
+  },
+  {
+    "id": 3438409,
+    "title": "Archiwum Państwowe w Kaliszu BIP",
+    "url": "http://archkal.bip.gov.pl",
+    "tags": "Archiwum Państwowe, Biuletyn Informacji Publicznej"
+  },
+  {
+    "id": 3438410,
+    "title": "Archiwum Państwowe w Katowicach BIP",
+    "url": "http://archiwumkatowice.bip.gov.pl",
+    "tags": "Archiwum Państwowe, Biuletyn Informacji Publicznej"
+  },
+  {
+    "id": 3438411,
+    "title": "Archiwum Państwowe w Kielcach BIP",
+    "url": "http://apkielce.bip.gov.pl",
+    "tags": "Biuletyn Informacji Publicznej, Archiwum Państwowe"
+  },
+  {
+    "id": 3438412,
+    "title": "Archiwum Państwowe w Koszalinie BIP",
+    "url": "http://apkoszalin.bip.gov.pl",
+    "tags": "Archiwum Państwowe, Biuletyn Informacji Publicznej"
+  },
+  {
+    "id": 3438413,
+    "title": "Archiwum Narodowe w Krakowie BIP",
+    "url": "http://bip.malopolska.pl/ankrakow",
+    "tags": "Archiwum Państwowe, Biuletyn Informacji Publicznej"
+  },
+  {
+    "id": 3438414,
+    "title": "Archiwum Państwowe w Lesznie BIP",
+    "url": "http://archiwumleszno.bip.gov.pl",
+    "tags": "Archiwum Państwowe, Biuletyn Informacji Publicznej"
+  },
+  {
+    "id": 3438415,
+    "title": "Archiwum Państwowe w Lublinie BIP",
+    "url": "http://lublinarchiwum.bip.gov.pl",
+    "tags": "Archiwum Państwowe, Biuletyn Informacji Publicznej"
+  },
+  {
+    "id": 3438416,
+    "title": "Archiwum Państwowe w Łodzi BIP",
+    "url": "http://aplodz.bip.gov.pl",
+    "tags": "Archiwum Państwowe, Biuletyn Informacji Publicznej"
+  },
+  {
+    "id": 3438417,
+    "title": "Archiwum Państwowe w Malborku BIP",
+    "url": "http://apm.bip.gov.pl",
+    "tags": "Biuletyn Informacji Publicznej, Archiwum Państwowe"
+  },
+  {
+    "id": 3438418,
+    "title": "Archiwum Państwowe w Olsztynie BIP",
+    "url": "http://apolsztyn.bip.gov.pl",
+    "tags": "Archiwum Państwowe, Biuletyn Informacji Publicznej"
+  },
+  {
+    "id": 3438419,
+    "title": "Archiwum Państwowe w Piotrkowie Trybunalskim BIP",
+    "url": "http://appiotrkow.bip.gov.pl",
+    "tags": "Biuletyn Informacji Publicznej, Archiwum Państwowe"
+  },
+  {
+    "id": 3438420,
+    "title": "Archiwum Państwowe w Płocku BIP",
+    "url": "http://applock.bip.gov.pl",
+    "tags": "Archiwum Państwowe, Biuletyn Informacji Publicznej"
+  },
+  {
+    "id": 3438421,
+    "title": "Archiwum Państwowe w Poznaniu BIP",
+    "url": "http://appoznan.bip.gov.pl",
+    "tags": "Biuletyn Informacji Publicznej, Archiwum Państwowe"
+  },
+  {
+    "id": 3438422,
+    "title": "Archiwum Państwowe w Przemyślu BIP",
+    "url": "http://app.bip.gov.pl",
+    "tags": "Archiwum Państwowe, Biuletyn Informacji Publicznej"
+  },
+  {
+    "id": 3438423,
+    "title": "Archiwum Państwowe w Radomiu BIP",
+    "url": "http://apradom.bip.gov.pl",
+    "tags": "Archiwum Państwowe, Biuletyn Informacji Publicznej"
+  },
+  {
+    "id": 3438424,
+    "title": "Archiwum Państwowe w Rzeszowie BIP",
+    "url": "http://aprzeszow.bip.gov.pl",
+    "tags": "Biuletyn Informacji Publicznej, Archiwum Państwowe"
+  },
+  {
+    "id": 3438425,
+    "title": "Archiwum Państwowe w Siedlcach BIP",
+    "url": "http://apsiedlce.bip.gov.pl",
+    "tags": "Archiwum Państwowe, Biuletyn Informacji Publicznej"
+  },
+  {
+    "id": 3438426,
+    "title": "Archiwum Państwowe w Suwałkach BIP",
+    "url": "http://bip.suwalki.ap.gov.pl",
+    "tags": "Archiwum Państwowe, Biuletyn Informacji Publicznej"
+  },
+  {
+    "id": 3438427,
+    "title": "Archiwum Państwowe w Szczecinie BIP",
+    "url": "http://apszczecin.bip.gov.pl",
+    "tags": "Biuletyn Informacji Publicznej, Archiwum Państwowe"
+  },
+  {
+    "id": 3438428,
+    "title": "Archiwum Państwowe w Toruniu BIP",
+    "url": "http://aptorun.bip.gov.pl",
+    "tags": "Biuletyn Informacji Publicznej, Archiwum Państwowe"
+  },
+  {
+    "id": 3438429,
+    "title": "Archiwum Państwowe w Warszawie BIP",
+    "url": "http://2564fftxyr.bip.gov.pl",
+    "tags": "Biuletyn Informacji Publicznej, Archiwum Państwowe"
+  },
+  {
+    "id": 3438430,
+    "title": "Archiwum Państwowe we Wrocławiu BIP",
+    "url": "http://apwroclaw.bip.gov.pl",
+    "tags": "Archiwum Państwowe, Biuletyn Informacji Publicznej"
+  },
+  {
+    "id": 3438431,
+    "title": "Archiwum Państwowe w Zamościu BIP",
+    "url": "http://archiwumzamosc.bip.gov.pl",
+    "tags": "Biuletyn Informacji Publicznej, Archiwum Państwowe"
+  },
+  {
+    "id": 3438432,
+    "title": "Archiwum Państwowe w Zielonej Górze BIP",
+    "url": "http://apzg.bip.gov.pl",
+    "tags": "Archiwum Państwowe, Biuletyn Informacji Publicznej"
+  },
+  {
+    "id": 3438433,
+    "title": "Ministerstwo Kultury i Dziedzictwa Narodowego BIP",
+    "url": "http://bip.mkidn.gov.pl",
+    "tags": "Biuletyn Informacji Publicznej, Urząd centralny"
+  },
+  {
+    "id": 3438434,
+    "title": "Ministerstwo Spraw Zagranicznych BIP",
+    "url": "http://www.gov.pl/web/dyplomacja/bip",
+    "tags": "Urząd centralny, Biuletyn Informacji Publicznej"
+  },
+  {
+    "id": 3438435,
+    "title": "Ministerstwo Edukacji i Nauki BIP",
+    "url": "http://www.gov.pl/web/edukacja-i-nauka/biuletyn-informacji-publicznej-mein",
+    "tags": "Biuletyn Informacji Publicznej, Urząd centralny"
+  },
+  {
+    "id": 3438436,
+    "title": "Ministerstwo Cyfryzacji BIP",
+    "url": "http://mc.bip.gov.pl",
+    "tags": "Biuletyn Informacji Publicznej, Urząd centralny"
+  },
+  {
+    "id": 3438437,
+    "title": "Prezydent RP BIP",
+    "url": "http://www.prezydent.pl/bip",
+    "tags": "Biuletyn Informacji Publicznej, Urząd centralny"
+  },
+  {
+    "id": 3438438,
+    "title": "Najwyższa Izba Kontroli BIP",
+    "url": "http://bip.nik.gov.pl",
+    "tags": "Urząd centralny, Biuletyn Informacji Publicznej"
+  },
+  {
+    "id": 3438439,
+    "title": "Sąd Najwyższy BIP",
+    "url": "http://www.sn.pl/BIP",
+    "tags": "Biuletyn Informacji Publicznej, Urząd centralny"
+  },
+  {
+    "id": 3438440,
+    "title": "Naczelny Sąd Administracyjny BIP",
+    "url": "http://www.nsa.gov.pl/bip.php",
+    "tags": "Urząd centralny, Biuletyn Informacji Publicznej"
+  },
+  {
+    "id": 3438441,
+    "title": "Generalna Dyrekcja Dróg Krajowych i Autostrad BIP",
+    "url": "http://gddkia.bip.gov.pl",
+    "tags": "Urząd centralny, Biuletyn Informacji Publicznej"
+  },
+  {
+    "id": 3438442,
+    "title": "Generalna Dyrekcja Ochrony Środowiska BIP",
+    "url": "http://archiwum-bip.gdos.gov.pl",
+    "tags": "Biuletyn Informacji Publicznej, Urząd centralny"
+  },
+  {
+    "id": 3438443,
+    "title": "Główny Urząd Statystyczny BIP",
+    "url": "http://bip.stat.gov.pl",
+    "tags": "Urząd centralny, Biuletyn Informacji Publicznej"
+  },
+  {
+    "id": 3438444,
+    "title": "Urząd Ochrony Konkurencji i Konsumentów BIP",
+    "url": "http://uokik.gov.pl/bip.php",
+    "tags": "Urząd centralny, Biuletyn Informacji Publicznej"
+  },
+  {
+    "id": 3438445,
+    "title": "Urząd Komunikacji Elektronicznej BIP",
+    "url": "http://bip.uke.gov.pl",
+    "tags": "Biuletyn Informacji Publicznej, Urząd centralny"
+  },
+  {
+    "id": 3438446,
+    "title": "Prokuratoria Generalna BIP",
+    "url": "http://prokuratoria.bip.gov.pl",
+    "tags": "Urząd centralny, Biuletyn Informacji Publicznej"
+  },
+  {
+    "id": 3438447,
+    "title": "Wyższy Urząd Górniczy BIP",
+    "url": "http://wug.bip.info.pl",
+    "tags": "Urząd centralny, Biuletyn Informacji Publicznej"
+  },
+  {
+    "id": 3438448,
+    "title": "Główny Inspektorat Rybołówstwa Morskiego",
+    "url": "http://www.gov.pl/web/girm",
+    "tags": "Urząd centralny"
+  },
+  {
+    "id": 3438449,
+    "title": "Komenda Główna Państwowej Straży Pożarnej BIP",
+    "url": "http://www.gov.pl/web/bip/komenda-glowna-panstwowej-strazy-pozarnej",
+    "tags": "Biuletyn Informacji Publicznej, Urząd centralny"
+  },
+  {
+    "id": 3438450,
+    "title": "Mazowiecki Urząd Wojewódzki BIP",
+    "url": "http://bip.mazowieckie.pl",
+    "tags": "Urząd samorządowy, Biuletyn Informacji Publicznej"
+  },
+  {
+    "id": 3438451,
+    "title": "Małopolski Urząd Wojewódzki BIP",
+    "url": "http://bip.malopolska.pl/muw",
+    "tags": "Urząd samorządowy, Biuletyn Informacji Publicznej"
+  },
+  {
+    "id": 3438452,
+    "title": "Dolnośląski Urząd Wojewódzki BIP",
+    "url": "http://bip.duw.pl",
+    "tags": "Urząd samorządowy, Biuletyn Informacji Publicznej"
+  },
+  {
+    "id": 3438453,
+    "title": "Dolnośląski Urząd Wojewódzki BIP",
+    "url": "http://uwgdansk.bip.gov.pl",
+    "tags": "Biuletyn Informacji Publicznej, Urząd samorządowy"
+  },
+  {
+    "id": 3438454,
+    "title": "Instytut Pamięci Narodowej BIP",
+    "url": "http://katalog.bip.ipn.gov.pl",
+    "tags": "Biuletyn Informacji Publicznej, Instytucja kultury lub nauki"
+  },
+  {
+    "id": 3438455,
+    "title": "Urząd ds. kombatantów i osób represjonowanych BIP",
+    "url": "http://bip.kombatanci.gov.pl",
+    "tags": "Urząd centralny, Biuletyn Informacji Publicznej"
+  },
+  {
+    "id": 3438456,
+    "title": "Krajowa Szkoła Administracji Publicznej BIP",
+    "url": "http://bip.ksap.gov.pl",
+    "tags": "Biuletyn Informacji Publicznej, Urząd centralny"
+  },
+  {
+    "id": 3438457,
+    "title": "Urząd Ochrony Danych Osobowych BIP",
+    "url": "http://uodo.gov.pl/445",
+    "tags": "Biuletyn Informacji Publicznej, Urząd centralny"
+  },
+  {
+    "id": 3438458,
+    "title": "Rzecznik Praw Obywatelskich",
+    "url": "http://bip.brpo.gov.pl/pl",
+    "tags": "Urząd centralny"
+  },
+  {
+    "id": 3438459,
+    "title": "Narodowy Fundusz Zdrowia BIP",
+    "url": "http://www.nfz.gov.pl/bip",
+    "tags": "Urząd centralny, Biuletyn Informacji Publicznej"
+  },
+  {
+    "id": 3438460,
+    "title": "Filmoteka Narodowa BIP",
+    "url": "http://fina.bip.gov.pl",
+    "tags": "Instytucja kultury lub nauki, Biuletyn Informacji Publicznej"
+  },
+  {
+    "id": 3438461,
+    "title": "Urząd Marszałkowski Województwa Dolnośląskiego BIP",
+    "url": "http://bip.dolnyslask.pl",
+    "tags": "Urząd samorządowy, Biuletyn Informacji Publicznej"
+  },
+  {
+    "id": 3438462,
+    "title": "Mazowiecki Urząd Wojewódzki BIP",
+    "url": "bip.mazovia.pl",
+    "tags": ""
+  },
+  {
+    "id": 3438463,
+    "title": "Samorząd Województwa Pomorskiego BIP",
+    "url": "http://www.bip.pomorskie.eu",
+    "tags": "Urząd samorządowy, Biuletyn Informacji Publicznej"
+  },
+  {
+    "id": 3438464,
+    "title": "Urząd Marszałkowski Województwa Podkarpackiego BIP",
+    "url": "http://bip.podkarpackie.pl",
+    "tags": "Biuletyn Informacji Publicznej, Urząd samorządowy"
+  },
+  {
+    "id": 3438465,
+    "title": "Urząd Marszałkowski Województwa Lubuskiego BIP",
+    "url": "http://bip.lubuskie.pl",
+    "tags": "Biuletyn Informacji Publicznej, Urząd samorządowy"
+  },
+  {
+    "id": 3438466,
+    "title": "Muzeum Narodowe w Warszawie BIP",
+    "url": "http://bip.mnw.art.pl",
+    "tags": "Instytucja kultury lub nauki, Biuletyn Informacji Publicznej"
+  },
+  {
+    "id": 3438467,
+    "title": "Muzeum Narodowe w Krakowie BIP",
+    "url": "http://bip.malopolska.pl/mnkrakow",
+    "tags": "Instytucja kultury lub nauki, Biuletyn Informacji Publicznej"
+  },
+  {
+    "id": 3438469,
+    "title": "Muzeum Narodowe w Szczecinie BIP",
+    "url": "http://bip.muzeum.szczecin.pl",
+    "tags": "Biuletyn Informacji Publicznej, Instytucja kultury lub nauki"
+  },
+  {
+    "id": 3438473,
+    "title": "Muzeum Narodowe we Wrocławiu BIP",
+    "url": "http://bip.mnwr.pl",
+    "tags": "Instytucja kultury lub nauki, Biuletyn Informacji Publicznej"
+  },
+  {
+    "id": 3438474,
+    "title": "Muzeum Narodowe w Kielcach BIP",
+    "url": "http://bip.mnki.pl",
+    "tags": "Instytucja kultury lub nauki, Biuletyn Informacji Publicznej"
+  },
+  {
+    "id": 3438475,
+    "title": "Muzeum Narodowe w Gdańsku BIP",
+    "url": "http://mng.bip.gov.pl",
+    "tags": "Biuletyn Informacji Publicznej, Instytucja kultury lub nauki"
+  },
+  {
+    "id": 3438476,
+    "title": "Narodowe Muzeum Morskie w Gdańsku BIP",
+    "url": "http://bip.nmm.pl",
+    "tags": "Biuletyn Informacji Publicznej, Instytucja kultury lub nauki"
+  },
+  {
+    "id": 3438477,
+    "title": "Polska Akademia Nauk BIP",
+    "url": "http://bip.pan.pl",
+    "tags": "Biuletyn Informacji Publicznej, Instytucja kultury lub nauki"
+  },
+  {
+    "id": 3438478,
+    "title": "Narodowy Bank Polski",
+    "url": "http://bip.nbp.pl",
+    "tags": "Urząd centralny, Biuletyn Informacji Publicznej"
+  },
+  {
+    "id": 3438479,
+    "title": "Narodowe Centrum Kultury BIP",
+    "url": "http://www.nck.pl/bip",
+    "tags": "Biuletyn Informacji Publicznej, Instytucja kultury lub nauki"
+  },
+  {
+    "id": 3438480,
+    "title": "Instytut Książki BIP",
+    "url": "http://bip.instytutksiazki.pl",
+    "tags": "Instytucja kultury lub nauki, Biuletyn Informacji Publicznej"
+  },
+  {
+    "id": 3438481,
+    "title": "Narodowy Instytut Dziedzictwa BIP",
+    "url": "http://nid.pl/bip",
+    "tags": "Biuletyn Informacji Publicznej, Instytucja kultury lub nauki"
+  },
+  {
+    "id": 3438482,
+    "title": "Instytut Sportu BIP",
+    "url": "http://bip.insp.waw.pl",
+    "tags": "Instytucja kultury lub nauki, Biuletyn Informacji Publicznej"
+  },
+  {
+    "id": 3438483,
+    "title": "Radio dla Ciebie",
+    "url": "http://rdc.pl",
+    "tags": ""
+  },
+  {
+    "id": 3438484,
+    "title": "Archiwum Państwowe w Opolu BIP",
+    "url": "ap_opole.bip.gov.pl",
+    "tags": ""
+  },
+  {
+    "id": 3438485,
+    "title": "Małopolski Urząd Wojewódzki BIP",
+    "url": "bip.malopolska.pl/umwm",
+    "tags": ""
+  },
+  {
+    "id": 3438486,
+    "title": "Podlaski Urząd Wojewódzki BIP",
+    "url": "bip.podlaskie.eu",
+    "tags": ""
+  },
+  {
+    "id": 3438487,
+    "title": "Samorząd Województwa Pomorskiego",
+    "url": "pomorskie.eu/samorzad-wojewodztwa-pomorskiegorcd.pl",
+    "tags": ""
+  },
+  {
+    "id": 3438489,
+    "title": "Urząd Miasta Racibórz",
+    "url": "https://www.raciborz.pl",
+    "tags": "Powódź"
+  },
+  {
+    "id": 3438490,
+    "title": "Strona Główna Biuletynu Informacji Publicznej",
+    "url": "www.gov.pl/web/bip",
+    "tags": ""
+  },
+  {
+    "id": 3438491,
+    "title": "Archiwum Państwowe we Wrocławiu",
+    "url": "https://www.wroclaw.ap.gov.pl",
+    "tags": "Powódź"
+  },
+  {
+    "id": 3438492,
+    "title": "Urząd Miasta i Gminy Lądek-Zdrój",
+    "url": "https://ladek.pl",
+    "tags": "Powódź"
+  },
+  {
+    "id": 3438493,
+    "title": "Urząd Miasta i Gminy Lewin Brzeski",
+    "url": "https://lewin-brzeski.pl",
+    "tags": "Powódź"
+  },
+  {
+    "id": 3438494,
+    "title": "Urząd Miasta i Gminy Międzylesie",
+    "url": "https://miedzylesie.pl",
+    "tags": "Powódź"
+  },
+  {
+    "id": 3438495,
+    "title": "Urząd Miejski w Nysie",
+    "url": "https://nysa.eu",
+    "tags": "Powódź"
+  },
+  {
+    "id": 3438496,
+    "title": "Platforma obywatel.gov.pl",
+    "url": "obywatel.gov.pl",
+    "tags": "Powódź"
+  },
+  {
+    "id": 3438497,
+    "title": "Archiwum Państwowe w Opolu",
+    "url": "http://opole.ap.gov.pl",
+    "tags": "Archiwum Państwowe, Powódź"
+  },
+  {
+    "id": 3438498,
+    "title": "Urząd Miejski w Otmuchowie",
+    "url": "https://otmuchow.pl",
+    "tags": "Powódź"
+  },
+  {
+    "id": 3438499,
+    "title": "Urząd Miejski w Paczkowie",
+    "url": "https://paczkow.pl",
+    "tags": "Powódź"
+  },
+  {
+    "id": 3438500,
+    "title": "Starostwo Powiatowe w Kłodzku",
+    "url": "https://powiat.klodzko.pl",
+    "tags": "Powódź"
+  },
+  {
+    "id": 3438501,
+    "title": "Rządowy system ostrzegania o powodzi",
+    "url": "https://powodz.gov.pl",
+    "tags": "Powódź"
+  },
+  {
+    "id": 3438502,
+    "title": "Urząd Miasta i Gminy Stronie Śląskie",
+    "url": "https://stronie.pl",
+    "tags": "Powódź"
+  },
+  {
+    "id": 3438503,
+    "title": "Urząd Miasta Kłodzko",
+    "url": "https://um.klodzko.pl",
+    "tags": "Powódź"
+  },
+  {
+    "id": 3438504,
+    "title": "Urząd Miasta i Gminy Bardo",
+    "url": "https://bardo.pl",
+    "tags": "Powódź"
+  },
+  {
+    "id": 3438505,
+    "title": "Starostwo Powiatowe w Brzegu",
+    "url": "https://brzeg-powiat.pl",
+    "tags": "Powódź"
+  },
+  {
+    "id": 3438506,
+    "title": "Urząd Miasta Brzeg",
+    "url": "https://brzeg.pl",
+    "tags": "Powódź"
+  },
+  {
+    "id": 3438507,
+    "title": "Urząd Miasta i Gminy Bystrzyca Kłodzka",
+    "url": "https://bystrzycaklodzka.pl",
+    "tags": "Powódź"
+  },
+  {
+    "id": 3438508,
+    "title": "Urząd Miejski w Głuchołazach",
+    "url": "https://glucholazy.pl",
+    "tags": "Powódź"
+  },
+  {
+    "id": 3438509,
+    "title": "Ministerstwo Spraw Wewnętrznych i Administracji (MSWiA)",
+    "url": "https://gov.pl-mswia",
+    "tags": "Powódź"
+  },
+  {
+    "id": 3438510,
+    "title": "Strona internetowa Ministerstwa Spraw Wewnętrznych i Administracji",
+    "url": "https://gov.pl-web-mswia",
+    "tags": "Powódź"
+  },
+  {
+    "id": 3438511,
+    "title": "Instytut Meteorologii i Gospodarki Wodnej (IMGW)",
+    "url": "https://imgw.pl",
+    "tags": "Powódź"
+  },
+  {
+    "id": 3438512,
+    "title": "Informatyczny System Osłony Kraju (ISOK)",
+    "url": "https://isok.gov.pl",
+    "tags": "Powódź"
+  },
+  {
+    "id": 1234,
+    "title": "Archiwum Dokumentacji Elektronicznej",
+    "url": "https://ade.gov.pl"
+  }
+]
