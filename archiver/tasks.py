@@ -97,13 +97,18 @@ def build_browsertrix_container_args(snapshot: Snapshot, task: Task):
     }
 
 
-def _reindex_collection(collection_id: str):
+def _reindex_collection(collection_id: str, collection_dir: str | None = None,):
     """
     Run wb-manager reindex for a given collection
     using webrecorder/pywb:latest container.
     """
 
     client = docker.from_env()
+    collections_root = (
+        collection_dir
+        if collection_dir
+        else f"{settings.BROWSERTIX_VOLUME}/collections"
+    )
 
     container = client.containers.run(
         image="webrecorder/pywb:latest",
@@ -111,7 +116,7 @@ def _reindex_collection(collection_id: str):
         command=["wb-manager", "reindex", str(collection_id)],
 
         volumes={
-            f"{settings.BROWSERTIX_VOLUME}/collections": {
+            collections_root: {
                 "bind": "/webarchive/collections",
                 "mode": "rw",
             }
@@ -358,7 +363,7 @@ def _generate_cdx_from_warc(
     return cdx_path
 
 
-def move_snapshot_to_longterm(snapshot_uid: str):
+def move_snapshot_to_longterm(snapshot_uid: str, source_collection_dir: str | Path | None = None):
     """
     Copy WARCs and CDXJ indexes from production storage
     to long-term archival storage.
@@ -366,15 +371,23 @@ def move_snapshot_to_longterm(snapshot_uid: str):
 
     snapshot = Snapshot.objects.get(uid=snapshot_uid)
 
-    src_base = os.path.join(
-        settings.BROWSERTIX_VOLUME,
-        "collections",
-        str(snapshot.replay_collection_id),
-    )
+    if source_collection_dir:
+        src_base = Path(source_collection_dir)
 
-    src_archive = os.path.join(src_base, "archive")
-    src_indexes = os.path.join(src_base, "indexes")
-    src_warc_cdx = os.path.join(src_base, "warc-cdx")
+        src_archive = src_base / "archive"
+        src_indexes = src_base / "indexes"
+        src_warc_cdx = src_base / "warc-cdx"
+
+    else:
+        src_base = os.path.join(
+            settings.BROWSERTIX_VOLUME,
+            "collections",
+            str(snapshot.replay_collection_id),
+        )
+
+        src_archive = os.path.join(src_base, "archive")
+        src_indexes = os.path.join(src_base, "indexes")
+        src_warc_cdx = os.path.join(src_base, "warc-cdx")
 
     if not os.path.isdir(src_archive):
         raise FileNotFoundError(f"Longterm archive missing: {src_archive}")

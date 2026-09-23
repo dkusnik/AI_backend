@@ -1,16 +1,221 @@
 {% extends "base.html" %}
+{% load json_pretty %}
+
 {% block content %}
 
-<h1>Snapshot #{{ snapshot.id }}</h1>
+<h1>Snapshot {{ snapshot.id }}</h1>
 
-<a href="{% url 'snapshot_list' %}">← Back to list</a>
+<h2>Metadata</h2>
 
-<div
-  hx-get="{% url 'snapshot_stats_partial' snapshot.id %}"
-  hx-trigger="load, every 5s"
-  hx-swap="innerHTML"
->
-  Loading statistics…
-</div>
+<table class="table table-striped">
+    <tbody>
+        <tr>
+            <th>ID</th>
+            <td>{{ snapshot.id }}</td>
+        </tr>
+
+        <tr>
+            <th>UID</th>
+            <td>{{ snapshot.uid }}</td>
+        </tr>
+
+        <tr>
+            <th>Website</th>
+            <td>
+                {{ snapshot.website.id }}
+                -
+                {{ snapshot.website }}
+            </td>
+        </tr>
+
+        <tr>
+            <th>Status</th>
+            <td>{{ snapshot.status }}</td>
+        </tr>
+
+        <tr>
+            <th>Publication Status</th>
+            <td>{{ snapshot.publication_status }}</td>
+        </tr>
+
+        <tr>
+            <th>Created By</th>
+            <td>{{ snapshot.created_by }}</td>
+        </tr>
+
+        <tr>
+            <th>Created At</th>
+            <td>{{ snapshot.created_at }}</td>
+        </tr>
+
+        <tr>
+            <th>Updated At</th>
+            <td>{{ snapshot.updated_at }}</td>
+        </tr>
+
+        <tr>
+            <th>Published</th>
+            <td>{{ snapshot.published }}</td>
+        </tr>
+
+        <tr>
+            <th>Auto Update</th>
+            <td>{{ snapshot.auto_update }}</td>
+        </tr>
+
+        <tr>
+            <th>Deleted</th>
+            <td>{{ snapshot.isDeleted }}</td>
+        </tr>
+
+        <tr>
+            <th>Machine</th>
+            <td>{{ snapshot.machine }}</td>
+        </tr>
+
+        <tr>
+            <th>RQ Job</th>
+            <td>{{ snapshot.rq_job_id }}</td>
+        </tr>
+
+        <tr>
+            <th>Process ID</th>
+            <td>{{ snapshot.process_id }}</td>
+        </tr>
+
+        <tr>
+            <th>Error</th>
+            <td>{{ snapshot.error }}</td>
+        </tr>
+    </tbody>
+</table>
+
+
+<h2>Crawl Information</h2>
+
+<table class="table table-striped">
+    <tbody>
+        <tr>
+            <th>Crawler</th>
+            <td>{{ snapshot.crawler }}</td>
+        </tr>
+
+        <tr>
+            <th>Start</th>
+            <td>{{ snapshot.crawlStartTimestamp }}</td>
+        </tr>
+
+        <tr>
+            <th>Stop</th>
+            <td>{{ snapshot.crawlStopTimestamp }}</td>
+        </tr>
+
+        <tr>
+            <th>Size</th>
+            <td>{{ snapshot.size }}</td>
+        </tr>
+
+        <tr>
+            <th>WARC Size</th>
+            <td>{{ snapshot.crawlWarcSize }}</td>
+        </tr>
+
+        <tr>
+            <th>Item Count</th>
+            <td>{{ snapshot.item_count }}</td>
+        </tr>
+
+        <tr>
+            <th>Replay Collection ID</th>
+            <td>{{ snapshot.replay_collection_id }}</td>
+        </tr>
+
+        <tr>
+            <th>Replay URL</th>
+            <td>{{ snapshot.replayRelativeUrl }}</td>
+        </tr>
+
+        <tr>
+            <th>WARC Path</th>
+            <td>{{ snapshot.warc_path }}</td>
+        </tr>
+
+        <tr>
+            <th>Progress</th>
+            <td>{{ snapshot.progress }}</td>
+        </tr>
+    </tbody>
+</table>
+
+
+<h2>WARC Files</h2>
+
+<table class="table table-striped">
+    <thead>
+        <tr>
+            <th>Filename</th>
+            <th>Size</th>
+            <th>SHA256</th>
+            <th>Production</th>
+        </tr>
+    </thead>
+
+    <tbody>
+        {% for warc in warcs %}
+        <tr>
+            <td>{{ warc.filename }}</td>
+            <td>{{ warc.size_bytes }}</td>
+            <td>{{ warc.sha256 }}</td>
+            <td>{{ warc.is_production }}</td>
+        </tr>
+        {% empty %}
+        <tr>
+            <td colspan="4">No WARC files</td>
+        </tr>
+        {% endfor %}
+    </tbody>
+</table>
+
+
+<h2>Crawl Stats</h2>
+<pre>{{ crawl|pretty_json }}</pre>
+
+
+<h2>Process Stats</h2>
+<pre>{{ process|pretty_json }}</pre>
+
+
+<h2>Container Stats</h2>
+<pre>{{ container|pretty_json }}</pre>
+
+
+<h2>Stats</h2>
+<pre>{{ stats|pretty_json }}</pre>
+
+
+<h2>Result</h2>
+<pre>{{ result|pretty_json }}</pre>
+
+
+<h2>Crawler Configuration</h2>
+<pre>{{ crawler_config|pretty_json }}</pre>
+
+
+{% if snapshot.crawlerOutput %}
+<h2>Crawler Output</h2>
+<pre>{{ snapshot.crawlerOutput }}</pre>
+{% endif %}
+
+
+{% if snapshot.crawlJustification %}
+<h2>Crawl Justification</h2>
+<pre>{{ snapshot.crawlJustification }}</pre>
+{% endif %}
+
+
+{% if snapshot.publicationJustification %}
+<h2>Publication Justification</h2>
+<pre>{{ snapshot.publicationJustification }}</pre>
+{% endif %}
 
 {% endblock %}
