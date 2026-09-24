@@ -565,9 +565,6 @@ def finalize_snapshot(snapshot, collection_dir):
     # except Exception:
     #     pass
 
-    if snapshot.status != Snapshot.STATUS_COMPLETED:
-        return
-
     Snapshot.objects.filter(pk=snapshot.pk).update(
         replay_collection_id=str(snapshot.id),
         status=Snapshot.STATUS_COMPLETED
