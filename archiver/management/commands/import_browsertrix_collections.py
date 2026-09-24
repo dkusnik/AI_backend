@@ -9,7 +9,7 @@ from urllib.parse import urlparse
 
 import requests
 from django.core.management.base import BaseCommand, CommandError
-from django.db import transaction
+from django.db import connection, transaction
 
 from archiver.models import Snapshot, Website
 from archiver.stats import (BrowsertrixLogParser, CDXParser,
@@ -277,8 +277,18 @@ def generate_collection_cdx(collection_dir: str | Path) -> None:
         len(warc_files),
         collection_dir,
     )
-
+    generated = 0
+    skipped = 0
     for warc_file in warc_files:
+        cdx_file = cdx_dir / f"{warc_file.name}.cdx"
+
+        if cdx_file.exists() and cdx_file.stat().st_size > 0:
+            logger.info(
+                "Skipping existing CDX: %s",
+                cdx_file.name,
+            )
+            skipped += 1
+            continue
         logger.info(
             "Generating CDX for %s",
             warc_file.name,
@@ -288,9 +298,11 @@ def generate_collection_cdx(collection_dir: str | Path) -> None:
             warc_path=str(warc_file),
             output_dir=str(cdx_dir),
         )
-
+        generated += 1
     logger.info(
-        "Generated CDX files in %s",
+        "CDX generation completed: generated=%s skipped=%s directory=%s",
+        generated,
+        skipped,
         cdx_dir,
     )
 
@@ -322,7 +334,7 @@ def create_snapshot(
 
     snapshot = Snapshot.objects.create(
         website=website,
-        status=Snapshot.STATUS_COMPLETED,
+        status=Snapshot.STATUS_PENDING,
         publication_status=Snapshot.PUBLICATION_INTERNAL,
         crawlStartTimestamp=start_ts,
         crawlStopTimestamp=stop_ts,
@@ -498,12 +510,44 @@ def import_browsertrix_collection(
     imported = []
 
     for crawl, snapshot_warcs in mapping:
-        snapshot = create_snapshot(
-            website=website,
-            collection_dir=collection_dir,
-            crawl=crawl,
-            snapshot_warcs=snapshot_warcs,
+
+        existing_snapshot = (
+            Snapshot.objects
+            .filter(
+                website=website,
+                result__crawl_log=str(crawl.log_file),
+            )
+            .first()
         )
+
+        if existing_snapshot:
+            if existing_snapshot.status == Snapshot.STATUS_COMPLETED:
+                logger.info(
+                    "Skipping completed snapshot %s (crawl=%s)",
+                    existing_snapshot.id,
+                    crawl.log_file,
+                )
+                continue
+
+            logger.info(
+                "Resuming snapshot %s (crawl=%s status=%s)",
+                existing_snapshot.id,
+                crawl.log_file,
+                existing_snapshot.status,
+            )
+
+            snapshot = existing_snapshot
+
+        else:
+            snapshot = create_snapshot(
+                website=website,
+                collection_dir=collection_dir,
+                crawl=crawl,
+                snapshot_warcs=snapshot_warcs,
+            )
+
+        if not snapshot:
+            continue
 
         if snapshot:
             finalize_snapshot(snapshot, collection_dir)
@@ -525,7 +569,8 @@ def finalize_snapshot(snapshot, collection_dir):
         return
 
     Snapshot.objects.filter(pk=snapshot.pk).update(
-        replay_collection_id=str(snapshot.id)
+        replay_collection_id=str(snapshot.id),
+        status=Snapshot.STATUS_COMPLETED
     )
 
     snapshot.replay_collection_id = str(snapshot.id)
@@ -736,6 +781,7 @@ class Command(BaseCommand):
                     self.stdout.write("")
                 continue
 
+            connection.close()
             generate_collection_cdx(collection_dir)
             snapshots = import_browsertrix_collection(
                 website=website,
