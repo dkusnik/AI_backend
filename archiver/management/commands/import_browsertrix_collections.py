@@ -336,7 +336,8 @@ def create_snapshot(
         crawlWarcSize=total_size,
         item_count=len(snapshot_warcs),
     )
-
+    # this is needed otherwise packets are going as PUT and API returns an error
+    snapshot.send_create_response()
     # for warc_file in snapshot_warcs:
     #     Warc.objects.create(
     #         snapshot=snapshot,
