@@ -389,6 +389,11 @@ def move_snapshot_to_longterm(snapshot_uid: str, source_collection_dir: str | Pa
         src_indexes = os.path.join(src_base, "indexes")
         src_warc_cdx = os.path.join(src_base, "warc-cdx")
 
+    # quick fix, JSON will not serialize TODO: fix better
+    src_archive = str(src_archive)
+    src_indexes = str(src_indexes)
+    src_warc_cdx = str(src_warc_cdx)
+
     if not os.path.isdir(src_archive):
         raise FileNotFoundError(f"Longterm archive missing: {src_archive}")
 
