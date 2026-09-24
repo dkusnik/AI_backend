@@ -801,7 +801,7 @@ class Snapshot(models.Model):
 
             "size": self.size,
             "itemCount": self.item_count,
-            "warcPath": self.warc_path,
+            "warcPath": str(self.warc_path),
             "replayCollectionId": str(self.replay_collection_id),
             "warcs": [
                 warc.build_json_response()
@@ -1308,7 +1308,7 @@ class Warc(models.Model):
             "size_bytes": self.size_bytes,
             "sha256": self.sha256 or None,
             "created_at": self.created_at.isoformat() if self.created_at else None,
-            "path": self.path,
+            "path": str(self.path),
             "production": self.is_production
         }
 
