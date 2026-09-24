@@ -1,0 +1,5 @@
+framed_replay: false
+collections:
+  "*":
+    archive_paths: /webarchive/collections/*/archive/
+    index_paths: /webarchive/collections/*/indexes/
