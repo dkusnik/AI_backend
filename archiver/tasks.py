@@ -431,7 +431,7 @@ def move_snapshot_to_longterm(snapshot_uid: str, source_collection_dir: str | Pa
             snapshot=snapshot,
             filename=fname,
             defaults={
-                "path": dst_warc,
+                "path": str(dst_warc),
                 "size_bytes": stat.st_size,
                 "created_at": datetime.fromtimestamp(stat.st_mtime),
                 "sha256": calculate_sha256(dst_warc)
