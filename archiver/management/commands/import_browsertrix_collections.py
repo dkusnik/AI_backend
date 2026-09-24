@@ -347,6 +347,9 @@ def create_snapshot(
         size=total_size,
         crawlWarcSize=total_size,
         item_count=len(snapshot_warcs),
+        result={
+            "crawl_log": str(crawl.log_file),
+        },
     )
     # this is needed otherwise packets are going as PUT and API returns an error
     snapshot.send_create_response()
