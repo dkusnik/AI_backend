@@ -721,6 +721,27 @@ class Command(BaseCommand):
             if not collection_dir.is_dir():
                 continue
 
+            required_paths = [
+                collection_dir / "archive",
+                collection_dir / "indexes" / "index.cdxj",
+                collection_dir / "logs",
+            ]
+
+            missing = [
+                str(path.relative_to(collection_dir))
+                for path in required_paths
+                if not path.exists()
+            ]
+
+            if missing:
+                self.stdout.write(
+                    self.style.WARNING(
+                        f"Skipping {collection_dir.name}: "
+                        f"missing {', '.join(missing)}"
+                    )
+                )
+                continue
+
             website = self.resolve_website_for_collection(
                 collection_dir=collection_dir,
                 seedlist_mapping=seedlist_mapping,

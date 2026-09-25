@@ -1,0 +1,7124 @@
+[
+  {
+    "id": 3438310,
+    "title": "Naczelna Dyrekcja Archiwów Państwowych",
+    "url": "http://archiwa.gov.pl",
+    "tags": "Archiwum Państwowe"
+  },
+  {
+    "id": 3438311,
+    "title": "Archiwum Akt Nowych",
+    "url": "http://aan.gov.pl",
+    "tags": "Archiwum Państwowe"
+  },
+  {
+    "id": 3438312,
+    "title": "Archiwum Główne Akt Dawnych",
+    "url": "http://agad.gov.pl",
+    "tags": "Archiwum Państwowe"
+  },
+  {
+    "id": 3438313,
+    "title": "Narodowe Archiwum Cyfrowe",
+    "url": "http://www.nac.gov.pl",
+    "tags": "Archiwum Państwowe"
+  },
+  {
+    "id": 3438314,
+    "title": "Archiwum Państwowe w Białymstoku",
+    "url": "http://bialystok.ap.gov.pl",
+    "tags": "Archiwum Państwowe"
+  },
+  {
+    "id": 3438315,
+    "title": "Archiwum Państwowe w Bydgoszczy",
+    "url": "http://bydgoszcz.ap.gov.pl",
+    "tags": "Archiwum Państwowe"
+  },
+  {
+    "id": 3438316,
+    "title": "Archiwum Państwowe w Częstochowie",
+    "url": "http://czestochowa.ap.gov.pl",
+    "tags": "Archiwum Państwowe"
+  },
+  {
+    "id": 3438317,
+    "title": "Archiwum Państwowe w Gdańsku",
+    "url": "http://gdansk.ap.gov.pl",
+    "tags": "Archiwum Państwowe"
+  },
+  {
+    "id": 3438318,
+    "title": "Archiwum Państwowe w Gorzowie Wielkopolskim",
+    "url": "http://gorzow.ap.gov.pl",
+    "tags": "Archiwum Państwowe"
+  },
+  {
+    "id": 3438319,
+    "title": "Archiwum Państwowe w Kaliszu",
+    "url": "http://archiwum.kalisz.pl",
+    "tags": "Archiwum Państwowe"
+  },
+  {
+    "id": 3438320,
+    "title": "Archiwum Państwowe w Katowicach",
+    "url": "http://katowice.ap.gov.pl",
+    "tags": "Archiwum Państwowe"
+  },
+  {
+    "id": 3438321,
+    "title": "Archiwum Państwowe w Kielcach",
+    "url": "http://kielce.ap.gov.pl",
+    "tags": "Archiwum Państwowe"
+  },
+  {
+    "id": 3438322,
+    "title": "Archiwum Państwowe w Koszalinie",
+    "url": "http://koszalin.ap.gov.pl",
+    "tags": "Archiwum Państwowe"
+  },
+  {
+    "id": 3438323,
+    "title": "Archiwum Narodowe w Krakowie",
+    "url": "http://ank.gov.pl",
+    "tags": "Archiwum Państwowe"
+  },
+  {
+    "id": 3438324,
+    "title": "Archiwum Państwowe w Lesznie",
+    "url": "http://archiwum.leszno.pl",
+    "tags": "Archiwum Państwowe"
+  },
+  {
+    "id": 3438325,
+    "title": "Archiwum Państwowe w Lublinie",
+    "url": "http://lublin.ap.gov.pl",
+    "tags": "Archiwum Państwowe"
+  },
+  {
+    "id": 3438326,
+    "title": "Archiwum Państwowe w Łodzi",
+    "url": "http://lodz.ap.gov.pl",
+    "tags": "Archiwum Państwowe"
+  },
+  {
+    "id": 3438327,
+    "title": "Archiwum Państwowe w Malborku",
+    "url": "http://malbork.ap.gov.pl",
+    "tags": "Archiwum Państwowe"
+  },
+  {
+    "id": 3438328,
+    "title": "Archiwum Państwowe w Olsztynie",
+    "url": "http://olsztyn.ap.gov.pl",
+    "tags": "Archiwum Państwowe"
+  },
+  {
+    "id": 3438329,
+    "title": "Archiwum Państwowe w Piotrkowie Trybunalskim",
+    "url": "http://piotrkow-tryb.ap.gov.pl",
+    "tags": "Archiwum Państwowe"
+  },
+  {
+    "id": 3438330,
+    "title": "Archiwum Państwowe w Płocku",
+    "url": "http://plock.ap.gov.pl",
+    "tags": "Archiwum Państwowe"
+  },
+  {
+    "id": 3438331,
+    "title": "Archiwum Państwowe w Poznaniu",
+    "url": "http://poznan.ap.gov.pl",
+    "tags": "Archiwum Państwowe"
+  },
+  {
+    "id": 3438332,
+    "title": "Archiwum Państwowe w Przemyślu",
+    "url": "http://przemysl.ap.gov.pl",
+    "tags": "Archiwum Państwowe"
+  },
+  {
+    "id": 3438333,
+    "title": "Archiwum Państwowe w Radomiu",
+    "url": "http://radom.ap.gov.pl",
+    "tags": "Archiwum Państwowe"
+  },
+  {
+    "id": 3438334,
+    "title": "Archiwum Państwowe w Rzeszowie",
+    "url": "http://rzeszow.ap.gov.pl",
+    "tags": "Archiwum Państwowe"
+  },
+  {
+    "id": 3438335,
+    "title": "Archiwum Państwowe w Siedlcach",
+    "url": "http://siedlce.ap.gov.pl",
+    "tags": "Archiwum Państwowe"
+  },
+  {
+    "id": 3438336,
+    "title": "Archiwum Państwowe w Suwałkach",
+    "url": "http://suwalki.ap.gov.pl",
+    "tags": "Archiwum Państwowe"
+  },
+  {
+    "id": 3438337,
+    "title": "Archiwum Państwowe w Toruniu",
+    "url": "http://torun.ap.gov.pl",
+    "tags": "Archiwum Państwowe"
+  },
+  {
+    "id": 3438338,
+    "title": "Archiwum Państwowe w Warszawie",
+    "url": "http://warszawa.ap.gov.pl",
+    "tags": "Archiwum Państwowe"
+  },
+  {
+    "id": 3438339,
+    "title": "Archiwum Państwowe we Wrocławiu",
+    "url": "http://ap.wroc.pl",
+    "tags": "Archiwum Państwowe"
+  },
+  {
+    "id": 3438340,
+    "title": "Archiwum Państwowe w Zamościu",
+    "url": "http://zamosc.ap.gov.pl",
+    "tags": "Archiwum Państwowe"
+  },
+  {
+    "id": 3438341,
+    "title": "Archiwum Państwowe w Zielonej Górze",
+    "url": "http://archiwum.zgora.pl",
+    "tags": "Archiwum Państwowe"
+  },
+  {
+    "id": 3438343,
+    "title": "Narodowe Muzeum Morskie w Gdańsku",
+    "url": "http://nmm.pl",
+    "tags": "Instytucja kultury lub nauki"
+  },
+  {
+    "id": 3438344,
+    "title": "Polska Akademia Nauk",
+    "url": "http://pan.pl",
+    "tags": "Instytucja kultury lub nauki"
+  },
+  {
+    "id": 3438345,
+    "title": "Polska Akademia Umiejętności",
+    "url": "http://pau.krakow.pl",
+    "tags": "Instytucja kultury lub nauki"
+  },
+  {
+    "id": 3438347,
+    "title": "Narodowy Bank Polski",
+    "url": "http://nbp.pl",
+    "tags": "Urząd centralny"
+  },
+  {
+    "id": 3438348,
+    "title": "Narodowe Centrum Kultury",
+    "url": "http://nck.pl",
+    "tags": "Instytucja kultury lub nauki"
+  },
+  {
+    "id": 3438349,
+    "title": "Instytut Książki",
+    "url": "http://instytutksiazki.pl",
+    "tags": "Instytucja kultury lub nauki"
+  },
+  {
+    "id": 3438350,
+    "title": "Narodowy Instytut Dziedzictwa",
+    "url": "http://nid.pl",
+    "tags": "Instytucja kultury lub nauki"
+  },
+  {
+    "id": 3438351,
+    "title": "Instytut Sportu",
+    "url": "http://insp.pl",
+    "tags": "Instytucja kultury lub nauki"
+  },
+  {
+    "id": 3438352,
+    "title": "Prezydent RP",
+    "url": "http://prezydent.pl",
+    "tags": "Urząd centralny"
+  },
+  {
+    "id": 3438353,
+    "title": "Najwyższa Izba Kontroli",
+    "url": "http://nik.gov.pl",
+    "tags": "Urząd centralny"
+  },
+  {
+    "id": 3438354,
+    "title": "Urząd Komunikacji Elektronicznej",
+    "url": "http://uke.gov.pl",
+    "tags": "Urząd centralny"
+  },
+  {
+    "id": 3438355,
+    "title": "Główny Inspektorat Rybołówstwa Morskiego",
+    "url": "http://girm.gov.pl",
+    "tags": "Urząd centralny"
+  },
+  {
+    "id": 3438357,
+    "title": "Dolnośląski Urząd Wojewódzki",
+    "url": "http://duw.pl",
+    "tags": "Urząd samorządowy"
+  },
+  {
+    "id": 3438358,
+    "title": "Dolnośląski Urząd Wojewódzki",
+    "url": "http://gdansk.uw.gov.pl",
+    "tags": "Urząd samorządowy"
+  },
+  {
+    "id": 3438359,
+    "title": "Podkarpacki Urząd Wojewódzki",
+    "url": "http://rzeszow.uw.gov.pl",
+    "tags": "Urząd samorządowy"
+  },
+  {
+    "id": 3438360,
+    "title": "Archiwum Państwowe w Szczecinie",
+    "url": "http://szczecin.ap.gov.pl",
+    "tags": "Archiwum Państwowe"
+  },
+  {
+    "id": 3438361,
+    "title": "Senat RP",
+    "url": "http://senat.gov.pl",
+    "tags": "Urząd centralny"
+  },
+  {
+    "id": 3438362,
+    "title": "Sąd Najwyższy",
+    "url": "http://sn.pl",
+    "tags": "Urząd centralny"
+  },
+  {
+    "id": 3438363,
+    "title": "Trybunał Konstytucyjny",
+    "url": "http://trybunal.gov.pl",
+    "tags": "Urząd centralny"
+  },
+  {
+    "id": 3438364,
+    "title": "Naczelny Sąd Administracyjny",
+    "url": "http://nsa.gov.pl",
+    "tags": "Urząd centralny"
+  },
+  {
+    "id": 3438365,
+    "title": "Główny Urząd Statystyczny",
+    "url": "http://stat.gov.pl",
+    "tags": "Urząd centralny"
+  },
+  {
+    "id": 3438366,
+    "title": "Urząd Ochrony Konkurencji i Konsumentów",
+    "url": "http://uokik.gov.pl",
+    "tags": "Urząd centralny"
+  },
+  {
+    "id": 3438367,
+    "title": "Wyższy Urząd Górniczy",
+    "url": "http://wug.gov.pl",
+    "tags": "Urząd centralny"
+  },
+  {
+    "id": 3438368,
+    "title": "Instytut Pamięci Narodowej",
+    "url": "http://ipn.gov.pl",
+    "tags": "Instytucja kultury lub nauki"
+  },
+  {
+    "id": 3438369,
+    "title": "Urząd ds. kombatantów i osób represjonowanych",
+    "url": "http://kombatanci.gov.pl",
+    "tags": "Urząd centralny"
+  },
+  {
+    "id": 3438370,
+    "title": "Krajowa Szkoła Administracji Publicznej",
+    "url": "http://ksap.gov.pl",
+    "tags": "Urząd centralny"
+  },
+  {
+    "id": 3438371,
+    "title": "Urząd Ochrony Danych Osobowych",
+    "url": "http://uodo.gov.pl",
+    "tags": "Urząd centralny"
+  },
+  {
+    "id": 3438372,
+    "title": "Rzecznik Praw Obywatelskich",
+    "url": "http://bip.brpo.gov.pl",
+    "tags": "Urząd centralny"
+  },
+  {
+    "id": 3438373,
+    "title": "Narodowy Fundusz Zdrowia",
+    "url": "http://nfz.gov.pl",
+    "tags": "Urząd centralny"
+  },
+  {
+    "id": 3438374,
+    "title": "Filmoteka Narodowa",
+    "url": "http://fina.gov.pl",
+    "tags": "Instytucja kultury lub nauki"
+  },
+  {
+    "id": 3438375,
+    "title": "Małopolski Urząd Wojewódzki",
+    "url": "http://malopolska.uw.gov.pl",
+    "tags": "Urząd samorządowy"
+  },
+  {
+    "id": 3438376,
+    "title": "Muzeum Narodowe w Warszawie",
+    "url": "http://mnw.art.pl",
+    "tags": "Instytucja kultury lub nauki"
+  },
+  {
+    "id": 3438377,
+    "title": "Muzeum Narodowe w Krakowie",
+    "url": "http://mnk.pl",
+    "tags": "Instytucja kultury lub nauki"
+  },
+  {
+    "id": 3438378,
+    "title": "Muzeum Narodowe w Szczecinie",
+    "url": "http://muzeum.szczecin.pl",
+    "tags": "Instytucja kultury lub nauki"
+  },
+  {
+    "id": 3438379,
+    "title": "Muzeum Narodowe we Wrocławiu",
+    "url": "http://mnwr.pl",
+    "tags": "Instytucja kultury lub nauki"
+  },
+  {
+    "id": 3438380,
+    "title": "Muzeum Narodowe w Kielcach",
+    "url": "http://mnki.pl",
+    "tags": "Instytucja kultury lub nauki"
+  },
+  {
+    "id": 3438381,
+    "title": "Muzeum Narodowe w Gdańsku",
+    "url": "http://mng.gda.pl",
+    "tags": "Instytucja kultury lub nauki"
+  },
+  {
+    "id": 3438382,
+    "title": "Sejm RP",
+    "url": "http://sejm.gov.pl",
+    "tags": "Urząd centralny"
+  },
+  {
+    "id": 3438383,
+    "title": "Kancelaria Prezesa Rady Ministrów",
+    "url": "http://www.gov.pl/web/premier",
+    "tags": "Urząd centralny"
+  },
+  {
+    "id": 3438384,
+    "title": "Ministerstwo Kultury i Dziedzictwa Narodowego",
+    "url": "http://www.gov.pl/web/kultura",
+    "tags": "Urząd centralny"
+  },
+  {
+    "id": 3438385,
+    "title": "Ministerstwo Spraw Zagranicznych",
+    "url": "http://www.gov.pl/web/dyplomacja",
+    "tags": "Urząd centralny"
+  },
+  {
+    "id": 3438386,
+    "title": "Ministerstwo Edukacji i Nauki",
+    "url": "http://www.gov.pl/web/edukacja-i-nauka",
+    "tags": "Urząd centralny"
+  },
+  {
+    "id": 3438387,
+    "title": "Ministerstwo Cyfryzacji",
+    "url": "http://www.gov.pl/web/cyfryzacja",
+    "tags": "Urząd centralny"
+  },
+  {
+    "id": 3438388,
+    "title": "Ministerstwo Obrony Narodowej",
+    "url": "http://www.gov.pl/web/obrona-narodowa",
+    "tags": "Urząd centralny"
+  },
+  {
+    "id": 3438389,
+    "title": "Ministerstwo Finansów",
+    "url": "http://www.gov.pl/web/finanse",
+    "tags": "Urząd centralny"
+  },
+  {
+    "id": 3438390,
+    "title": "Generalna Dyrekcja Dróg Krajowych i Autostrad",
+    "url": "http://www.gov.pl/web/gddkia/generalna-dyrekcja-drog-krajowych-i-autostrad",
+    "tags": "Urząd centralny"
+  },
+  {
+    "id": 3438391,
+    "title": "Urząd ds. Cudzoziemców",
+    "url": "http://www.gov.pl/web/udsc/urzad-do-spraw-cudzoziemcow",
+    "tags": "Urząd centralny"
+  },
+  {
+    "id": 3438392,
+    "title": "Generalna Dyrekcja Ochrony Środowiska",
+    "url": "http://www.gov.pl/web/gdos",
+    "tags": "Urząd centralny"
+  },
+  {
+    "id": 3438393,
+    "title": "Komenda Główna Państwowej Straży Pożarnej",
+    "url": "http://www.gov.pl/web/kgpsp",
+    "tags": "Urząd centralny"
+  },
+  {
+    "id": 3438394,
+    "title": "Prokuratoria Generalna",
+    "url": "http://www.gov.pl/web/prokuratoria",
+    "tags": "Urząd centralny"
+  },
+  {
+    "id": 3438395,
+    "title": "Mazowiecki Urząd Wojewódzki",
+    "url": "http://www.gov.pl/web/uw-mazowiecki",
+    "tags": "Urząd samorządowy"
+  },
+  {
+    "id": 3438396,
+    "title": "Państwowa Agencja Atomistyki",
+    "url": "http://www.gov.pl/web/paa/panstwowa-agencja-atomistyki",
+    "tags": "Urząd centralny"
+  },
+  {
+    "id": 3438397,
+    "title": "Serwis Służby Cywilnej",
+    "url": "http://www.gov.pl/web/sluzbacywilna",
+    "tags": "Urząd centralny"
+  },
+  {
+    "id": 3438398,
+    "title": "Samorząd Województwa Pomorskiego",
+    "url": "http://pomorskie.eu/samorzad-wojewodztwa-pomorskiego",
+    "tags": "Urząd samorządowy"
+  },
+  {
+    "id": 3438400,
+    "title": "Naczelna Dyrekcja Archiwów Państwowych BIP",
+    "url": "http://ndap.bip.gov.pl",
+    "tags": "Archiwum Państwowe, Biuletyn Informacji Publicznej"
+  },
+  {
+    "id": 3438401,
+    "title": "Archiwum Akt Nowych BIP",
+    "url": "http://www.aan.gov.pl/bip",
+    "tags": "Biuletyn Informacji Publicznej, Archiwum Państwowe"
+  },
+  {
+    "id": 3438402,
+    "title": "Archiwum Główne Akt Dawnych BIP",
+    "url": "http://agad.bip.gov.pl",
+    "tags": "Archiwum Państwowe, Biuletyn Informacji Publicznej"
+  },
+  {
+    "id": 3438403,
+    "title": "Narodowe Archiwum Cyfrowe BIP",
+    "url": "http://nac.ssdip.bip.gov.pl",
+    "tags": "Biuletyn Informacji Publicznej, Archiwum Państwowe"
+  },
+  {
+    "id": 3438404,
+    "title": "Archiwum Państwowe w Białymstoku BIP",
+    "url": "http://apbialystok.bip.gov.pl",
+    "tags": "Biuletyn Informacji Publicznej, Archiwum Państwowe"
+  },
+  {
+    "id": 3438405,
+    "title": "Archiwum Państwowe w Bydgoszczy BIP",
+    "url": "http://apbydgoszcz.bip.gov.pl",
+    "tags": "Archiwum Państwowe, Biuletyn Informacji Publicznej"
+  },
+  {
+    "id": 3438406,
+    "title": "Archiwum Państwowe w Częstochowie BIP",
+    "url": "http://apczestochowa.bip.gov.pl",
+    "tags": "Biuletyn Informacji Publicznej, Archiwum Państwowe"
+  },
+  {
+    "id": 3438407,
+    "title": "Archiwum Państwowe w Gdańsku BIP",
+    "url": "http://apgdansk.bip.gov.pl",
+    "tags": "Archiwum Państwowe, Biuletyn Informacji Publicznej"
+  },
+  {
+    "id": 3438408,
+    "title": "Archiwum Państwowe w Gorzowie Wielkopolskim BIP",
+    "url": "http://apg.bip.gov.pl",
+    "tags": "Biuletyn Informacji Publicznej, Archiwum Państwowe"
+  },
+  {
+    "id": 3438409,
+    "title": "Archiwum Państwowe w Kaliszu BIP",
+    "url": "http://archkal.bip.gov.pl",
+    "tags": "Archiwum Państwowe, Biuletyn Informacji Publicznej"
+  },
+  {
+    "id": 3438410,
+    "title": "Archiwum Państwowe w Katowicach BIP",
+    "url": "http://archiwumkatowice.bip.gov.pl",
+    "tags": "Archiwum Państwowe, Biuletyn Informacji Publicznej"
+  },
+  {
+    "id": 3438411,
+    "title": "Archiwum Państwowe w Kielcach BIP",
+    "url": "http://apkielce.bip.gov.pl",
+    "tags": "Biuletyn Informacji Publicznej, Archiwum Państwowe"
+  },
+  {
+    "id": 3438412,
+    "title": "Archiwum Państwowe w Koszalinie BIP",
+    "url": "http://apkoszalin.bip.gov.pl",
+    "tags": "Archiwum Państwowe, Biuletyn Informacji Publicznej"
+  },
+  {
+    "id": 3438413,
+    "title": "Archiwum Narodowe w Krakowie BIP",
+    "url": "http://bip.malopolska.pl/ankrakow",
+    "tags": "Archiwum Państwowe, Biuletyn Informacji Publicznej"
+  },
+  {
+    "id": 3438414,
+    "title": "Archiwum Państwowe w Lesznie BIP",
+    "url": "http://archiwumleszno.bip.gov.pl",
+    "tags": "Archiwum Państwowe, Biuletyn Informacji Publicznej"
+  },
+  {
+    "id": 3438415,
+    "title": "Archiwum Państwowe w Lublinie BIP",
+    "url": "http://lublinarchiwum.bip.gov.pl",
+    "tags": "Archiwum Państwowe, Biuletyn Informacji Publicznej"
+  },
+  {
+    "id": 3438416,
+    "title": "Archiwum Państwowe w Łodzi BIP",
+    "url": "http://aplodz.bip.gov.pl",
+    "tags": "Archiwum Państwowe, Biuletyn Informacji Publicznej"
+  },
+  {
+    "id": 3438417,
+    "title": "Archiwum Państwowe w Malborku BIP",
+    "url": "http://apm.bip.gov.pl",
+    "tags": "Biuletyn Informacji Publicznej, Archiwum Państwowe"
+  },
+  {
+    "id": 3438418,
+    "title": "Archiwum Państwowe w Olsztynie BIP",
+    "url": "http://apolsztyn.bip.gov.pl",
+    "tags": "Archiwum Państwowe, Biuletyn Informacji Publicznej"
+  },
+  {
+    "id": 3438419,
+    "title": "Archiwum Państwowe w Piotrkowie Trybunalskim BIP",
+    "url": "http://appiotrkow.bip.gov.pl",
+    "tags": "Biuletyn Informacji Publicznej, Archiwum Państwowe"
+  },
+  {
+    "id": 3438420,
+    "title": "Archiwum Państwowe w Płocku BIP",
+    "url": "http://applock.bip.gov.pl",
+    "tags": "Archiwum Państwowe, Biuletyn Informacji Publicznej"
+  },
+  {
+    "id": 3438421,
+    "title": "Archiwum Państwowe w Poznaniu BIP",
+    "url": "http://appoznan.bip.gov.pl",
+    "tags": "Biuletyn Informacji Publicznej, Archiwum Państwowe"
+  },
+  {
+    "id": 3438422,
+    "title": "Archiwum Państwowe w Przemyślu BIP",
+    "url": "http://app.bip.gov.pl",
+    "tags": "Archiwum Państwowe, Biuletyn Informacji Publicznej"
+  },
+  {
+    "id": 3438423,
+    "title": "Archiwum Państwowe w Radomiu BIP",
+    "url": "http://apradom.bip.gov.pl",
+    "tags": "Archiwum Państwowe, Biuletyn Informacji Publicznej"
+  },
+  {
+    "id": 3438424,
+    "title": "Archiwum Państwowe w Rzeszowie BIP",
+    "url": "http://aprzeszow.bip.gov.pl",
+    "tags": "Biuletyn Informacji Publicznej, Archiwum Państwowe"
+  },
+  {
+    "id": 3438425,
+    "title": "Archiwum Państwowe w Siedlcach BIP",
+    "url": "http://apsiedlce.bip.gov.pl",
+    "tags": "Archiwum Państwowe, Biuletyn Informacji Publicznej"
+  },
+  {
+    "id": 3438426,
+    "title": "Archiwum Państwowe w Suwałkach BIP",
+    "url": "http://bip.suwalki.ap.gov.pl",
+    "tags": "Archiwum Państwowe, Biuletyn Informacji Publicznej"
+  },
+  {
+    "id": 3438427,
+    "title": "Archiwum Państwowe w Szczecinie BIP",
+    "url": "http://apszczecin.bip.gov.pl",
+    "tags": "Biuletyn Informacji Publicznej, Archiwum Państwowe"
+  },
+  {
+    "id": 3438428,
+    "title": "Archiwum Państwowe w Toruniu BIP",
+    "url": "http://aptorun.bip.gov.pl",
+    "tags": "Biuletyn Informacji Publicznej, Archiwum Państwowe"
+  },
+  {
+    "id": 3438429,
+    "title": "Archiwum Państwowe w Warszawie BIP",
+    "url": "http://2564fftxyr.bip.gov.pl",
+    "tags": "Biuletyn Informacji Publicznej, Archiwum Państwowe"
+  },
+  {
+    "id": 3438430,
+    "title": "Archiwum Państwowe we Wrocławiu BIP",
+    "url": "http://apwroclaw.bip.gov.pl",
+    "tags": "Archiwum Państwowe, Biuletyn Informacji Publicznej"
+  },
+  {
+    "id": 3438431,
+    "title": "Archiwum Państwowe w Zamościu BIP",
+    "url": "http://archiwumzamosc.bip.gov.pl",
+    "tags": "Biuletyn Informacji Publicznej, Archiwum Państwowe"
+  },
+  {
+    "id": 3438432,
+    "title": "Archiwum Państwowe w Zielonej Górze BIP",
+    "url": "http://apzg.bip.gov.pl",
+    "tags": "Archiwum Państwowe, Biuletyn Informacji Publicznej"
+  },
+  {
+    "id": 3438433,
+    "title": "Ministerstwo Kultury i Dziedzictwa Narodowego BIP",
+    "url": "http://bip.mkidn.gov.pl",
+    "tags": "Biuletyn Informacji Publicznej, Urząd centralny"
+  },
+  {
+    "id": 3438434,
+    "title": "Ministerstwo Spraw Zagranicznych BIP",
+    "url": "http://www.gov.pl/web/dyplomacja/bip",
+    "tags": "Urząd centralny, Biuletyn Informacji Publicznej"
+  },
+  {
+    "id": 3438435,
+    "title": "Ministerstwo Edukacji i Nauki BIP",
+    "url": "http://www.gov.pl/web/edukacja-i-nauka/biuletyn-informacji-publicznej-mein",
+    "tags": "Biuletyn Informacji Publicznej, Urząd centralny"
+  },
+  {
+    "id": 3438436,
+    "title": "Ministerstwo Cyfryzacji BIP",
+    "url": "http://mc.bip.gov.pl",
+    "tags": "Biuletyn Informacji Publicznej, Urząd centralny"
+  },
+  {
+    "id": 3438437,
+    "title": "Prezydent RP BIP",
+    "url": "http://www.prezydent.pl/bip",
+    "tags": "Biuletyn Informacji Publicznej, Urząd centralny"
+  },
+  {
+    "id": 3438438,
+    "title": "Najwyższa Izba Kontroli BIP",
+    "url": "http://bip.nik.gov.pl",
+    "tags": "Urząd centralny, Biuletyn Informacji Publicznej"
+  },
+  {
+    "id": 3438439,
+    "title": "Sąd Najwyższy BIP",
+    "url": "http://www.sn.pl/BIP",
+    "tags": "Biuletyn Informacji Publicznej, Urząd centralny"
+  },
+  {
+    "id": 3438440,
+    "title": "Naczelny Sąd Administracyjny BIP",
+    "url": "http://www.nsa.gov.pl/bip.php",
+    "tags": "Urząd centralny, Biuletyn Informacji Publicznej"
+  },
+  {
+    "id": 3438441,
+    "title": "Generalna Dyrekcja Dróg Krajowych i Autostrad BIP",
+    "url": "http://gddkia.bip.gov.pl",
+    "tags": "Urząd centralny, Biuletyn Informacji Publicznej"
+  },
+  {
+    "id": 3438442,
+    "title": "Generalna Dyrekcja Ochrony Środowiska BIP",
+    "url": "http://archiwum-bip.gdos.gov.pl",
+    "tags": "Biuletyn Informacji Publicznej, Urząd centralny"
+  },
+  {
+    "id": 3438443,
+    "title": "Główny Urząd Statystyczny BIP",
+    "url": "http://bip.stat.gov.pl",
+    "tags": "Urząd centralny, Biuletyn Informacji Publicznej"
+  },
+  {
+    "id": 3438444,
+    "title": "Urząd Ochrony Konkurencji i Konsumentów BIP",
+    "url": "http://uokik.gov.pl/bip.php",
+    "tags": "Urząd centralny, Biuletyn Informacji Publicznej"
+  },
+  {
+    "id": 3438445,
+    "title": "Urząd Komunikacji Elektronicznej BIP",
+    "url": "http://bip.uke.gov.pl",
+    "tags": "Biuletyn Informacji Publicznej, Urząd centralny"
+  },
+  {
+    "id": 3438446,
+    "title": "Prokuratoria Generalna BIP",
+    "url": "http://prokuratoria.bip.gov.pl",
+    "tags": "Urząd centralny, Biuletyn Informacji Publicznej"
+  },
+  {
+    "id": 3438447,
+    "title": "Wyższy Urząd Górniczy BIP",
+    "url": "http://wug.bip.info.pl",
+    "tags": "Urząd centralny, Biuletyn Informacji Publicznej"
+  },
+  {
+    "id": 3438448,
+    "title": "Główny Inspektorat Rybołówstwa Morskiego",
+    "url": "http://www.gov.pl/web/girm",
+    "tags": "Urząd centralny"
+  },
+  {
+    "id": 3438449,
+    "title": "Komenda Główna Państwowej Straży Pożarnej BIP",
+    "url": "http://www.gov.pl/web/bip/komenda-glowna-panstwowej-strazy-pozarnej",
+    "tags": "Biuletyn Informacji Publicznej, Urząd centralny"
+  },
+  {
+    "id": 3438450,
+    "title": "Mazowiecki Urząd Wojewódzki BIP",
+    "url": "http://bip.mazowieckie.pl",
+    "tags": "Urząd samorządowy, Biuletyn Informacji Publicznej"
+  },
+  {
+    "id": 3438451,
+    "title": "Małopolski Urząd Wojewódzki BIP",
+    "url": "http://bip.malopolska.pl/muw",
+    "tags": "Urząd samorządowy, Biuletyn Informacji Publicznej"
+  },
+  {
+    "id": 3438452,
+    "title": "Dolnośląski Urząd Wojewódzki BIP",
+    "url": "http://bip.duw.pl",
+    "tags": "Urząd samorządowy, Biuletyn Informacji Publicznej"
+  },
+  {
+    "id": 3438453,
+    "title": "Dolnośląski Urząd Wojewódzki BIP",
+    "url": "http://uwgdansk.bip.gov.pl",
+    "tags": "Biuletyn Informacji Publicznej, Urząd samorządowy"
+  },
+  {
+    "id": 3438454,
+    "title": "Instytut Pamięci Narodowej BIP",
+    "url": "http://katalog.bip.ipn.gov.pl",
+    "tags": "Biuletyn Informacji Publicznej, Instytucja kultury lub nauki"
+  },
+  {
+    "id": 3438455,
+    "title": "Urząd ds. kombatantów i osób represjonowanych BIP",
+    "url": "http://bip.kombatanci.gov.pl",
+    "tags": "Urząd centralny, Biuletyn Informacji Publicznej"
+  },
+  {
+    "id": 3438456,
+    "title": "Krajowa Szkoła Administracji Publicznej BIP",
+    "url": "http://bip.ksap.gov.pl",
+    "tags": "Biuletyn Informacji Publicznej, Urząd centralny"
+  },
+  {
+    "id": 3438457,
+    "title": "Urząd Ochrony Danych Osobowych BIP",
+    "url": "http://uodo.gov.pl/445",
+    "tags": "Biuletyn Informacji Publicznej, Urząd centralny"
+  },
+  {
+    "id": 3438458,
+    "title": "Rzecznik Praw Obywatelskich",
+    "url": "http://bip.brpo.gov.pl/pl",
+    "tags": "Urząd centralny"
+  },
+  {
+    "id": 3438459,
+    "title": "Narodowy Fundusz Zdrowia BIP",
+    "url": "http://www.nfz.gov.pl/bip",
+    "tags": "Urząd centralny, Biuletyn Informacji Publicznej"
+  },
+  {
+    "id": 3438460,
+    "title": "Filmoteka Narodowa BIP",
+    "url": "http://fina.bip.gov.pl",
+    "tags": "Instytucja kultury lub nauki, Biuletyn Informacji Publicznej"
+  },
+  {
+    "id": 3438461,
+    "title": "Urząd Marszałkowski Województwa Dolnośląskiego BIP",
+    "url": "http://bip.dolnyslask.pl",
+    "tags": "Urząd samorządowy, Biuletyn Informacji Publicznej"
+  },
+  {
+    "id": 3438462,
+    "title": "Mazowiecki Urząd Wojewódzki BIP",
+    "url": "bip.mazovia.pl",
+    "tags": ""
+  },
+  {
+    "id": 3438463,
+    "title": "Samorząd Województwa Pomorskiego BIP",
+    "url": "http://www.bip.pomorskie.eu",
+    "tags": "Urząd samorządowy, Biuletyn Informacji Publicznej"
+  },
+  {
+    "id": 3438464,
+    "title": "Urząd Marszałkowski Województwa Podkarpackiego BIP",
+    "url": "http://bip.podkarpackie.pl",
+    "tags": "Biuletyn Informacji Publicznej, Urząd samorządowy"
+  },
+  {
+    "id": 3438465,
+    "title": "Urząd Marszałkowski Województwa Lubuskiego BIP",
+    "url": "http://bip.lubuskie.pl",
+    "tags": "Biuletyn Informacji Publicznej, Urząd samorządowy"
+  },
+  {
+    "id": 3438466,
+    "title": "Muzeum Narodowe w Warszawie BIP",
+    "url": "http://bip.mnw.art.pl",
+    "tags": "Instytucja kultury lub nauki, Biuletyn Informacji Publicznej"
+  },
+  {
+    "id": 3438467,
+    "title": "Muzeum Narodowe w Krakowie BIP",
+    "url": "http://bip.malopolska.pl/mnkrakow",
+    "tags": "Instytucja kultury lub nauki, Biuletyn Informacji Publicznej"
+  },
+  {
+    "id": 3438469,
+    "title": "Muzeum Narodowe w Szczecinie BIP",
+    "url": "http://bip.muzeum.szczecin.pl",
+    "tags": "Biuletyn Informacji Publicznej, Instytucja kultury lub nauki"
+  },
+  {
+    "id": 3438473,
+    "title": "Muzeum Narodowe we Wrocławiu BIP",
+    "url": "http://bip.mnwr.pl",
+    "tags": "Instytucja kultury lub nauki, Biuletyn Informacji Publicznej"
+  },
+  {
+    "id": 3438474,
+    "title": "Muzeum Narodowe w Kielcach BIP",
+    "url": "http://bip.mnki.pl",
+    "tags": "Instytucja kultury lub nauki, Biuletyn Informacji Publicznej"
+  },
+  {
+    "id": 3438475,
+    "title": "Muzeum Narodowe w Gdańsku BIP",
+    "url": "http://mng.bip.gov.pl",
+    "tags": "Biuletyn Informacji Publicznej, Instytucja kultury lub nauki"
+  },
+  {
+    "id": 3438476,
+    "title": "Narodowe Muzeum Morskie w Gdańsku BIP",
+    "url": "http://bip.nmm.pl",
+    "tags": "Biuletyn Informacji Publicznej, Instytucja kultury lub nauki"
+  },
+  {
+    "id": 3438477,
+    "title": "Polska Akademia Nauk BIP",
+    "url": "http://bip.pan.pl",
+    "tags": "Biuletyn Informacji Publicznej, Instytucja kultury lub nauki"
+  },
+  {
+    "id": 3438478,
+    "title": "Narodowy Bank Polski",
+    "url": "http://bip.nbp.pl",
+    "tags": "Urząd centralny, Biuletyn Informacji Publicznej"
+  },
+  {
+    "id": 3438479,
+    "title": "Narodowe Centrum Kultury BIP",
+    "url": "http://www.nck.pl/bip",
+    "tags": "Biuletyn Informacji Publicznej, Instytucja kultury lub nauki"
+  },
+  {
+    "id": 3438480,
+    "title": "Instytut Książki BIP",
+    "url": "http://bip.instytutksiazki.pl",
+    "tags": "Instytucja kultury lub nauki, Biuletyn Informacji Publicznej"
+  },
+  {
+    "id": 3438481,
+    "title": "Narodowy Instytut Dziedzictwa BIP",
+    "url": "http://nid.pl/bip",
+    "tags": "Biuletyn Informacji Publicznej, Instytucja kultury lub nauki"
+  },
+  {
+    "id": 3438482,
+    "title": "Instytut Sportu BIP",
+    "url": "http://bip.insp.waw.pl",
+    "tags": "Instytucja kultury lub nauki, Biuletyn Informacji Publicznej"
+  },
+  {
+    "id": 3438483,
+    "title": "Radio dla Ciebie",
+    "url": "http://rdc.pl",
+    "tags": ""
+  },
+  {
+    "id": 3438484,
+    "title": "Archiwum Państwowe w Opolu BIP",
+    "url": "ap_opole.bip.gov.pl",
+    "tags": ""
+  },
+  {
+    "id": 3438485,
+    "title": "Małopolski Urząd Wojewódzki BIP",
+    "url": "bip.malopolska.pl/umwm",
+    "tags": ""
+  },
+  {
+    "id": 3438486,
+    "title": "Podlaski Urząd Wojewódzki BIP",
+    "url": "bip.podlaskie.eu",
+    "tags": ""
+  },
+  {
+    "id": 3438487,
+    "title": "Samorząd Województwa Pomorskiego",
+    "url": "pomorskie.eu/samorzad-wojewodztwa-pomorskiegorcd.pl",
+    "tags": ""
+  },
+  {
+    "id": 3438489,
+    "title": "Urząd Miasta Racibórz",
+    "url": "https://www.raciborz.pl",
+    "tags": "Powódź"
+  },
+  {
+    "id": 3438490,
+    "title": "Strona Główna Biuletynu Informacji Publicznej",
+    "url": "www.gov.pl/web/bip",
+    "tags": ""
+  },
+  {
+    "id": 3438491,
+    "title": "Archiwum Państwowe we Wrocławiu",
+    "url": "https://www.wroclaw.ap.gov.pl",
+    "tags": "Powódź"
+  },
+  {
+    "id": 3438492,
+    "title": "Urząd Miasta i Gminy Lądek-Zdrój",
+    "url": "https://ladek.pl",
+    "tags": "Powódź"
+  },
+  {
+    "id": 3438493,
+    "title": "Urząd Miasta i Gminy Lewin Brzeski",
+    "url": "https://lewin-brzeski.pl",
+    "tags": "Powódź"
+  },
+  {
+    "id": 3438494,
+    "title": "Urząd Miasta i Gminy Międzylesie",
+    "url": "https://miedzylesie.pl",
+    "tags": "Powódź"
+  },
+  {
+    "id": 3438495,
+    "title": "Urząd Miejski w Nysie",
+    "url": "https://nysa.eu",
+    "tags": "Powódź"
+  },
+  {
+    "id": 3438496,
+    "title": "Platforma obywatel.gov.pl",
+    "url": "obywatel.gov.pl",
+    "tags": "Powódź"
+  },
+  {
+    "id": 3438497,
+    "title": "Archiwum Państwowe w Opolu",
+    "url": "http://opole.ap.gov.pl",
+    "tags": "Archiwum Państwowe, Powódź"
+  },
+  {
+    "id": 3438498,
+    "title": "Urząd Miejski w Otmuchowie",
+    "url": "https://otmuchow.pl",
+    "tags": "Powódź"
+  },
+  {
+    "id": 3438499,
+    "title": "Urząd Miejski w Paczkowie",
+    "url": "https://paczkow.pl",
+    "tags": "Powódź"
+  },
+  {
+    "id": 3438500,
+    "title": "Starostwo Powiatowe w Kłodzku",
+    "url": "https://powiat.klodzko.pl",
+    "tags": "Powódź"
+  },
+  {
+    "id": 3438501,
+    "title": "Rządowy system ostrzegania o powodzi",
+    "url": "https://powodz.gov.pl",
+    "tags": "Powódź"
+  },
+  {
+    "id": 3438502,
+    "title": "Urząd Miasta i Gminy Stronie Śląskie",
+    "url": "https://stronie.pl",
+    "tags": "Powódź"
+  },
+  {
+    "id": 3438503,
+    "title": "Urząd Miasta Kłodzko",
+    "url": "https://um.klodzko.pl",
+    "tags": "Powódź"
+  },
+  {
+    "id": 3438504,
+    "title": "Urząd Miasta i Gminy Bardo",
+    "url": "https://bardo.pl",
+    "tags": "Powódź"
+  },
+  {
+    "id": 3438505,
+    "title": "Starostwo Powiatowe w Brzegu",
+    "url": "https://brzeg-powiat.pl",
+    "tags": "Powódź"
+  },
+  {
+    "id": 3438506,
+    "title": "Urząd Miasta Brzeg",
+    "url": "https://brzeg.pl",
+    "tags": "Powódź"
+  },
+  {
+    "id": 3438507,
+    "title": "Urząd Miasta i Gminy Bystrzyca Kłodzka",
+    "url": "https://bystrzycaklodzka.pl",
+    "tags": "Powódź"
+  },
+  {
+    "id": 3438508,
+    "title": "Urząd Miejski w Głuchołazach",
+    "url": "https://glucholazy.pl",
+    "tags": "Powódź"
+  },
+  {
+    "id": 3438509,
+    "title": "Ministerstwo Spraw Wewnętrznych i Administracji (MSWiA)",
+    "url": "https://gov.pl-mswia",
+    "tags": "Powódź"
+  },
+  {
+    "id": 3438510,
+    "title": "Strona internetowa Ministerstwa Spraw Wewnętrznych i Administracji",
+    "url": "https://gov.pl-web-mswia",
+    "tags": "Powódź"
+  },
+  {
+    "id": 3438511,
+    "title": "Instytut Meteorologii i Gospodarki Wodnej (IMGW)",
+    "url": "https://imgw.pl",
+    "tags": "Powódź"
+  },
+  {
+    "id": 3438512,
+    "title": "Informatyczny System Osłony Kraju (ISOK)",
+    "url": "https://isok.gov.pl",
+    "tags": "Powódź"
+  },
+  {
+    "id": 3606217,
+    "title": "1920.gov.pl",
+    "url": "https://1920.gov.pl",
+    "tags": ""
+  },
+  {
+    "id": 3606218,
+    "title": "777.org.pl",
+    "url": "https://777.org.pl",
+    "tags": ""
+  },
+  {
+    "id": 3606219,
+    "title": "abm.gov.pl",
+    "url": "https://abm.gov.pl",
+    "tags": ""
+  },
+  {
+    "id": 3606220,
+    "title": "abw.gov.pl",
+    "url": "https://abw.gov.pl",
+    "tags": ""
+  },
+  {
+    "id": 3606221,
+    "title": "afs.gov.pl",
+    "url": "https://afs.gov.pl",
+    "tags": ""
+  },
+  {
+    "id": 3606222,
+    "title": "aids.gov.pl",
+    "url": "https://aids.gov.pl",
+    "tags": ""
+  },
+  {
+    "id": 3606223,
+    "title": "akademiacez.gov.pl",
+    "url": "https://akademiacez.gov.pl",
+    "tags": ""
+  },
+  {
+    "id": 3606224,
+    "title": "akademiakopernikanska.gov.pl",
+    "url": "https://akademiakopernikanska.gov.pl",
+    "tags": ""
+  },
+  {
+    "id": 3606225,
+    "title": "aktywnyrodzic.gov.pl",
+    "url": "https://aktywnyrodzic.gov.pl",
+    "tags": ""
+  },
+  {
+    "id": 3606226,
+    "title": "aleksandrowkuj.sr.gov.pl",
+    "url": "https://aleksandrowkuj.sr.gov.pl",
+    "tags": ""
+  },
+  {
+    "id": 3606227,
+    "title": "antykorupcja.gov.pl",
+    "url": "https://antykorupcja.gov.pl",
+    "tags": ""
+  },
+  {
+    "id": 3606228,
+    "title": "aotm.gov.pl",
+    "url": "https://aotm.gov.pl",
+    "tags": ""
+  },
+  {
+    "id": 3606229,
+    "title": "aotmit.gov.pl",
+    "url": "https://aotmit.gov.pl",
+    "tags": ""
+  },
+  {
+    "id": 3606230,
+    "title": "ap.opole.bip.gov.pl",
+    "url": "https://ap.opole.bip.gov.pl",
+    "tags": ""
+  },
+  {
+    "id": 3606231,
+    "title": "apgw.gov.pl",
+    "url": "https://apgw.gov.pl",
+    "tags": ""
+  },
+  {
+    "id": 3606232,
+    "title": "arimr.gov.pl",
+    "url": "https://arimr.gov.pl",
+    "tags": ""
+  },
+  {
+    "id": 3606233,
+    "title": "augustow.pinb.gov.pl",
+    "url": "https://augustow.pinb.gov.pl",
+    "tags": ""
+  },
+  {
+    "id": 3606234,
+    "title": "augustow.sr.gov.pl",
+    "url": "https://augustow.sr.gov.pl",
+    "tags": ""
+  },
+  {
+    "id": 3606235,
+    "title": "aw.gov.pl",
+    "url": "https://aw.gov.pl",
+    "tags": ""
+  },
+  {
+    "id": 3606236,
+    "title": "barczewo.zp.gov.pl",
+    "url": "https://barczewo.zp.gov.pl",
+    "tags": ""
+  },
+  {
+    "id": 3606237,
+    "title": "bartoszyce.sr.gov.pl",
+    "url": "https://bartoszyce.sr.gov.pl",
+    "tags": ""
+  },
+  {
+    "id": 3606238,
+    "title": "bazaazbestowa.gov.pl",
+    "url": "https://bazaazbestowa.gov.pl",
+    "tags": ""
+  },
+  {
+    "id": 3606239,
+    "title": "bazakonkurencyjnosci.gov.pl",
+    "url": "https://bazakonkurencyjnosci.gov.pl",
+    "tags": ""
+  },
+  {
+    "id": 3606240,
+    "title": "bazamezowzaufania.gov.pl",
+    "url": "https://bazamezowzaufania.gov.pl",
+    "tags": ""
+  },
+  {
+    "id": 3606241,
+    "title": "bbpn.gov.pl",
+    "url": "https://bbpn.gov.pl",
+    "tags": ""
+  },
+  {
+    "id": 3606242,
+    "title": "bdpn.gov.pl",
+    "url": "https://bdpn.gov.pl",
+    "tags": ""
+  },
+  {
+    "id": 3606243,
+    "title": "belchatow.sr.gov.pl",
+    "url": "https://belchatow.sr.gov.pl",
+    "tags": ""
+  },
+  {
+    "id": 3606244,
+    "title": "bezpartyjnisamorzadowcy.org.pl",
+    "url": "https://bezpartyjnisamorzadowcy.org.pl",
+    "tags": ""
+  },
+  {
+    "id": 3606245,
+    "title": "bezpartyjnisamorzadowcy.org.pl/wybory",
+    "url": "https://bezpartyjnisamorzadowcy.org.pl/wybory",
+    "tags": ""
+  },
+  {
+    "id": 3606246,
+    "title": "bezpiecznedane.gov.pl",
+    "url": "https://bezpiecznedane.gov.pl",
+    "tags": ""
+  },
+  {
+    "id": 3606247,
+    "title": "bgpn.gov.pl",
+    "url": "https://bgpn.gov.pl",
+    "tags": ""
+  },
+  {
+    "id": 3606248,
+    "title": "bhmw.gov.pl",
+    "url": "https://bhmw.gov.pl",
+    "tags": ""
+  },
+  {
+    "id": 3606249,
+    "title": "bialapodlaska.sr.gov.pl",
+    "url": "https://bialapodlaska.sr.gov.pl",
+    "tags": ""
+  },
+  {
+    "id": 3606250,
+    "title": "bialogard.sr.gov.pl",
+    "url": "https://bialogard.sr.gov.pl",
+    "tags": ""
+  },
+  {
+    "id": 3606251,
+    "title": "bialystok.sa.gov.pl",
+    "url": "https://bialystok.sa.gov.pl",
+    "tags": ""
+  },
+  {
+    "id": 3606252,
+    "title": "bialystok.so.gov.pl",
+    "url": "https://bialystok.so.gov.pl",
+    "tags": ""
+  },
+  {
+    "id": 3606253,
+    "title": "bialystok.sr.gov.pl",
+    "url": "https://bialystok.sr.gov.pl",
+    "tags": ""
+  },
+  {
+    "id": 3606254,
+    "title": "bialystok.wiih.gov.pl",
+    "url": "https://bialystok.wiih.gov.pl",
+    "tags": ""
+  },
+  {
+    "id": 3606255,
+    "title": "bialystok.wios.gov.pl",
+    "url": "https://bialystok.wios.gov.pl",
+    "tags": ""
+  },
+  {
+    "id": 3606256,
+    "title": "bialystok.zp.gov.pl",
+    "url": "https://bialystok.zp.gov.pl",
+    "tags": ""
+  },
+  {
+    "id": 3606257,
+    "title": "biejat2025.pl",
+    "url": "https://biejat2025.pl",
+    "tags": ""
+  },
+  {
+    "id": 3606258,
+    "title": "bielskobiala.pinb.gov.pl",
+    "url": "https://bielskobiala.pinb.gov.pl",
+    "tags": ""
+  },
+  {
+    "id": 3606259,
+    "title": "bilgoraj.sr.gov.pl",
+    "url": "https://bilgoraj.sr.gov.pl",
+    "tags": ""
+  },
+  {
+    "id": 3606260,
+    "title": "bioroznorodnosc.gov.pl",
+    "url": "https://bioroznorodnosc.gov.pl",
+    "tags": ""
+  },
+  {
+    "id": 3606261,
+    "title": "bip.brpo.gov.pl/pl/tagi/dostepne",
+    "url": "https://bip.brpo.gov.pl/pl/tagi/dostepne",
+    "tags": ""
+  },
+  {
+    "id": 3606262,
+    "title": "biskupiec.sr.gov.pl",
+    "url": "https://biskupiec.sr.gov.pl",
+    "tags": ""
+  },
+  {
+    "id": 3606263,
+    "title": "bitwa1920.gov.pl",
+    "url": "https://bitwa1920.gov.pl",
+    "tags": ""
+  },
+  {
+    "id": 3606264,
+    "title": "bitwawarszawska.gov.pl",
+    "url": "https://bitwawarszawska.gov.pl",
+    "tags": ""
+  },
+  {
+    "id": 3606265,
+    "title": "biznes.gov.pl",
+    "url": "https://biznes.gov.pl",
+    "tags": ""
+  },
+  {
+    "id": 3606266,
+    "title": "blizanow.ug.gov.pl",
+    "url": "https://blizanow.ug.gov.pl",
+    "tags": ""
+  },
+  {
+    "id": 3606267,
+    "title": "bnl.gov.pl",
+    "url": "https://bnl.gov.pl",
+    "tags": ""
+  },
+  {
+    "id": 3606268,
+    "title": "bochnia.pinb.gov.pl",
+    "url": "https://bochnia.pinb.gov.pl",
+    "tags": ""
+  },
+  {
+    "id": 3606269,
+    "title": "bochnia.sr.gov.pl",
+    "url": "https://bochnia.sr.gov.pl",
+    "tags": ""
+  },
+  {
+    "id": 3606270,
+    "title": "boleslawiec.sr.gov.pl",
+    "url": "https://boleslawiec.sr.gov.pl",
+    "tags": ""
+  },
+  {
+    "id": 3606271,
+    "title": "bpn.gov.pl",
+    "url": "https://bpn.gov.pl",
+    "tags": ""
+  },
+  {
+    "id": 3606272,
+    "title": "bransk.um.gov.pl",
+    "url": "https://bransk.um.gov.pl",
+    "tags": ""
+  },
+  {
+    "id": 3606273,
+    "title": "brexit.gov.pl",
+    "url": "https://brexit.gov.pl",
+    "tags": ""
+  },
+  {
+    "id": 3606274,
+    "title": "brodnica.sr.gov.pl",
+    "url": "https://brodnica.sr.gov.pl",
+    "tags": ""
+  },
+  {
+    "id": 3606275,
+    "title": "brodnica.ug.gov.pl",
+    "url": "https://brodnica.ug.gov.pl",
+    "tags": ""
+  },
+  {
+    "id": 3606276,
+    "title": "brpd.gov.pl",
+    "url": "https://brpd.gov.pl",
+    "tags": ""
+  },
+  {
+    "id": 3606277,
+    "title": "brpo.gov.pl",
+    "url": "https://brpo.gov.pl",
+    "tags": ""
+  },
+  {
+    "id": 3606278,
+    "title": "brzeg.sr.gov.pl",
+    "url": "https://brzeg.sr.gov.pl",
+    "tags": ""
+  },
+  {
+    "id": 3606279,
+    "title": "brzesko.sr.gov.pl",
+    "url": "https://brzesko.sr.gov.pl",
+    "tags": ""
+  },
+  {
+    "id": 3606280,
+    "title": "brzeziny.sr.gov.pl",
+    "url": "https://brzeziny.sr.gov.pl",
+    "tags": ""
+  },
+  {
+    "id": 3606281,
+    "title": "brzozow.sr.gov.pl",
+    "url": "https://brzozow.sr.gov.pl",
+    "tags": ""
+  },
+  {
+    "id": 3606282,
+    "title": "budowlaneabc.gov.pl",
+    "url": "https://budowlaneabc.gov.pl",
+    "tags": ""
+  },
+  {
+    "id": 3606283,
+    "title": "businessinpoland.gov.pl",
+    "url": "https://businessinpoland.gov.pl",
+    "tags": ""
+  },
+  {
+    "id": 3606284,
+    "title": "busko.pinb.gov.pl",
+    "url": "https://busko.pinb.gov.pl",
+    "tags": ""
+  },
+  {
+    "id": 3606285,
+    "title": "busko.sr.gov.pl",
+    "url": "https://busko.sr.gov.pl",
+    "tags": ""
+  },
+  {
+    "id": 3606286,
+    "title": "bydg.uzs.gov.pl",
+    "url": "https://bydg.uzs.gov.pl",
+    "tags": ""
+  },
+  {
+    "id": 3606287,
+    "title": "bydgoszcz.so.gov.pl",
+    "url": "https://bydgoszcz.so.gov.pl",
+    "tags": ""
+  },
+  {
+    "id": 3606288,
+    "title": "bydgoszcz.sr.gov.pl",
+    "url": "https://bydgoszcz.sr.gov.pl",
+    "tags": ""
+  },
+  {
+    "id": 3606289,
+    "title": "bydgoszcz.uw.gov.pl",
+    "url": "https://bydgoszcz.uw.gov.pl",
+    "tags": ""
+  },
+  {
+    "id": 3606290,
+    "title": "bydgoszcz.wiih.gov.pl",
+    "url": "https://bydgoszcz.wiih.gov.pl",
+    "tags": ""
+  },
+  {
+    "id": 3606291,
+    "title": "bydgoszcz.wsa.gov.pl",
+    "url": "https://bydgoszcz.wsa.gov.pl",
+    "tags": ""
+  },
+  {
+    "id": 3606292,
+    "title": "bytom.kmpsp.gov.pl",
+    "url": "https://bytom.kmpsp.gov.pl",
+    "tags": ""
+  },
+  {
+    "id": 3606293,
+    "title": "bytom.sr.gov.pl",
+    "url": "https://bytom.sr.gov.pl",
+    "tags": ""
+  },
+  {
+    "id": 3606294,
+    "title": "bytow.sr.gov.pl",
+    "url": "https://bytow.sr.gov.pl",
+    "tags": ""
+  },
+  {
+    "id": 3606295,
+    "title": "caa.gov.pl",
+    "url": "https://caa.gov.pl",
+    "tags": ""
+  },
+  {
+    "id": 3606296,
+    "title": "cadz.gov.pl",
+    "url": "https://cadz.gov.pl",
+    "tags": ""
+  },
+  {
+    "id": 3606297,
+    "title": "cba.gov.pl",
+    "url": "https://cba.gov.pl",
+    "tags": ""
+  },
+  {
+    "id": 3606298,
+    "title": "cbz.gov.pl",
+    "url": "https://cbz.gov.pl",
+    "tags": ""
+  },
+  {
+    "id": 3606299,
+    "title": "cdr.gov.pl",
+    "url": "https://cdr.gov.pl",
+    "tags": ""
+  },
+  {
+    "id": 3606300,
+    "title": "ceeb.gov.pl",
+    "url": "https://ceeb.gov.pl",
+    "tags": ""
+  },
+  {
+    "id": 3606301,
+    "title": "cef.gov.pl",
+    "url": "https://cef.gov.pl",
+    "tags": ""
+  },
+  {
+    "id": 3606302,
+    "title": "ceidg.gov.pl",
+    "url": "https://ceidg.gov.pl",
+    "tags": ""
+  },
+  {
+    "id": 3606303,
+    "title": "centralna.gov.pl",
+    "url": "https://centralna.gov.pl",
+    "tags": ""
+  },
+  {
+    "id": 3606304,
+    "title": "centrum.gov.pl",
+    "url": "https://centrum.gov.pl",
+    "tags": ""
+  },
+  {
+    "id": 3606305,
+    "title": "cepik.gov.pl",
+    "url": "https://cepik.gov.pl",
+    "tags": ""
+  },
+  {
+    "id": 3606306,
+    "title": "cert.gov.pl",
+    "url": "https://cert.gov.pl",
+    "tags": ""
+  },
+  {
+    "id": 3606307,
+    "title": "cez.gov.pl",
+    "url": "https://cez.gov.pl",
+    "tags": ""
+  },
+  {
+    "id": 3606308,
+    "title": "chelm.sr.gov.pl",
+    "url": "https://chelm.sr.gov.pl",
+    "tags": ""
+  },
+  {
+    "id": 3606309,
+    "title": "chelmno.sr.gov.pl",
+    "url": "https://chelmno.sr.gov.pl",
+    "tags": ""
+  },
+  {
+    "id": 3606310,
+    "title": "chemikalia.gov.pl",
+    "url": "https://chemikalia.gov.pl",
+    "tags": ""
+  },
+  {
+    "id": 3606311,
+    "title": "chmura.gov.pl",
+    "url": "https://chmura.gov.pl",
+    "tags": ""
+  },
+  {
+    "id": 3606312,
+    "title": "chojnice.piw.gov.pl",
+    "url": "https://chojnice.piw.gov.pl",
+    "tags": ""
+  },
+  {
+    "id": 3606313,
+    "title": "chojnice.sdn.gov.pl",
+    "url": "https://chojnice.sdn.gov.pl",
+    "tags": ""
+  },
+  {
+    "id": 3606314,
+    "title": "chojnice.sr.gov.pl",
+    "url": "https://chojnice.sr.gov.pl",
+    "tags": ""
+  },
+  {
+    "id": 3606315,
+    "title": "chorobyrzadkie.gov.pl",
+    "url": "https://chorobyrzadkie.gov.pl",
+    "tags": ""
+  },
+  {
+    "id": 3606316,
+    "title": "chorzow.sr.gov.pl",
+    "url": "https://chorzow.sr.gov.pl",
+    "tags": ""
+  },
+  {
+    "id": 3606317,
+    "title": "choszczno.sr.gov.pl",
+    "url": "https://choszczno.sr.gov.pl",
+    "tags": ""
+  },
+  {
+    "id": 3606318,
+    "title": "chrzanow.sr.gov.pl",
+    "url": "https://chrzanow.sr.gov.pl",
+    "tags": ""
+  },
+  {
+    "id": 3606319,
+    "title": "cie.gov.pl",
+    "url": "https://cie.gov.pl",
+    "tags": ""
+  },
+  {
+    "id": 3606320,
+    "title": "ciechanow.sko.gov.pl",
+    "url": "https://ciechanow.sko.gov.pl",
+    "tags": ""
+  },
+  {
+    "id": 3606321,
+    "title": "ciechanow.sr.gov.pl",
+    "url": "https://ciechanow.sr.gov.pl",
+    "tags": ""
+  },
+  {
+    "id": 3606322,
+    "title": "cieplo.gov.pl",
+    "url": "https://cieplo.gov.pl",
+    "tags": ""
+  },
+  {
+    "id": 3606323,
+    "title": "cieszyn.pinb.gov.pl",
+    "url": "https://cieszyn.pinb.gov.pl",
+    "tags": ""
+  },
+  {
+    "id": 3606324,
+    "title": "cieszyn.sr.gov.pl",
+    "url": "https://cieszyn.sr.gov.pl",
+    "tags": ""
+  },
+  {
+    "id": 3606325,
+    "title": "cinn.gov.pl",
+    "url": "https://cinn.gov.pl",
+    "tags": ""
+  },
+  {
+    "id": 3606326,
+    "title": "cirf.gov.pl",
+    "url": "https://cirf.gov.pl",
+    "tags": ""
+  },
+  {
+    "id": 3606327,
+    "title": "cis.gov.pl",
+    "url": "https://cis.gov.pl",
+    "tags": ""
+  },
+  {
+    "id": 3606328,
+    "title": "cke.gov.pl",
+    "url": "https://cke.gov.pl",
+    "tags": ""
+  },
+  {
+    "id": 3606329,
+    "title": "cldt.gov.pl",
+    "url": "https://cldt.gov.pl",
+    "tags": ""
+  },
+  {
+    "id": 3606330,
+    "title": "cmj.gov.pl",
+    "url": "https://cmj.gov.pl",
+    "tags": ""
+  },
+  {
+    "id": 3606331,
+    "title": "coboru.gov.pl",
+    "url": "https://coboru.gov.pl",
+    "tags": ""
+  },
+  {
+    "id": 3606332,
+    "title": "coi.gov.pl",
+    "url": "https://coi.gov.pl",
+    "tags": ""
+  },
+  {
+    "id": 3606333,
+    "title": "copemswia.gov.pl",
+    "url": "https://copemswia.gov.pl",
+    "tags": ""
+  },
+  {
+    "id": 3606334,
+    "title": "copyright.gov.pl",
+    "url": "https://copyright.gov.pl",
+    "tags": ""
+  },
+  {
+    "id": 3606335,
+    "title": "cpd.gov.pl",
+    "url": "https://cpd.gov.pl",
+    "tags": ""
+  },
+  {
+    "id": 3606336,
+    "title": "cppc.gov.pl",
+    "url": "https://cppc.gov.pl",
+    "tags": ""
+  },
+  {
+    "id": 3606337,
+    "title": "cpsdialog.gov.pl",
+    "url": "https://cpsdialog.gov.pl",
+    "tags": ""
+  },
+  {
+    "id": 3606338,
+    "title": "crd.gov.pl",
+    "url": "https://crd.gov.pl",
+    "tags": ""
+  },
+  {
+    "id": 3606339,
+    "title": "csirt.gov.pl",
+    "url": "https://csirt.gov.pl",
+    "tags": ""
+  },
+  {
+    "id": 3606340,
+    "title": "cst2021.gov.pl",
+    "url": "https://cst2021.gov.pl",
+    "tags": ""
+  },
+  {
+    "id": 3606341,
+    "title": "cupt.gov.pl",
+    "url": "https://cupt.gov.pl",
+    "tags": ""
+  },
+  {
+    "id": 3606342,
+    "title": "cyber.gov.pl",
+    "url": "https://cyber.gov.pl",
+    "tags": ""
+  },
+  {
+    "id": 3606343,
+    "title": "cyfryzacja.gov.pl",
+    "url": "https://cyfryzacja.gov.pl",
+    "tags": ""
+  },
+  {
+    "id": 3606344,
+    "title": "czdsigb.gov.pl",
+    "url": "https://czdsigb.gov.pl",
+    "tags": ""
+  },
+  {
+    "id": 3606345,
+    "title": "czeladz.sr.gov.pl",
+    "url": "https://czeladz.sr.gov.pl",
+    "tags": ""
+  },
+  {
+    "id": 3606346,
+    "title": "czestochowa.so.gov.pl",
+    "url": "https://czestochowa.so.gov.pl",
+    "tags": ""
+  },
+  {
+    "id": 3606347,
+    "title": "czestochowa.sr.gov.pl",
+    "url": "https://czestochowa.sr.gov.pl",
+    "tags": ""
+  },
+  {
+    "id": 3606348,
+    "title": "czluchow.piw.gov.pl",
+    "url": "https://czluchow.piw.gov.pl",
+    "tags": ""
+  },
+  {
+    "id": 3606349,
+    "title": "czluchow.sr.gov.pl",
+    "url": "https://czluchow.sr.gov.pl",
+    "tags": ""
+  },
+  {
+    "id": 3606350,
+    "title": "czystepowietrze.gov.pl",
+    "url": "https://czystepowietrze.gov.pl",
+    "tags": ""
+  },
+  {
+    "id": 3606351,
+    "title": "dabrowag.sr.gov.pl",
+    "url": "https://dabrowag.sr.gov.pl",
+    "tags": ""
+  },
+  {
+    "id": 3606352,
+    "title": "dabrowatar.sr.gov.pl",
+    "url": "https://dabrowatar.sr.gov.pl",
+    "tags": ""
+  },
+  {
+    "id": 3606353,
+    "title": "dane.gov.pl",
+    "url": "https://dane.gov.pl",
+    "tags": ""
+  },
+  {
+    "id": 3606354,
+    "title": "debica.sr.gov.pl",
+    "url": "https://debica.sr.gov.pl",
+    "tags": ""
+  },
+  {
+    "id": 3606355,
+    "title": "dia.oia.gov.pl",
+    "url": "https://dia.oia.gov.pl",
+    "tags": ""
+  },
+  {
+    "id": 3606356,
+    "title": "dialog.gov.pl",
+    "url": "https://dialog.gov.pl",
+    "tags": ""
+  },
+  {
+    "id": 3606357,
+    "title": "dobron.ug.gov.pl",
+    "url": "https://dobron.ug.gov.pl",
+    "tags": ""
+  },
+  {
+    "id": 3606358,
+    "title": "dolnyslask.witd.gov.pl",
+    "url": "https://dolnyslask.witd.gov.pl",
+    "tags": ""
+  },
+  {
+    "id": 3606359,
+    "title": "dostepnosc.gov.pl",
+    "url": "https://dostepnosc.gov.pl",
+    "tags": ""
+  },
+  {
+    "id": 3606360,
+    "title": "dotacjenainnowacje.gov.pl",
+    "url": "https://dotacjenainnowacje.gov.pl",
+    "tags": ""
+  },
+  {
+    "id": 3606361,
+    "title": "dpn.gov.pl",
+    "url": "https://dpn.gov.pl",
+    "tags": ""
+  },
+  {
+    "id": 3606362,
+    "title": "drezdenko.pinb.gov.pl",
+    "url": "https://drezdenko.pinb.gov.pl",
+    "tags": ""
+  },
+  {
+    "id": 3606363,
+    "title": "drony.gov.pl",
+    "url": "https://drony.gov.pl",
+    "tags": ""
+  },
+  {
+    "id": 3606364,
+    "title": "dzialdowo.sr.gov.pl",
+    "url": "https://dzialdowo.sr.gov.pl",
+    "tags": ""
+  },
+  {
+    "id": 3606365,
+    "title": "dzialdowo.starostwo.gov.pl",
+    "url": "https://dzialdowo.starostwo.gov.pl",
+    "tags": ""
+  },
+  {
+    "id": 3606366,
+    "title": "dzialdowo.ug.gov.pl",
+    "url": "https://dzialdowo.ug.gov.pl",
+    "tags": ""
+  },
+  {
+    "id": 3606367,
+    "title": "dzielautracone.gov.pl",
+    "url": "https://dzielautracone.gov.pl",
+    "tags": ""
+  },
+  {
+    "id": 3606368,
+    "title": "dziennikiurzedowe.gov.pl",
+    "url": "https://dziennikiurzedowe.gov.pl",
+    "tags": ""
+  },
+  {
+    "id": 3606369,
+    "title": "dziennikustaw.gov.pl",
+    "url": "https://dziennikustaw.gov.pl",
+    "tags": ""
+  },
+  {
+    "id": 3606370,
+    "title": "dziennikustawnauchodzstwie.gov.pl",
+    "url": "https://dziennikustawnauchodzstwie.gov.pl",
+    "tags": ""
+  },
+  {
+    "id": 3606371,
+    "title": "dzierzoniow.sr.gov.pl",
+    "url": "https://dzierzoniow.sr.gov.pl",
+    "tags": ""
+  },
+  {
+    "id": 3606372,
+    "title": "edoreczenia.gov.pl",
+    "url": "https://edoreczenia.gov.pl",
+    "tags": ""
+  },
+  {
+    "id": 3606373,
+    "title": "edukacja.gov.pl",
+    "url": "https://edukacja.gov.pl",
+    "tags": ""
+  },
+  {
+    "id": 3606374,
+    "title": "edukacjaekologiczna.gov.pl",
+    "url": "https://edukacjaekologiczna.gov.pl",
+    "tags": ""
+  },
+  {
+    "id": 3606375,
+    "title": "edwin.gov.pl",
+    "url": "https://edwin.gov.pl",
+    "tags": ""
+  },
+  {
+    "id": 3606376,
+    "title": "efaktura.gov.pl",
+    "url": "https://efaktura.gov.pl",
+    "tags": ""
+  },
+  {
+    "id": 3606377,
+    "title": "eis.gov.pl",
+    "url": "https://eis.gov.pl",
+    "tags": ""
+  },
+  {
+    "id": 3606378,
+    "title": "ekonomiaspoleczna.gov.pl",
+    "url": "https://ekonomiaspoleczna.gov.pl",
+    "tags": ""
+  },
+  {
+    "id": 3606379,
+    "title": "ekoportal.gov.pl",
+    "url": "https://ekoportal.gov.pl",
+    "tags": ""
+  },
+  {
+    "id": 3606380,
+    "title": "elblag.piw.gov.pl",
+    "url": "https://elblag.piw.gov.pl",
+    "tags": ""
+  },
+  {
+    "id": 3606381,
+    "title": "elblag.so.gov.pl",
+    "url": "https://elblag.so.gov.pl",
+    "tags": ""
+  },
+  {
+    "id": 3606382,
+    "title": "elblag.sr.gov.pl",
+    "url": "https://elblag.sr.gov.pl",
+    "tags": ""
+  },
+  {
+    "id": 3606383,
+    "title": "elektromobilnosc.gov.pl",
+    "url": "https://elektromobilnosc.gov.pl",
+    "tags": ""
+  },
+  {
+    "id": 3606384,
+    "title": "eli.gov.pl",
+    "url": "https://eli.gov.pl",
+    "tags": ""
+  },
+  {
+    "id": 3606385,
+    "title": "elk.sr.gov.pl",
+    "url": "https://elk.sr.gov.pl",
+    "tags": ""
+  },
+  {
+    "id": 3606386,
+    "title": "energieoszczedzamy.gov.pl",
+    "url": "https://energieoszczedzamy.gov.pl",
+    "tags": ""
+  },
+  {
+    "id": 3606387,
+    "title": "eog.gov.pl",
+    "url": "https://eog.gov.pl",
+    "tags": ""
+  },
+  {
+    "id": 3606388,
+    "title": "eosc.gov.pl",
+    "url": "https://eosc.gov.pl",
+    "tags": ""
+  },
+  {
+    "id": 3606389,
+    "title": "epnp.gov.pl",
+    "url": "https://epnp.gov.pl",
+    "tags": ""
+  },
+  {
+    "id": 3606390,
+    "title": "epuap.gov.pl",
+    "url": "https://epuap.gov.pl",
+    "tags": ""
+  },
+  {
+    "id": 3606391,
+    "title": "estonskicit.gov.pl",
+    "url": "https://estonskicit.gov.pl",
+    "tags": ""
+  },
+  {
+    "id": 3606392,
+    "title": "etoll.gov.pl",
+    "url": "https://etoll.gov.pl",
+    "tags": ""
+  },
+  {
+    "id": 3606393,
+    "title": "eudt.gov.pl",
+    "url": "https://eudt.gov.pl",
+    "tags": ""
+  },
+  {
+    "id": 3606394,
+    "title": "europasrodkowa.gov.pl",
+    "url": "https://europasrodkowa.gov.pl",
+    "tags": ""
+  },
+  {
+    "id": 3606395,
+    "title": "eurzadskarbowy.gov.pl",
+    "url": "https://eurzadskarbowy.gov.pl",
+    "tags": ""
+  },
+  {
+    "id": 3606396,
+    "title": "ewaluacja.gov.pl",
+    "url": "https://ewaluacja.gov.pl",
+    "tags": ""
+  },
+  {
+    "id": 3606397,
+    "title": "ewt.gov.pl",
+    "url": "https://ewt.gov.pl",
+    "tags": ""
+  },
+  {
+    "id": 3606398,
+    "title": "ewybory.gov.pl",
+    "url": "https://ewybory.gov.pl",
+    "tags": ""
+  },
+  {
+    "id": 3606399,
+    "title": "ewybory.msz.gov.pl",
+    "url": "https://ewybory.msz.gov.pl",
+    "tags": ""
+  },
+  {
+    "id": 3606400,
+    "title": "expo.gov.pl",
+    "url": "https://expo.gov.pl",
+    "tags": ""
+  },
+  {
+    "id": 3606401,
+    "title": "ezamowienia.gov.pl",
+    "url": "https://ezamowienia.gov.pl",
+    "tags": ""
+  },
+  {
+    "id": 3606402,
+    "title": "ezd.gov.pl",
+    "url": "https://ezd.gov.pl",
+    "tags": ""
+  },
+  {
+    "id": 3606403,
+    "title": "ezdrowie.gov.pl",
+    "url": "https://ezdrowie.gov.pl",
+    "tags": ""
+  },
+  {
+    "id": 3606404,
+    "title": "ezdrp.gov.pl",
+    "url": "https://ezdrp.gov.pl",
+    "tags": ""
+  },
+  {
+    "id": 3606405,
+    "title": "feng.gov.pl",
+    "url": "https://feng.gov.pl",
+    "tags": ""
+  },
+  {
+    "id": 3606406,
+    "title": "feniks.gov.pl",
+    "url": "https://feniks.gov.pl",
+    "tags": ""
+  },
+  {
+    "id": 3606407,
+    "title": "fepw.gov.pl",
+    "url": "https://fepw.gov.pl",
+    "tags": ""
+  },
+  {
+    "id": 3606408,
+    "title": "fepz.gov.pl",
+    "url": "https://fepz.gov.pl",
+    "tags": ""
+  },
+  {
+    "id": 3606409,
+    "title": "fer.gov.pl",
+    "url": "https://fer.gov.pl",
+    "tags": ""
+  },
+  {
+    "id": 3606410,
+    "title": "ferc.gov.pl",
+    "url": "https://ferc.gov.pl",
+    "tags": ""
+  },
+  {
+    "id": 3606411,
+    "title": "fers.gov.pl",
+    "url": "https://fers.gov.pl",
+    "tags": ""
+  },
+  {
+    "id": 3606412,
+    "title": "fintech.gov.pl",
+    "url": "https://fintech.gov.pl",
+    "tags": ""
+  },
+  {
+    "id": 3606413,
+    "title": "formularzsppw.gov.pl",
+    "url": "https://formularzsppw.gov.pl",
+    "tags": ""
+  },
+  {
+    "id": 3606414,
+    "title": "fppp.gov.pl",
+    "url": "https://fppp.gov.pl",
+    "tags": ""
+  },
+  {
+    "id": 3606415,
+    "title": "fsusr.gov.pl",
+    "url": "https://fsusr.gov.pl",
+    "tags": ""
+  },
+  {
+    "id": 3606416,
+    "title": "funduszeeuropejskie.gov.pl",
+    "url": "https://funduszeeuropejskie.gov.pl",
+    "tags": ""
+  },
+  {
+    "id": 3606417,
+    "title": "funduszsprawiedliwosci.gov.pl",
+    "url": "https://funduszsprawiedliwosci.gov.pl",
+    "tags": ""
+  },
+  {
+    "id": 3606418,
+    "title": "gabinet.gov.pl",
+    "url": "https://gabinet.gov.pl",
+    "tags": ""
+  },
+  {
+    "id": 3606419,
+    "title": "gacki.oow.gov.pl",
+    "url": "https://gacki.oow.gov.pl",
+    "tags": ""
+  },
+  {
+    "id": 3606420,
+    "title": "garwolin.sr.gov.pl",
+    "url": "https://garwolin.sr.gov.pl",
+    "tags": ""
+  },
+  {
+    "id": 3606421,
+    "title": "gbpizs.gov.pl",
+    "url": "https://gbpizs.gov.pl",
+    "tags": ""
+  },
+  {
+    "id": 3606422,
+    "title": "gda.uzs.gov.pl",
+    "url": "https://gda.uzs.gov.pl",
+    "tags": ""
+  },
+  {
+    "id": 3606423,
+    "title": "gdansk.sa.gov.pl",
+    "url": "https://gdansk.sa.gov.pl",
+    "tags": ""
+  },
+  {
+    "id": 3606424,
+    "title": "gdansk.so.gov.pl",
+    "url": "https://gdansk.so.gov.pl",
+    "tags": ""
+  },
+  {
+    "id": 3606425,
+    "title": "gdansk.wsa.gov.pl",
+    "url": "https://gdansk.wsa.gov.pl",
+    "tags": ""
+  },
+  {
+    "id": 3606426,
+    "title": "gdansk.zp.gov.pl",
+    "url": "https://gdansk.zp.gov.pl",
+    "tags": ""
+  },
+  {
+    "id": 3606427,
+    "title": "gddkia.gov.pl",
+    "url": "https://gddkia.gov.pl",
+    "tags": ""
+  },
+  {
+    "id": 3606428,
+    "title": "gdynia.sr.gov.pl",
+    "url": "https://gdynia.sr.gov.pl",
+    "tags": ""
+  },
+  {
+    "id": 3606429,
+    "title": "geoportal.gov.pl",
+    "url": "https://geoportal.gov.pl",
+    "tags": ""
+  },
+  {
+    "id": 3606430,
+    "title": "gif.gov.pl",
+    "url": "https://gif.gov.pl",
+    "tags": ""
+  },
+  {
+    "id": 3606431,
+    "title": "gios.gov.pl",
+    "url": "https://gios.gov.pl",
+    "tags": ""
+  },
+  {
+    "id": 3606432,
+    "title": "gitd.gov.pl",
+    "url": "https://gitd.gov.pl",
+    "tags": ""
+  },
+  {
+    "id": 3606433,
+    "title": "giz.uzs.gov.pl",
+    "url": "https://giz.uzs.gov.pl",
+    "tags": ""
+  },
+  {
+    "id": 3606434,
+    "title": "gizycko.piw.gov.pl",
+    "url": "https://gizycko.piw.gov.pl",
+    "tags": ""
+  },
+  {
+    "id": 3606435,
+    "title": "gizycko.sr.gov.pl",
+    "url": "https://gizycko.sr.gov.pl",
+    "tags": ""
+  },
+  {
+    "id": 3606436,
+    "title": "gliwice.oschr.gov.pl",
+    "url": "https://gliwice.oschr.gov.pl",
+    "tags": ""
+  },
+  {
+    "id": 3606437,
+    "title": "gliwice.rzgw.gov.pl",
+    "url": "https://gliwice.rzgw.gov.pl",
+    "tags": ""
+  },
+  {
+    "id": 3606438,
+    "title": "gliwice.so.gov.pl",
+    "url": "https://gliwice.so.gov.pl",
+    "tags": ""
+  },
+  {
+    "id": 3606439,
+    "title": "gliwice.sr.gov.pl",
+    "url": "https://gliwice.sr.gov.pl",
+    "tags": ""
+  },
+  {
+    "id": 3606440,
+    "title": "glogow.sr.gov.pl",
+    "url": "https://glogow.sr.gov.pl",
+    "tags": ""
+  },
+  {
+    "id": 3606441,
+    "title": "glogow.zpisdn.gov.pl",
+    "url": "https://glogow.zpisdn.gov.pl",
+    "tags": ""
+  },
+  {
+    "id": 3606442,
+    "title": "glubczyce.sr.gov.pl",
+    "url": "https://glubczyce.sr.gov.pl",
+    "tags": ""
+  },
+  {
+    "id": 3606443,
+    "title": "goldap.piw.gov.pl",
+    "url": "https://goldap.piw.gov.pl",
+    "tags": ""
+  },
+  {
+    "id": 3606444,
+    "title": "goleniow.sr.gov.pl",
+    "url": "https://goleniow.sr.gov.pl",
+    "tags": ""
+  },
+  {
+    "id": 3606445,
+    "title": "golubdobrzyn.sr.gov.pl",
+    "url": "https://golubdobrzyn.sr.gov.pl",
+    "tags": ""
+  },
+  {
+    "id": 3606446,
+    "title": "gorlice.sr.gov.pl",
+    "url": "https://gorlice.sr.gov.pl",
+    "tags": ""
+  },
+  {
+    "id": 3606447,
+    "title": "gorzow.witd.gov.pl",
+    "url": "https://gorzow.witd.gov.pl",
+    "tags": ""
+  },
+  {
+    "id": 3606448,
+    "title": "gorzow.wsa.gov.pl",
+    "url": "https://gorzow.wsa.gov.pl",
+    "tags": ""
+  },
+  {
+    "id": 3606449,
+    "title": "gorzowwlkp.piw.gov.pl",
+    "url": "https://gorzowwlkp.piw.gov.pl",
+    "tags": ""
+  },
+  {
+    "id": 3606450,
+    "title": "gostynin.sr.gov.pl",
+    "url": "https://gostynin.sr.gov.pl",
+    "tags": ""
+  },
+  {
+    "id": 3606451,
+    "title": "govtech.gov.pl",
+    "url": "https://govtech.gov.pl",
+    "tags": ""
+  },
+  {
+    "id": 3606452,
+    "title": "gpn.gov.pl",
+    "url": "https://gpn.gov.pl",
+    "tags": ""
+  },
+  {
+    "id": 3606453,
+    "title": "grajewo.sr.gov.pl",
+    "url": "https://grajewo.sr.gov.pl",
+    "tags": ""
+  },
+  {
+    "id": 3606454,
+    "title": "granica.gov.pl",
+    "url": "https://granica.gov.pl",
+    "tags": ""
+  },
+  {
+    "id": 3606455,
+    "title": "grodzisk.sr.gov.pl",
+    "url": "https://grodzisk.sr.gov.pl",
+    "tags": ""
+  },
+  {
+    "id": 3606456,
+    "title": "grodzisk.zp.gov.pl",
+    "url": "https://grodzisk.zp.gov.pl",
+    "tags": ""
+  },
+  {
+    "id": 3606457,
+    "title": "grojec.sr.gov.pl",
+    "url": "https://grojec.sr.gov.pl",
+    "tags": ""
+  },
+  {
+    "id": 3606458,
+    "title": "grudziadz.sr.gov.pl",
+    "url": "https://grudziadz.sr.gov.pl",
+    "tags": ""
+  },
+  {
+    "id": 3606459,
+    "title": "gryfice.sr.gov.pl",
+    "url": "https://gryfice.sr.gov.pl",
+    "tags": ""
+  },
+  {
+    "id": 3606460,
+    "title": "gryfino.sr.gov.pl",
+    "url": "https://gryfino.sr.gov.pl",
+    "tags": ""
+  },
+  {
+    "id": 3606461,
+    "title": "gugik.gov.pl",
+    "url": "https://gugik.gov.pl",
+    "tags": ""
+  },
+  {
+    "id": 3606462,
+    "title": "gum.gov.pl",
+    "url": "https://gum.gov.pl",
+    "tags": ""
+  },
+  {
+    "id": 3606463,
+    "title": "gunb.gov.pl",
+    "url": "https://gunb.gov.pl",
+    "tags": ""
+  },
+  {
+    "id": 3606464,
+    "title": "holownia2025.pl",
+    "url": "https://holownia2025.pl",
+    "tags": ""
+  },
+  {
+    "id": 3606465,
+    "title": "hrj.gov.pl",
+    "url": "https://hrj.gov.pl",
+    "tags": ""
+  },
+  {
+    "id": 3606466,
+    "title": "hrubieszow.kppsp.gov.pl",
+    "url": "https://hrubieszow.kppsp.gov.pl",
+    "tags": ""
+  },
+  {
+    "id": 3606467,
+    "title": "hrubieszow.sr.gov.pl",
+    "url": "https://hrubieszow.sr.gov.pl",
+    "tags": ""
+  },
+  {
+    "id": 3606468,
+    "title": "ia.gov.pl",
+    "url": "https://ia.gov.pl",
+    "tags": ""
+  },
+  {
+    "id": 3606469,
+    "title": "iem.gov.pl",
+    "url": "https://iem.gov.pl",
+    "tags": ""
+  },
+  {
+    "id": 3606470,
+    "title": "ies.gov.pl",
+    "url": "https://ies.gov.pl",
+    "tags": ""
+  },
+  {
+    "id": 3606471,
+    "title": "iimcb.gov.pl",
+    "url": "https://iimcb.gov.pl",
+    "tags": ""
+  },
+  {
+    "id": 3606472,
+    "title": "ijhars.gov.pl",
+    "url": "https://ijhars.gov.pl",
+    "tags": ""
+  },
+  {
+    "id": 3606473,
+    "title": "ikp.gov.pl",
+    "url": "https://ikp.gov.pl",
+    "tags": ""
+  },
+  {
+    "id": 3606474,
+    "title": "ilawa.sr.gov.pl",
+    "url": "https://ilawa.sr.gov.pl",
+    "tags": ""
+  },
+  {
+    "id": 3606475,
+    "title": "info.mobywatel.gov.pl/uslugi/wybory",
+    "url": "https://info.mobywatel.gov.pl/uslugi/wybory",
+    "tags": ""
+  },
+  {
+    "id": 3606476,
+    "title": "internet.gov.pl",
+    "url": "https://internet.gov.pl",
+    "tags": ""
+  },
+  {
+    "id": 3606477,
+    "title": "interreg.gov.pl",
+    "url": "https://interreg.gov.pl",
+    "tags": ""
+  },
+  {
+    "id": 3606478,
+    "title": "interregeuropa.gov.pl",
+    "url": "https://interregeuropa.gov.pl",
+    "tags": ""
+  },
+  {
+    "id": 3606479,
+    "title": "invitro.gov.pl",
+    "url": "https://invitro.gov.pl",
+    "tags": ""
+  },
+  {
+    "id": 3606480,
+    "title": "inwestycjewzdrowie.gov.pl",
+    "url": "https://inwestycjewzdrowie.gov.pl",
+    "tags": ""
+  },
+  {
+    "id": 3606481,
+    "title": "iom.gov.pl",
+    "url": "https://iom.gov.pl",
+    "tags": ""
+  },
+  {
+    "id": 3606482,
+    "title": "irjp.gov.pl",
+    "url": "https://irjp.gov.pl",
+    "tags": ""
+  },
+  {
+    "id": 3606483,
+    "title": "iws.gov.pl",
+    "url": "https://iws.gov.pl",
+    "tags": ""
+  },
+  {
+    "id": 3606484,
+    "title": "izbalekarska.gov.pl",
+    "url": "https://izbalekarska.gov.pl",
+    "tags": ""
+  },
+  {
+    "id": 3606485,
+    "title": "jackiewicz2025.pl",
+    "url": "https://jackiewicz2025.pl",
+    "tags": ""
+  },
+  {
+    "id": 3606486,
+    "title": "janowlubelski.sr.gov.pl",
+    "url": "https://janowlubelski.sr.gov.pl",
+    "tags": ""
+  },
+  {
+    "id": 3606487,
+    "title": "jarocin.sr.gov.pl",
+    "url": "https://jarocin.sr.gov.pl",
+    "tags": ""
+  },
+  {
+    "id": 3606488,
+    "title": "jaroslaw.sr.gov.pl",
+    "url": "https://jaroslaw.sr.gov.pl",
+    "tags": ""
+  },
+  {
+    "id": 3606489,
+    "title": "jaslo.sr.gov.pl",
+    "url": "https://jaslo.sr.gov.pl",
+    "tags": ""
+  },
+  {
+    "id": 3606490,
+    "title": "jastrzebie.sr.gov.pl",
+    "url": "https://jastrzebie.sr.gov.pl",
+    "tags": ""
+  },
+  {
+    "id": 3606491,
+    "title": "jawor.sr.gov.pl",
+    "url": "https://jawor.sr.gov.pl",
+    "tags": ""
+  },
+  {
+    "id": 3606492,
+    "title": "jaworzno.sr.gov.pl",
+    "url": "https://jaworzno.sr.gov.pl",
+    "tags": ""
+  },
+  {
+    "id": 3606493,
+    "title": "jedrzejow.pinb.gov.pl",
+    "url": "https://jedrzejow.pinb.gov.pl",
+    "tags": ""
+  },
+  {
+    "id": 3606494,
+    "title": "jedrzejow.sr.gov.pl",
+    "url": "https://jedrzejow.sr.gov.pl",
+    "tags": ""
+  },
+  {
+    "id": 3606495,
+    "title": "jerzmanice.oow.gov.pl",
+    "url": "https://jerzmanice.oow.gov.pl",
+    "tags": ""
+  },
+  {
+    "id": 3606496,
+    "title": "jolantaduda.pl",
+    "url": "https://jolantaduda.pl",
+    "tags": ""
+  },
+  {
+    "id": 3606497,
+    "title": "kalisz.ap.gov.pl",
+    "url": "https://kalisz.ap.gov.pl",
+    "tags": ""
+  },
+  {
+    "id": 3606498,
+    "title": "kalisz.so.gov.pl",
+    "url": "https://kalisz.so.gov.pl",
+    "tags": ""
+  },
+  {
+    "id": 3606499,
+    "title": "kalisz.sr.gov.pl",
+    "url": "https://kalisz.sr.gov.pl",
+    "tags": ""
+  },
+  {
+    "id": 3606500,
+    "title": "kamien.sr.gov.pl",
+    "url": "https://kamien.sr.gov.pl",
+    "tags": ""
+  },
+  {
+    "id": 3606501,
+    "title": "kampn.gov.pl",
+    "url": "https://kampn.gov.pl",
+    "tags": ""
+  },
+  {
+    "id": 3606502,
+    "title": "kap.gov.pl",
+    "url": "https://kap.gov.pl",
+    "tags": ""
+  },
+  {
+    "id": 3606503,
+    "title": "karolnawrocki2025.pl",
+    "url": "https://karolnawrocki2025.pl",
+    "tags": ""
+  },
+  {
+    "id": 3606504,
+    "title": "kas.gov.pl",
+    "url": "https://kas.gov.pl",
+    "tags": ""
+  },
+  {
+    "id": 3606505,
+    "title": "katowice.kwpsp.gov.pl",
+    "url": "https://katowice.kwpsp.gov.pl",
+    "tags": ""
+  },
+  {
+    "id": 3606506,
+    "title": "katowice.pinb.gov.pl",
+    "url": "https://katowice.pinb.gov.pl",
+    "tags": ""
+  },
+  {
+    "id": 3606507,
+    "title": "katowice.sa.gov.pl",
+    "url": "https://katowice.sa.gov.pl",
+    "tags": ""
+  },
+  {
+    "id": 3606508,
+    "title": "katowice.so.gov.pl",
+    "url": "https://katowice.so.gov.pl",
+    "tags": ""
+  },
+  {
+    "id": 3606509,
+    "title": "katowice.wiih.gov.pl",
+    "url": "https://katowice.wiih.gov.pl",
+    "tags": ""
+  },
+  {
+    "id": 3606510,
+    "title": "katowice.wios.gov.pl",
+    "url": "https://katowice.wios.gov.pl",
+    "tags": ""
+  },
+  {
+    "id": 3606511,
+    "title": "katowice.wiw.gov.pl",
+    "url": "https://katowice.wiw.gov.pl",
+    "tags": ""
+  },
+  {
+    "id": 3606512,
+    "title": "kbpn.gov.pl",
+    "url": "https://kbpn.gov.pl",
+    "tags": ""
+  },
+  {
+    "id": 3606513,
+    "title": "kbw.gov.pl",
+    "url": "https://kbw.gov.pl",
+    "tags": ""
+  },
+  {
+    "id": 3606514,
+    "title": "kcor.gov.pl",
+    "url": "https://kcor.gov.pl",
+    "tags": ""
+  },
+  {
+    "id": 3606515,
+    "title": "kcpu.gov.pl",
+    "url": "https://kcpu.gov.pl",
+    "tags": ""
+  },
+  {
+    "id": 3606516,
+    "title": "kcynia.oow.gov.pl",
+    "url": "https://kcynia.oow.gov.pl",
+    "tags": ""
+  },
+  {
+    "id": 3606517,
+    "title": "kepno.sr.gov.pl",
+    "url": "https://kepno.sr.gov.pl",
+    "tags": ""
+  },
+  {
+    "id": 3606518,
+    "title": "ketrzyn.sr.gov.pl",
+    "url": "https://ketrzyn.sr.gov.pl",
+    "tags": ""
+  },
+  {
+    "id": 3606519,
+    "title": "kgpsp.gov.pl",
+    "url": "https://kgpsp.gov.pl",
+    "tags": ""
+  },
+  {
+    "id": 3606520,
+    "title": "kielce.sko.gov.pl",
+    "url": "https://kielce.sko.gov.pl",
+    "tags": ""
+  },
+  {
+    "id": 3606521,
+    "title": "kielce.so.gov.pl",
+    "url": "https://kielce.so.gov.pl",
+    "tags": ""
+  },
+  {
+    "id": 3606522,
+    "title": "kielce.sr.gov.pl",
+    "url": "https://kielce.sr.gov.pl",
+    "tags": ""
+  },
+  {
+    "id": 3606523,
+    "title": "kielce.wios.gov.pl",
+    "url": "https://kielce.wios.gov.pl",
+    "tags": ""
+  },
+  {
+    "id": 3606524,
+    "title": "kielce.wsa.gov.pl",
+    "url": "https://kielce.wsa.gov.pl",
+    "tags": ""
+  },
+  {
+    "id": 3606525,
+    "title": "kielcemiasto.pinb.gov.pl",
+    "url": "https://kielcemiasto.pinb.gov.pl",
+    "tags": ""
+  },
+  {
+    "id": 3606526,
+    "title": "kielcepowiat.pinb.gov.pl",
+    "url": "https://kielcepowiat.pinb.gov.pl",
+    "tags": ""
+  },
+  {
+    "id": 3606527,
+    "title": "kim.gov.pl",
+    "url": "https://kim.gov.pl",
+    "tags": ""
+  },
+  {
+    "id": 3606528,
+    "title": "kis.gov.pl",
+    "url": "https://kis.gov.pl",
+    "tags": ""
+  },
+  {
+    "id": 3606529,
+    "title": "klimat.gov.pl",
+    "url": "https://klimat.gov.pl",
+    "tags": ""
+  },
+  {
+    "id": 3606530,
+    "title": "klodzko.sr.gov.pl",
+    "url": "https://klodzko.sr.gov.pl",
+    "tags": ""
+  },
+  {
+    "id": 3606531,
+    "title": "kluczbork.sr.gov.pl",
+    "url": "https://kluczbork.sr.gov.pl",
+    "tags": ""
+  },
+  {
+    "id": 3606532,
+    "title": "knf.gov.pl",
+    "url": "https://knf.gov.pl",
+    "tags": ""
+  },
+  {
+    "id": 3606533,
+    "title": "koduj.gov.pl",
+    "url": "https://koduj.gov.pl",
+    "tags": ""
+  },
+  {
+    "id": 3606534,
+    "title": "kolbuszowa.sr.gov.pl",
+    "url": "https://kolbuszowa.sr.gov.pl",
+    "tags": ""
+  },
+  {
+    "id": 3606535,
+    "title": "kolobrzeg.sr.gov.pl",
+    "url": "https://kolobrzeg.sr.gov.pl",
+    "tags": ""
+  },
+  {
+    "id": 3606536,
+    "title": "kombatanci.gov.pl/pl",
+    "url": "https://kombatanci.gov.pl/pl",
+    "tags": ""
+  },
+  {
+    "id": 3606537,
+    "title": "komitet.mentzen2025.pl",
+    "url": "https://komitet.mentzen2025.pl",
+    "tags": ""
+  },
+  {
+    "id": 3606538,
+    "title": "kompetencjecyfrowe.gov.pl",
+    "url": "https://kompetencjecyfrowe.gov.pl",
+    "tags": ""
+  },
+  {
+    "id": 3606539,
+    "title": "konfederacja.pl",
+    "url": "https://konfederacja.pl",
+    "tags": ""
+  },
+  {
+    "id": 3606540,
+    "title": "konfederacjakoronypolskiej.pl",
+    "url": "https://konfederacjakoronypolskiej.pl",
+    "tags": ""
+  },
+  {
+    "id": 3606541,
+    "title": "konskie.sr.gov.pl",
+    "url": "https://konskie.sr.gov.pl",
+    "tags": ""
+  },
+  {
+    "id": 3606542,
+    "title": "konstantynow.zpisdn.gov.pl",
+    "url": "https://konstantynow.zpisdn.gov.pl",
+    "tags": ""
+  },
+  {
+    "id": 3606543,
+    "title": "konsument.gov.pl",
+    "url": "https://konsument.gov.pl",
+    "tags": ""
+  },
+  {
+    "id": 3606544,
+    "title": "koronowo.oow.gov.pl",
+    "url": "https://koronowo.oow.gov.pl",
+    "tags": ""
+  },
+  {
+    "id": 3606545,
+    "title": "korpussolidarnosci.gov.pl",
+    "url": "https://korpussolidarnosci.gov.pl",
+    "tags": ""
+  },
+  {
+    "id": 3606546,
+    "title": "koscierzyna.sr.gov.pl",
+    "url": "https://koscierzyna.sr.gov.pl",
+    "tags": ""
+  },
+  {
+    "id": 3606547,
+    "title": "koszalin.oow.gov.pl",
+    "url": "https://koszalin.oow.gov.pl",
+    "tags": ""
+  },
+  {
+    "id": 3606548,
+    "title": "koszalin.so.gov.pl",
+    "url": "https://koszalin.so.gov.pl",
+    "tags": ""
+  },
+  {
+    "id": 3606549,
+    "title": "koszalin.sr.gov.pl",
+    "url": "https://koszalin.sr.gov.pl",
+    "tags": ""
+  },
+  {
+    "id": 3606550,
+    "title": "kowr.gov.pl",
+    "url": "https://kowr.gov.pl",
+    "tags": ""
+  },
+  {
+    "id": 3606551,
+    "title": "kozle.sr.gov.pl",
+    "url": "https://kozle.sr.gov.pl",
+    "tags": ""
+  },
+  {
+    "id": 3606552,
+    "title": "kpk.gov.pl",
+    "url": "https://kpk.gov.pl",
+    "tags": ""
+  },
+  {
+    "id": 3606553,
+    "title": "kpn.gov.pl",
+    "url": "https://kpn.gov.pl",
+    "tags": ""
+  },
+  {
+    "id": 3606554,
+    "title": "kpo.gov.pl",
+    "url": "https://kpo.gov.pl",
+    "tags": ""
+  },
+  {
+    "id": 3606555,
+    "title": "kpowm.gov.pl",
+    "url": "https://kpowm.gov.pl",
+    "tags": ""
+  },
+  {
+    "id": 3606556,
+    "title": "kpp.gov.pl",
+    "url": "https://kpp.gov.pl",
+    "tags": ""
+  },
+  {
+    "id": 3606557,
+    "title": "kprm.gov.pl",
+    "url": "https://kprm.gov.pl",
+    "tags": ""
+  },
+  {
+    "id": 3606558,
+    "title": "krajoweforummiejskie.gov.pl",
+    "url": "https://krajoweforummiejskie.gov.pl",
+    "tags": ""
+  },
+  {
+    "id": 3606559,
+    "title": "krakow.pinb.gov.pl",
+    "url": "https://krakow.pinb.gov.pl",
+    "tags": ""
+  },
+  {
+    "id": 3606560,
+    "title": "krakow.piw.gov.pl",
+    "url": "https://krakow.piw.gov.pl",
+    "tags": ""
+  },
+  {
+    "id": 3606561,
+    "title": "krakow.sa.gov.pl",
+    "url": "https://krakow.sa.gov.pl",
+    "tags": ""
+  },
+  {
+    "id": 3606562,
+    "title": "krakow.so.gov.pl",
+    "url": "https://krakow.so.gov.pl",
+    "tags": ""
+  },
+  {
+    "id": 3606563,
+    "title": "krakow.wiih.gov.pl",
+    "url": "https://krakow.wiih.gov.pl",
+    "tags": ""
+  },
+  {
+    "id": 3606564,
+    "title": "krakow.wios.gov.pl",
+    "url": "https://krakow.wios.gov.pl",
+    "tags": ""
+  },
+  {
+    "id": 3606565,
+    "title": "krakow.witd.gov.pl",
+    "url": "https://krakow.witd.gov.pl",
+    "tags": ""
+  },
+  {
+    "id": 3606566,
+    "title": "krakow.wsa.gov.pl",
+    "url": "https://krakow.wsa.gov.pl",
+    "tags": ""
+  },
+  {
+    "id": 3606567,
+    "title": "krasnik.sr.gov.pl",
+    "url": "https://krasnik.sr.gov.pl",
+    "tags": ""
+  },
+  {
+    "id": 3606568,
+    "title": "krasnik.um.gov.pl",
+    "url": "https://krasnik.um.gov.pl",
+    "tags": ""
+  },
+  {
+    "id": 3606569,
+    "title": "krasnystaw.sr.gov.pl",
+    "url": "https://krasnystaw.sr.gov.pl",
+    "tags": ""
+  },
+  {
+    "id": 3606570,
+    "title": "krasnystaw.ug.gov.pl",
+    "url": "https://krasnystaw.ug.gov.pl",
+    "tags": ""
+  },
+  {
+    "id": 3606571,
+    "title": "krbrd.gov.pl",
+    "url": "https://krbrd.gov.pl",
+    "tags": ""
+  },
+  {
+    "id": 3606572,
+    "title": "krm.gov.pl",
+    "url": "https://krm.gov.pl",
+    "tags": ""
+  },
+  {
+    "id": 3606573,
+    "title": "kronika.gov.pl",
+    "url": "https://kronika.gov.pl",
+    "tags": ""
+  },
+  {
+    "id": 3606574,
+    "title": "krosno.so.gov.pl",
+    "url": "https://krosno.so.gov.pl",
+    "tags": ""
+  },
+  {
+    "id": 3606575,
+    "title": "krosno.sr.gov.pl",
+    "url": "https://krosno.sr.gov.pl",
+    "tags": ""
+  },
+  {
+    "id": 3606576,
+    "title": "krosno.wiw.gov.pl",
+    "url": "https://krosno.wiw.gov.pl",
+    "tags": ""
+  },
+  {
+    "id": 3606577,
+    "title": "krotoszyn.sr.gov.pl",
+    "url": "https://krotoszyn.sr.gov.pl",
+    "tags": ""
+  },
+  {
+    "id": 3606578,
+    "title": "krrit.gov.pl",
+    "url": "https://krrit.gov.pl",
+    "tags": ""
+  },
+  {
+    "id": 3606579,
+    "title": "krus.gov.pl",
+    "url": "https://krus.gov.pl",
+    "tags": ""
+  },
+  {
+    "id": 3606580,
+    "title": "ksdo.gov.pl",
+    "url": "https://ksdo.gov.pl",
+    "tags": ""
+  },
+  {
+    "id": 3606581,
+    "title": "ksow.gov.pl",
+    "url": "https://ksow.gov.pl",
+    "tags": ""
+  },
+  {
+    "id": 3606582,
+    "title": "kss.gov.pl",
+    "url": "https://kss.gov.pl",
+    "tags": ""
+  },
+  {
+    "id": 3606583,
+    "title": "kssip.gov.pl",
+    "url": "https://kssip.gov.pl",
+    "tags": ""
+  },
+  {
+    "id": 3606584,
+    "title": "kuban2025.pl",
+    "url": "https://kuban2025.pl",
+    "tags": ""
+  },
+  {
+    "id": 3606585,
+    "title": "kultura.gov.pl",
+    "url": "https://kultura.gov.pl",
+    "tags": ""
+  },
+  {
+    "id": 3606586,
+    "title": "kupujswiadomie.gov.pl",
+    "url": "https://kupujswiadomie.gov.pl",
+    "tags": ""
+  },
+  {
+    "id": 3606587,
+    "title": "kutno.sr.gov.pl",
+    "url": "https://kutno.sr.gov.pl",
+    "tags": ""
+  },
+  {
+    "id": 3606588,
+    "title": "kuznica.griw.gov.pl",
+    "url": "https://kuznica.griw.gov.pl",
+    "tags": ""
+  },
+  {
+    "id": 3606589,
+    "title": "kuznica.ug.gov.pl",
+    "url": "https://kuznica.ug.gov.pl",
+    "tags": ""
+  },
+  {
+    "id": 3606590,
+    "title": "kwalifikacje.gov.pl",
+    "url": "https://kwalifikacje.gov.pl",
+    "tags": ""
+  },
+  {
+    "id": 3606591,
+    "title": "kwidzyn.sr.gov.pl",
+    "url": "https://kwidzyn.sr.gov.pl",
+    "tags": ""
+  },
+  {
+    "id": 3606592,
+    "title": "kwwrdip.pl",
+    "url": "https://kwwrdip.pl",
+    "tags": ""
+  },
+  {
+    "id": 3606593,
+    "title": "kzgw.gov.pl",
+    "url": "https://kzgw.gov.pl",
+    "tags": ""
+  },
+  {
+    "id": 3606594,
+    "title": "laboratoria.gov.pl",
+    "url": "https://laboratoria.gov.pl",
+    "tags": ""
+  },
+  {
+    "id": 3606595,
+    "title": "lancut.sr.gov.pl",
+    "url": "https://lancut.sr.gov.pl",
+    "tags": ""
+  },
+  {
+    "id": 3606596,
+    "title": "laptopdlanauczyciela.gov.pl",
+    "url": "https://laptopdlanauczyciela.gov.pl",
+    "tags": ""
+  },
+  {
+    "id": 3606597,
+    "title": "laptopdlaucznia.gov.pl",
+    "url": "https://laptopdlaucznia.gov.pl",
+    "tags": ""
+  },
+  {
+    "id": 3606598,
+    "title": "lask.sr.gov.pl",
+    "url": "https://lask.sr.gov.pl",
+    "tags": ""
+  },
+  {
+    "id": 3606599,
+    "title": "laskowiec.oow.gov.pl",
+    "url": "https://laskowiec.oow.gov.pl",
+    "tags": ""
+  },
+  {
+    "id": 3606600,
+    "title": "lasy.gov.pl",
+    "url": "https://lasy.gov.pl",
+    "tags": ""
+  },
+  {
+    "id": 3606601,
+    "title": "latarnikwyborczy.pl",
+    "url": "https://latarnikwyborczy.pl",
+    "tags": ""
+  },
+  {
+    "id": 3606602,
+    "title": "lebork.piw.gov.pl",
+    "url": "https://lebork.piw.gov.pl",
+    "tags": ""
+  },
+  {
+    "id": 3606603,
+    "title": "lebork.sr.gov.pl",
+    "url": "https://lebork.sr.gov.pl",
+    "tags": ""
+  },
+  {
+    "id": 3606604,
+    "title": "leczna.umig.gov.pl",
+    "url": "https://leczna.umig.gov.pl",
+    "tags": ""
+  },
+  {
+    "id": 3606605,
+    "title": "leczyca.sr.gov.pl",
+    "url": "https://leczyca.sr.gov.pl",
+    "tags": ""
+  },
+  {
+    "id": 3606606,
+    "title": "legislacja.gov.pl",
+    "url": "https://legislacja.gov.pl",
+    "tags": ""
+  },
+  {
+    "id": 3606607,
+    "title": "legnica.po.gov.pl",
+    "url": "https://legnica.po.gov.pl",
+    "tags": ""
+  },
+  {
+    "id": 3606608,
+    "title": "legnica.so.gov.pl",
+    "url": "https://legnica.so.gov.pl",
+    "tags": ""
+  },
+  {
+    "id": 3606609,
+    "title": "legnica.sr.gov.pl",
+    "url": "https://legnica.sr.gov.pl",
+    "tags": ""
+  },
+  {
+    "id": 3606610,
+    "title": "lektury.gov.pl",
+    "url": "https://lektury.gov.pl",
+    "tags": ""
+  },
+  {
+    "id": 3606611,
+    "title": "lesko.sr.gov.pl",
+    "url": "https://lesko.sr.gov.pl",
+    "tags": ""
+  },
+  {
+    "id": 3606612,
+    "title": "lessi.gov.pl",
+    "url": "https://lessi.gov.pl",
+    "tags": ""
+  },
+  {
+    "id": 3606613,
+    "title": "leszno.sr.gov.pl",
+    "url": "https://leszno.sr.gov.pl",
+    "tags": ""
+  },
+  {
+    "id": 3606614,
+    "title": "lewica.org.pl",
+    "url": "https://lewica.org.pl",
+    "tags": ""
+  },
+  {
+    "id": 3606615,
+    "title": "lewicki2025.pl",
+    "url": "https://lewicki2025.pl",
+    "tags": ""
+  },
+  {
+    "id": 3606616,
+    "title": "lezajsk.pinb.gov.pl",
+    "url": "https://lezajsk.pinb.gov.pl",
+    "tags": ""
+  },
+  {
+    "id": 3606617,
+    "title": "lezajsk.sr.gov.pl",
+    "url": "https://lezajsk.sr.gov.pl",
+    "tags": ""
+  },
+  {
+    "id": 3606618,
+    "title": "lidzbark.pinb.gov.pl",
+    "url": "https://lidzbark.pinb.gov.pl",
+    "tags": ""
+  },
+  {
+    "id": 3606619,
+    "title": "lidzbarkwarminski.piw.gov.pl",
+    "url": "https://lidzbarkwarminski.piw.gov.pl",
+    "tags": ""
+  },
+  {
+    "id": 3606620,
+    "title": "lidzbarkwarminski.sr.gov.pl",
+    "url": "https://lidzbarkwarminski.sr.gov.pl",
+    "tags": ""
+  },
+  {
+    "id": 3606621,
+    "title": "limanowa.pinb.gov.pl",
+    "url": "https://limanowa.pinb.gov.pl",
+    "tags": ""
+  },
+  {
+    "id": 3606622,
+    "title": "limanowa.sr.gov.pl",
+    "url": "https://limanowa.sr.gov.pl",
+    "tags": ""
+  },
+  {
+    "id": 3606623,
+    "title": "lipsko.sr.gov.pl",
+    "url": "https://lipsko.sr.gov.pl",
+    "tags": ""
+  },
+  {
+    "id": 3606624,
+    "title": "lobez.sr.gov.pl",
+    "url": "https://lobez.sr.gov.pl",
+    "tags": ""
+  },
+  {
+    "id": 3606625,
+    "title": "lodz.oke.gov.pl",
+    "url": "https://lodz.oke.gov.pl",
+    "tags": ""
+  },
+  {
+    "id": 3606626,
+    "title": "lodz.pinb.gov.pl",
+    "url": "https://lodz.pinb.gov.pl",
+    "tags": ""
+  },
+  {
+    "id": 3606627,
+    "title": "lodz.po.gov.pl",
+    "url": "https://lodz.po.gov.pl",
+    "tags": ""
+  },
+  {
+    "id": 3606628,
+    "title": "lodz.pr.gov.pl",
+    "url": "https://lodz.pr.gov.pl",
+    "tags": ""
+  },
+  {
+    "id": 3606629,
+    "title": "lodz.sa.gov.pl",
+    "url": "https://lodz.sa.gov.pl",
+    "tags": ""
+  },
+  {
+    "id": 3606630,
+    "title": "lodz.so.gov.pl",
+    "url": "https://lodz.so.gov.pl",
+    "tags": ""
+  },
+  {
+    "id": 3606631,
+    "title": "lodz.sr.gov.pl",
+    "url": "https://lodz.sr.gov.pl",
+    "tags": ""
+  },
+  {
+    "id": 3606632,
+    "title": "lodz.wsa.gov.pl",
+    "url": "https://lodz.wsa.gov.pl",
+    "tags": ""
+  },
+  {
+    "id": 3606633,
+    "title": "login.gov.pl",
+    "url": "https://login.gov.pl",
+    "tags": ""
+  },
+  {
+    "id": 3606634,
+    "title": "lomza.so.gov.pl",
+    "url": "https://lomza.so.gov.pl",
+    "tags": ""
+  },
+  {
+    "id": 3606635,
+    "title": "lomza.sr.gov.pl",
+    "url": "https://lomza.sr.gov.pl",
+    "tags": ""
+  },
+  {
+    "id": 3606636,
+    "title": "losice.piw.gov.pl",
+    "url": "https://losice.piw.gov.pl",
+    "tags": ""
+  },
+  {
+    "id": 3606637,
+    "title": "lowicz.sr.gov.pl",
+    "url": "https://lowicz.sr.gov.pl",
+    "tags": ""
+  },
+  {
+    "id": 3606638,
+    "title": "lubaczow.sr.gov.pl",
+    "url": "https://lubaczow.sr.gov.pl",
+    "tags": ""
+  },
+  {
+    "id": 3606639,
+    "title": "luban.sr.gov.pl",
+    "url": "https://luban.sr.gov.pl",
+    "tags": ""
+  },
+  {
+    "id": 3606640,
+    "title": "luban.ug.gov.pl",
+    "url": "https://luban.ug.gov.pl",
+    "tags": ""
+  },
+  {
+    "id": 3606641,
+    "title": "lubartow.sr.gov.pl",
+    "url": "https://lubartow.sr.gov.pl",
+    "tags": ""
+  },
+  {
+    "id": 3606642,
+    "title": "lubin.sr.gov.pl",
+    "url": "https://lubin.sr.gov.pl",
+    "tags": ""
+  },
+  {
+    "id": 3606643,
+    "title": "lublin.pinb.gov.pl",
+    "url": "https://lublin.pinb.gov.pl",
+    "tags": ""
+  },
+  {
+    "id": 3606644,
+    "title": "lublin.sa.gov.pl",
+    "url": "https://lublin.sa.gov.pl",
+    "tags": ""
+  },
+  {
+    "id": 3606645,
+    "title": "lublin.so.gov.pl",
+    "url": "https://lublin.so.gov.pl",
+    "tags": ""
+  },
+  {
+    "id": 3606646,
+    "title": "lublin.uw.gov.pl",
+    "url": "https://lublin.uw.gov.pl",
+    "tags": ""
+  },
+  {
+    "id": 3606647,
+    "title": "lublin.winb.gov.pl",
+    "url": "https://lublin.winb.gov.pl",
+    "tags": ""
+  },
+  {
+    "id": 3606648,
+    "title": "lublin.wsa.gov.pl",
+    "url": "https://lublin.wsa.gov.pl",
+    "tags": ""
+  },
+  {
+    "id": 3606649,
+    "title": "lubliniec.piw.gov.pl",
+    "url": "https://lubliniec.piw.gov.pl",
+    "tags": ""
+  },
+  {
+    "id": 3606650,
+    "title": "lubliniec.sr.gov.pl",
+    "url": "https://lubliniec.sr.gov.pl",
+    "tags": ""
+  },
+  {
+    "id": 3606651,
+    "title": "lubliniec.starostwo.gov.pl",
+    "url": "https://lubliniec.starostwo.gov.pl",
+    "tags": ""
+  },
+  {
+    "id": 3606652,
+    "title": "lublinmiasto.pinb.gov.pl",
+    "url": "https://lublinmiasto.pinb.gov.pl",
+    "tags": ""
+  },
+  {
+    "id": 3606653,
+    "title": "lubsza.ug.gov.pl",
+    "url": "https://lubsza.ug.gov.pl",
+    "tags": ""
+  },
+  {
+    "id": 3606654,
+    "title": "lubuskie.uw.gov.pl",
+    "url": "https://lubuskie.uw.gov.pl",
+    "tags": ""
+  },
+  {
+    "id": 3606655,
+    "title": "lukasiewicz.gov.pl",
+    "url": "https://lukasiewicz.gov.pl",
+    "tags": ""
+  },
+  {
+    "id": 3606656,
+    "title": "lukow.sr.gov.pl",
+    "url": "https://lukow.sr.gov.pl",
+    "tags": ""
+  },
+  {
+    "id": 3606657,
+    "title": "lukow.ug.gov.pl",
+    "url": "https://lukow.ug.gov.pl",
+    "tags": ""
+  },
+  {
+    "id": 3606658,
+    "title": "lwowekslaski.sr.gov.pl",
+    "url": "https://lwowekslaski.sr.gov.pl",
+    "tags": ""
+  },
+  {
+    "id": 3606659,
+    "title": "malbork.sr.gov.pl",
+    "url": "https://malbork.sr.gov.pl",
+    "tags": ""
+  },
+  {
+    "id": 3606660,
+    "title": "mandaty.gov.pl",
+    "url": "https://mandaty.gov.pl",
+    "tags": ""
+  },
+  {
+    "id": 3606661,
+    "title": "mapadotacji.gov.pl",
+    "url": "https://mapadotacji.gov.pl",
+    "tags": ""
+  },
+  {
+    "id": 3606662,
+    "title": "marekjakubiak2025.pl",
+    "url": "https://marekjakubiak2025.pl",
+    "tags": ""
+  },
+  {
+    "id": 3606663,
+    "title": "maszynista.gov.pl",
+    "url": "https://maszynista.gov.pl",
+    "tags": ""
+  },
+  {
+    "id": 3606664,
+    "title": "maz.winb.gov.pl",
+    "url": "https://maz.winb.gov.pl",
+    "tags": ""
+  },
+  {
+    "id": 3606665,
+    "title": "mazowsze.witd.gov.pl",
+    "url": "https://mazowsze.witd.gov.pl",
+    "tags": ""
+  },
+  {
+    "id": 3606666,
+    "title": "mazowsze.wiw.gov.pl",
+    "url": "https://mazowsze.wiw.gov.pl",
+    "tags": ""
+  },
+  {
+    "id": 3606667,
+    "title": "mc.gov.pl",
+    "url": "https://mc.gov.pl",
+    "tags": ""
+  },
+  {
+    "id": 3606668,
+    "title": "men.gov.pl",
+    "url": "https://men.gov.pl",
+    "tags": ""
+  },
+  {
+    "id": 3606669,
+    "title": "mf.gov.pl",
+    "url": "https://mf.gov.pl",
+    "tags": ""
+  },
+  {
+    "id": 3606670,
+    "title": "mfipr.gov.pl",
+    "url": "https://mfipr.gov.pl",
+    "tags": ""
+  },
+  {
+    "id": 3606671,
+    "title": "mg.gov.pl",
+    "url": "https://mg.gov.pl",
+    "tags": ""
+  },
+  {
+    "id": 3606672,
+    "title": "mgdansk.pinb.gov.pl",
+    "url": "https://mgdansk.pinb.gov.pl",
+    "tags": ""
+  },
+  {
+    "id": 3606673,
+    "title": "mi.gov.pl",
+    "url": "https://mi.gov.pl",
+    "tags": ""
+  },
+  {
+    "id": 3606674,
+    "title": "miastko.sr.gov.pl",
+    "url": "https://miastko.sr.gov.pl",
+    "tags": ""
+  },
+  {
+    "id": 3606675,
+    "title": "miechow.sr.gov.pl",
+    "url": "https://miechow.sr.gov.pl",
+    "tags": ""
+  },
+  {
+    "id": 3606676,
+    "title": "miedzyrzecz.sr.gov.pl",
+    "url": "https://miedzyrzecz.sr.gov.pl",
+    "tags": ""
+  },
+  {
+    "id": 3606677,
+    "title": "mielec.sr.gov.pl",
+    "url": "https://mielec.sr.gov.pl",
+    "tags": ""
+  },
+  {
+    "id": 3606678,
+    "title": "mieszkaniedlaciebie.gov.pl",
+    "url": "https://mieszkaniedlaciebie.gov.pl",
+    "tags": ""
+  },
+  {
+    "id": 3606679,
+    "title": "mikolow.sr.gov.pl",
+    "url": "https://mikolow.sr.gov.pl",
+    "tags": ""
+  },
+  {
+    "id": 3606680,
+    "title": "milicz.sr.gov.pl",
+    "url": "https://milicz.sr.gov.pl",
+    "tags": ""
+  },
+  {
+    "id": 3606681,
+    "title": "minrol.gov.pl",
+    "url": "https://minrol.gov.pl",
+    "tags": ""
+  },
+  {
+    "id": 3606682,
+    "title": "mkidn.gov.pl",
+    "url": "https://mkidn.gov.pl",
+    "tags": ""
+  },
+  {
+    "id": 3606683,
+    "title": "mlawa.sr.gov.pl",
+    "url": "https://mlawa.sr.gov.pl",
+    "tags": ""
+  },
+  {
+    "id": 3606684,
+    "title": "mnisw.gov.pl",
+    "url": "https://mnisw.gov.pl",
+    "tags": ""
+  },
+  {
+    "id": 3606685,
+    "title": "mobywatel.gov.pl",
+    "url": "https://mobywatel.gov.pl",
+    "tags": ""
+  },
+  {
+    "id": 3606686,
+    "title": "mod.gov.pl",
+    "url": "https://mod.gov.pl",
+    "tags": ""
+  },
+  {
+    "id": 3606687,
+    "title": "mofnet.gov.pl",
+    "url": "https://mofnet.gov.pl",
+    "tags": ""
+  },
+  {
+    "id": 3606688,
+    "title": "mojaelektrowniawiatrowa.gov.pl",
+    "url": "https://mojaelektrowniawiatrowa.gov.pl",
+    "tags": ""
+  },
+  {
+    "id": 3606689,
+    "title": "mojecieplo.gov.pl",
+    "url": "https://mojecieplo.gov.pl",
+    "tags": ""
+  },
+  {
+    "id": 3606690,
+    "title": "mojprad.gov.pl",
+    "url": "https://mojprad.gov.pl",
+    "tags": ""
+  },
+  {
+    "id": 3606691,
+    "title": "mokotow.sr.gov.pl",
+    "url": "https://mokotow.sr.gov.pl",
+    "tags": ""
+  },
+  {
+    "id": 3606692,
+    "title": "mon.gov.pl",
+    "url": "https://mon.gov.pl",
+    "tags": ""
+  },
+  {
+    "id": 3606693,
+    "title": "monitorpolski.gov.pl",
+    "url": "https://monitorpolski.gov.pl",
+    "tags": ""
+  },
+  {
+    "id": 3606694,
+    "title": "monitorpolskinauchodzstwie.gov.pl",
+    "url": "https://monitorpolskinauchodzstwie.gov.pl",
+    "tags": ""
+  },
+  {
+    "id": 3606695,
+    "title": "monki.piw.gov.pl",
+    "url": "https://monki.piw.gov.pl",
+    "tags": ""
+  },
+  {
+    "id": 3606696,
+    "title": "mopsolesnica.gov.pl",
+    "url": "https://mopsolesnica.gov.pl",
+    "tags": ""
+  },
+  {
+    "id": 3606697,
+    "title": "mos.gov.pl",
+    "url": "https://mos.gov.pl",
+    "tags": ""
+  },
+  {
+    "id": 3606698,
+    "title": "mpips.gov.pl",
+    "url": "https://mpips.gov.pl",
+    "tags": ""
+  },
+  {
+    "id": 3606699,
+    "title": "mpn.gov.pl",
+    "url": "https://mpn.gov.pl",
+    "tags": ""
+  },
+  {
+    "id": 3606700,
+    "title": "mragowo.pinb.gov.pl",
+    "url": "https://mragowo.pinb.gov.pl",
+    "tags": ""
+  },
+  {
+    "id": 3606701,
+    "title": "mragowo.piw.gov.pl",
+    "url": "https://mragowo.piw.gov.pl",
+    "tags": ""
+  },
+  {
+    "id": 3606702,
+    "title": "mragowo.sr.gov.pl",
+    "url": "https://mragowo.sr.gov.pl",
+    "tags": ""
+  },
+  {
+    "id": 3606703,
+    "title": "mrips.gov.pl",
+    "url": "https://mrips.gov.pl",
+    "tags": ""
+  },
+  {
+    "id": 3606704,
+    "title": "mrozy.oow.gov.pl",
+    "url": "https://mrozy.oow.gov.pl",
+    "tags": ""
+  },
+  {
+    "id": 3606705,
+    "title": "mrozy.zpisdn.gov.pl",
+    "url": "https://mrozy.zpisdn.gov.pl",
+    "tags": ""
+  },
+  {
+    "id": 3606706,
+    "title": "mrpips.gov.pl",
+    "url": "https://mrpips.gov.pl",
+    "tags": ""
+  },
+  {
+    "id": 3606707,
+    "title": "ms.gov.pl",
+    "url": "https://ms.gov.pl",
+    "tags": ""
+  },
+  {
+    "id": 3606708,
+    "title": "msit.gov.pl",
+    "url": "https://msit.gov.pl",
+    "tags": ""
+  },
+  {
+    "id": 3606709,
+    "title": "msport.gov.pl",
+    "url": "https://msport.gov.pl",
+    "tags": ""
+  },
+  {
+    "id": 3606710,
+    "title": "msz.gov.pl",
+    "url": "https://msz.gov.pl",
+    "tags": ""
+  },
+  {
+    "id": 3606711,
+    "title": "myslenice.sr.gov.pl",
+    "url": "https://myslenice.sr.gov.pl",
+    "tags": ""
+  },
+  {
+    "id": 3606712,
+    "title": "mysliborz.sr.gov.pl",
+    "url": "https://mysliborz.sr.gov.pl",
+    "tags": ""
+  },
+  {
+    "id": 3606713,
+    "title": "myslowice.kmpsp.gov.pl",
+    "url": "https://myslowice.kmpsp.gov.pl",
+    "tags": ""
+  },
+  {
+    "id": 3606714,
+    "title": "myslowice.pinb.gov.pl",
+    "url": "https://myslowice.pinb.gov.pl",
+    "tags": ""
+  },
+  {
+    "id": 3606715,
+    "title": "myslowice.sr.gov.pl",
+    "url": "https://myslowice.sr.gov.pl",
+    "tags": ""
+  },
+  {
+    "id": 3606716,
+    "title": "myszkow.piw.gov.pl",
+    "url": "https://myszkow.piw.gov.pl",
+    "tags": ""
+  },
+  {
+    "id": 3606717,
+    "title": "myszkow.sr.gov.pl",
+    "url": "https://myszkow.sr.gov.pl",
+    "tags": ""
+  },
+  {
+    "id": 3606718,
+    "title": "mz.gov.pl",
+    "url": "https://mz.gov.pl",
+    "tags": ""
+  },
+  {
+    "id": 3606719,
+    "title": "naszklimat.gov.pl",
+    "url": "https://naszklimat.gov.pl",
+    "tags": ""
+  },
+  {
+    "id": 3606720,
+    "title": "nauka.gov.pl",
+    "url": "https://nauka.gov.pl",
+    "tags": ""
+  },
+  {
+    "id": 3606721,
+    "title": "nawa.gov.pl",
+    "url": "https://nawa.gov.pl",
+    "tags": ""
+  },
+  {
+    "id": 3606722,
+    "title": "nawodzie.uzs.gov.pl",
+    "url": "https://nawodzie.uzs.gov.pl",
+    "tags": ""
+  },
+  {
+    "id": 3606723,
+    "title": "nbp.gov.pl",
+    "url": "https://nbp.gov.pl",
+    "tags": ""
+  },
+  {
+    "id": 3606724,
+    "title": "nca.gov.pl",
+    "url": "https://nca.gov.pl",
+    "tags": ""
+  },
+  {
+    "id": 3606725,
+    "title": "ncbj.gov.pl",
+    "url": "https://ncbj.gov.pl",
+    "tags": ""
+  },
+  {
+    "id": 3606726,
+    "title": "ncbr.gov.pl",
+    "url": "https://ncbr.gov.pl",
+    "tags": ""
+  },
+  {
+    "id": 3606727,
+    "title": "nck.gov.pl",
+    "url": "https://nck.gov.pl",
+    "tags": ""
+  },
+  {
+    "id": 3606728,
+    "title": "ndg.pinb.gov.pl",
+    "url": "https://ndg.pinb.gov.pl",
+    "tags": ""
+  },
+  {
+    "id": 3606729,
+    "title": "nfosigw.gov.pl",
+    "url": "https://nfosigw.gov.pl",
+    "tags": ""
+  },
+  {
+    "id": 3606730,
+    "title": "nidzica.sr.gov.pl",
+    "url": "https://nidzica.sr.gov.pl",
+    "tags": ""
+  },
+  {
+    "id": 3606731,
+    "title": "niedlahazardu.gov.pl",
+    "url": "https://niedlahazardu.gov.pl",
+    "tags": ""
+  },
+  {
+    "id": 3606732,
+    "title": "niepelnosprawni.gov.pl",
+    "url": "https://niepelnosprawni.gov.pl",
+    "tags": ""
+  },
+  {
+    "id": 3606733,
+    "title": "nieruchomoscikowr.gov.pl",
+    "url": "https://nieruchomoscikowr.gov.pl",
+    "tags": ""
+  },
+  {
+    "id": 3606734,
+    "title": "nim.gov.pl",
+    "url": "https://nim.gov.pl",
+    "tags": ""
+  },
+  {
+    "id": 3606735,
+    "title": "nio.gov.pl",
+    "url": "https://nio.gov.pl",
+    "tags": ""
+  },
+  {
+    "id": 3606736,
+    "title": "nisko.sr.gov.pl",
+    "url": "https://nisko.sr.gov.pl",
+    "tags": ""
+  },
+  {
+    "id": 3606737,
+    "title": "nist.gov.pl",
+    "url": "https://nist.gov.pl",
+    "tags": ""
+  },
+  {
+    "id": 3606738,
+    "title": "niw.gov.pl",
+    "url": "https://niw.gov.pl",
+    "tags": ""
+  },
+  {
+    "id": 3606739,
+    "title": "nkb.gov.pl",
+    "url": "https://nkb.gov.pl",
+    "tags": ""
+  },
+  {
+    "id": 3606740,
+    "title": "nowe.zp.gov.pl",
+    "url": "https://nowe.zp.gov.pl",
+    "tags": ""
+  },
+  {
+    "id": 3606741,
+    "title": "nowemiastolubawskie.sr.gov.pl",
+    "url": "https://nowemiastolubawskie.sr.gov.pl",
+    "tags": ""
+  },
+  {
+    "id": 3606742,
+    "title": "nowoczesnagospodarka.gov.pl",
+    "url": "https://nowoczesnagospodarka.gov.pl",
+    "tags": ""
+  },
+  {
+    "id": 3606743,
+    "title": "nowysacz.so.gov.pl",
+    "url": "https://nowysacz.so.gov.pl",
+    "tags": ""
+  },
+  {
+    "id": 3606744,
+    "title": "nowysacz.sr.gov.pl",
+    "url": "https://nowysacz.sr.gov.pl",
+    "tags": ""
+  },
+  {
+    "id": 3606745,
+    "title": "nowytarg.pinb.gov.pl",
+    "url": "https://nowytarg.pinb.gov.pl",
+    "tags": ""
+  },
+  {
+    "id": 3606746,
+    "title": "nowytarg.sr.gov.pl",
+    "url": "https://nowytarg.sr.gov.pl",
+    "tags": ""
+  },
+  {
+    "id": 3606747,
+    "title": "np.gov.pl",
+    "url": "https://np.gov.pl",
+    "tags": ""
+  },
+  {
+    "id": 3606748,
+    "title": "npn.gov.pl",
+    "url": "https://npn.gov.pl",
+    "tags": ""
+  },
+  {
+    "id": 3606749,
+    "title": "nysa.sr.gov.pl",
+    "url": "https://nysa.sr.gov.pl",
+    "tags": ""
+  },
+  {
+    "id": 3606750,
+    "title": "ock.gov.pl",
+    "url": "https://ock.gov.pl",
+    "tags": ""
+  },
+  {
+    "id": 3606751,
+    "title": "odp.gov.pl",
+    "url": "https://odp.gov.pl",
+    "tags": ""
+  },
+  {
+    "id": 3606752,
+    "title": "olawa.piw.gov.pl",
+    "url": "https://olawa.piw.gov.pl",
+    "tags": ""
+  },
+  {
+    "id": 3606753,
+    "title": "olawa.sr.gov.pl",
+    "url": "https://olawa.sr.gov.pl",
+    "tags": ""
+  },
+  {
+    "id": 3606754,
+    "title": "olecko.sr.gov.pl",
+    "url": "https://olecko.sr.gov.pl",
+    "tags": ""
+  },
+  {
+    "id": 3606755,
+    "title": "olesnica.sr.gov.pl",
+    "url": "https://olesnica.sr.gov.pl",
+    "tags": ""
+  },
+  {
+    "id": 3606756,
+    "title": "olesnica.starostwo.gov.pl",
+    "url": "https://olesnica.starostwo.gov.pl",
+    "tags": ""
+  },
+  {
+    "id": 3606757,
+    "title": "olesno.sr.gov.pl",
+    "url": "https://olesno.sr.gov.pl",
+    "tags": ""
+  },
+  {
+    "id": 3606758,
+    "title": "olkusz.sr.gov.pl",
+    "url": "https://olkusz.sr.gov.pl",
+    "tags": ""
+  },
+  {
+    "id": 3606759,
+    "title": "olsztyn.mup.gov.pl",
+    "url": "https://olsztyn.mup.gov.pl",
+    "tags": ""
+  },
+  {
+    "id": 3606760,
+    "title": "olsztyn.piw.gov.pl",
+    "url": "https://olsztyn.piw.gov.pl",
+    "tags": ""
+  },
+  {
+    "id": 3606761,
+    "title": "olsztyn.sko.gov.pl",
+    "url": "https://olsztyn.sko.gov.pl",
+    "tags": ""
+  },
+  {
+    "id": 3606762,
+    "title": "olsztyn.so.gov.pl",
+    "url": "https://olsztyn.so.gov.pl",
+    "tags": ""
+  },
+  {
+    "id": 3606763,
+    "title": "olsztyn.sr.gov.pl",
+    "url": "https://olsztyn.sr.gov.pl",
+    "tags": ""
+  },
+  {
+    "id": 3606764,
+    "title": "olsztyn.uppo.gov.pl",
+    "url": "https://olsztyn.uppo.gov.pl",
+    "tags": ""
+  },
+  {
+    "id": 3606765,
+    "title": "olsztyn.uw.gov.pl",
+    "url": "https://olsztyn.uw.gov.pl",
+    "tags": ""
+  },
+  {
+    "id": 3606766,
+    "title": "olsztyn.wiw.gov.pl",
+    "url": "https://olsztyn.wiw.gov.pl",
+    "tags": ""
+  },
+  {
+    "id": 3606767,
+    "title": "olsztyn.wsa.gov.pl",
+    "url": "https://olsztyn.wsa.gov.pl",
+    "tags": ""
+  },
+  {
+    "id": 3606768,
+    "title": "opatow.sr.gov.pl",
+    "url": "https://opatow.sr.gov.pl",
+    "tags": ""
+  },
+  {
+    "id": 3606769,
+    "title": "opiekacalodobowa.gov.pl",
+    "url": "https://opiekacalodobowa.gov.pl",
+    "tags": ""
+  },
+  {
+    "id": 3606770,
+    "title": "opn.gov.pl",
+    "url": "https://opn.gov.pl",
+    "tags": ""
+  },
+  {
+    "id": 3606771,
+    "title": "opoczno.sr.gov.pl",
+    "url": "https://opoczno.sr.gov.pl",
+    "tags": ""
+  },
+  {
+    "id": 3606772,
+    "title": "opole.so.gov.pl",
+    "url": "https://opole.so.gov.pl",
+    "tags": ""
+  },
+  {
+    "id": 3606773,
+    "title": "opole.sr.gov.pl",
+    "url": "https://opole.sr.gov.pl",
+    "tags": ""
+  },
+  {
+    "id": 3606774,
+    "title": "opole.uw.gov.pl",
+    "url": "https://opole.uw.gov.pl",
+    "tags": ""
+  },
+  {
+    "id": 3606775,
+    "title": "opole.wiih.gov.pl",
+    "url": "https://opole.wiih.gov.pl",
+    "tags": ""
+  },
+  {
+    "id": 3606776,
+    "title": "opole.winb.gov.pl",
+    "url": "https://opole.winb.gov.pl",
+    "tags": ""
+  },
+  {
+    "id": 3606777,
+    "title": "opole.wios.gov.pl",
+    "url": "https://opole.wios.gov.pl",
+    "tags": ""
+  },
+  {
+    "id": 3606778,
+    "title": "opolelubelskie.sr.gov.pl",
+    "url": "https://opolelubelskie.sr.gov.pl",
+    "tags": ""
+  },
+  {
+    "id": 3606779,
+    "title": "orr.gov.pl",
+    "url": "https://orr.gov.pl",
+    "tags": ""
+  },
+  {
+    "id": 3606780,
+    "title": "ose.gov.pl",
+    "url": "https://ose.gov.pl",
+    "tags": ""
+  },
+  {
+    "id": 3606781,
+    "title": "ostroda.piw.gov.pl",
+    "url": "https://ostroda.piw.gov.pl",
+    "tags": ""
+  },
+  {
+    "id": 3606782,
+    "title": "ostroda.sr.gov.pl",
+    "url": "https://ostroda.sr.gov.pl",
+    "tags": ""
+  },
+  {
+    "id": 3606783,
+    "title": "ostroleka.piw.gov.pl",
+    "url": "https://ostroleka.piw.gov.pl",
+    "tags": ""
+  },
+  {
+    "id": 3606784,
+    "title": "ostroleka.sko.gov.pl",
+    "url": "https://ostroleka.sko.gov.pl",
+    "tags": ""
+  },
+  {
+    "id": 3606785,
+    "title": "ostroleka.so.gov.pl",
+    "url": "https://ostroleka.so.gov.pl",
+    "tags": ""
+  },
+  {
+    "id": 3606786,
+    "title": "ostroleka.sr.gov.pl",
+    "url": "https://ostroleka.sr.gov.pl",
+    "tags": ""
+  },
+  {
+    "id": 3606787,
+    "title": "ostrow.sr.gov.pl",
+    "url": "https://ostrow.sr.gov.pl",
+    "tags": ""
+  },
+  {
+    "id": 3606788,
+    "title": "ostrowiec.sr.gov.pl",
+    "url": "https://ostrowiec.sr.gov.pl",
+    "tags": ""
+  },
+  {
+    "id": 3606789,
+    "title": "ostrowiec.starostwo.gov.pl",
+    "url": "https://ostrowiec.starostwo.gov.pl",
+    "tags": ""
+  },
+  {
+    "id": 3606790,
+    "title": "ostrowmaz.piw.gov.pl",
+    "url": "https://ostrowmaz.piw.gov.pl",
+    "tags": ""
+  },
+  {
+    "id": 3606791,
+    "title": "ostrzeszow.sr.gov.pl",
+    "url": "https://ostrzeszow.sr.gov.pl",
+    "tags": ""
+  },
+  {
+    "id": 3606792,
+    "title": "oswiadczeniakowr.gov.pl",
+    "url": "https://oswiadczeniakowr.gov.pl",
+    "tags": ""
+  },
+  {
+    "id": 3606793,
+    "title": "oswiecim.sr.gov.pl",
+    "url": "https://oswiecim.sr.gov.pl",
+    "tags": ""
+  },
+  {
+    "id": 3606794,
+    "title": "otwock.piw.gov.pl",
+    "url": "https://otwock.piw.gov.pl",
+    "tags": ""
+  },
+  {
+    "id": 3606795,
+    "title": "paa.gov.pl",
+    "url": "https://paa.gov.pl",
+    "tags": ""
+  },
+  {
+    "id": 3606796,
+    "title": "pabianice.sr.gov.pl",
+    "url": "https://pabianice.sr.gov.pl",
+    "tags": ""
+  },
+  {
+    "id": 3606797,
+    "title": "pacjent.gov.pl",
+    "url": "https://pacjent.gov.pl",
+    "tags": ""
+  },
+  {
+    "id": 3606798,
+    "title": "paih.gov.pl",
+    "url": "https://paih.gov.pl",
+    "tags": ""
+  },
+  {
+    "id": 3606799,
+    "title": "paihforumbiznesu.gov.pl",
+    "url": "https://paihforumbiznesu.gov.pl",
+    "tags": ""
+  },
+  {
+    "id": 3606800,
+    "title": "paiz.gov.pl",
+    "url": "https://paiz.gov.pl",
+    "tags": ""
+  },
+  {
+    "id": 3606801,
+    "title": "pana.gov.pl",
+    "url": "https://pana.gov.pl",
+    "tags": ""
+  },
+  {
+    "id": 3606802,
+    "title": "parp.gov.pl",
+    "url": "https://parp.gov.pl",
+    "tags": ""
+  },
+  {
+    "id": 3606803,
+    "title": "partiarazem.pl",
+    "url": "https://partiarazem.pl",
+    "tags": ""
+  },
+  {
+    "id": 3606804,
+    "title": "pasazer.gov.pl",
+    "url": "https://pasazer.gov.pl",
+    "tags": ""
+  },
+  {
+    "id": 3606805,
+    "title": "pca.gov.pl",
+    "url": "https://pca.gov.pl",
+    "tags": ""
+  },
+  {
+    "id": 3606806,
+    "title": "pcbc.gov.pl",
+    "url": "https://pcbc.gov.pl",
+    "tags": ""
+  },
+  {
+    "id": 3606807,
+    "title": "pgi.gov.pl",
+    "url": "https://pgi.gov.pl",
+    "tags": ""
+  },
+  {
+    "id": 3606808,
+    "title": "phics.gov.pl",
+    "url": "https://phics.gov.pl",
+    "tags": ""
+  },
+  {
+    "id": 3606809,
+    "title": "pia.gov.pl",
+    "url": "https://pia.gov.pl",
+    "tags": ""
+  },
+  {
+    "id": 3606810,
+    "title": "piaseczno.sr.gov.pl",
+    "url": "https://piaseczno.sr.gov.pl",
+    "tags": ""
+  },
+  {
+    "id": 3606811,
+    "title": "piepn.gov.pl",
+    "url": "https://piepn.gov.pl",
+    "tags": ""
+  },
+  {
+    "id": 3606812,
+    "title": "pierwszemieszkanie.gov.pl",
+    "url": "https://pierwszemieszkanie.gov.pl",
+    "tags": ""
+  },
+  {
+    "id": 3606813,
+    "title": "pife.gov.pl",
+    "url": "https://pife.gov.pl",
+    "tags": ""
+  },
+  {
+    "id": 3606814,
+    "title": "pila.sr.gov.pl",
+    "url": "https://pila.sr.gov.pl",
+    "tags": ""
+  },
+  {
+    "id": 3606815,
+    "title": "pim.gov.pl",
+    "url": "https://pim.gov.pl",
+    "tags": ""
+  },
+  {
+    "id": 3606816,
+    "title": "pimmswia.gov.pl",
+    "url": "https://pimmswia.gov.pl",
+    "tags": ""
+  },
+  {
+    "id": 3606817,
+    "title": "pinczow.sr.gov.pl",
+    "url": "https://pinczow.sr.gov.pl",
+    "tags": ""
+  },
+  {
+    "id": 3606818,
+    "title": "pip.gov.pl",
+    "url": "https://pip.gov.pl",
+    "tags": ""
+  },
+  {
+    "id": 3606819,
+    "title": "pis.org.pl",
+    "url": "https://pis.org.pl",
+    "tags": ""
+  },
+  {
+    "id": 3606820,
+    "title": "pisz.pinb.gov.pl",
+    "url": "https://pisz.pinb.gov.pl",
+    "tags": ""
+  },
+  {
+    "id": 3606821,
+    "title": "pisz.sr.gov.pl",
+    "url": "https://pisz.sr.gov.pl",
+    "tags": ""
+  },
+  {
+    "id": 3606822,
+    "title": "piwsokolka.gov.pl",
+    "url": "https://piwsokolka.gov.pl",
+    "tags": ""
+  },
+  {
+    "id": 3606823,
+    "title": "pk.gov.pl",
+    "url": "https://pk.gov.pl",
+    "tags": ""
+  },
+  {
+    "id": 3606824,
+    "title": "pkbwl.gov.pl",
+    "url": "https://pkbwl.gov.pl",
+    "tags": ""
+  },
+  {
+    "id": 3606825,
+    "title": "pkbwm.gov.pl",
+    "url": "https://pkbwm.gov.pl",
+    "tags": ""
+  },
+  {
+    "id": 3606826,
+    "title": "pkdp.gov.pl",
+    "url": "https://pkdp.gov.pl",
+    "tags": ""
+  },
+  {
+    "id": 3606827,
+    "title": "pkw.gov.pl",
+    "url": "https://pkw.gov.pl",
+    "tags": ""
+  },
+  {
+    "id": 3606828,
+    "title": "planodbudowy.gov.pl",
+    "url": "https://planodbudowy.gov.pl",
+    "tags": ""
+  },
+  {
+    "id": 3606829,
+    "title": "platforma.org",
+    "url": "https://platforma.org",
+    "tags": ""
+  },
+  {
+    "id": 3606830,
+    "title": "platformapaliwowa.gov.pl",
+    "url": "https://platformapaliwowa.gov.pl",
+    "tags": ""
+  },
+  {
+    "id": 3606831,
+    "title": "platformystartowe.gov.pl",
+    "url": "https://platformystartowe.gov.pl",
+    "tags": ""
+  },
+  {
+    "id": 3606832,
+    "title": "pleszew.sr.gov.pl",
+    "url": "https://pleszew.sr.gov.pl",
+    "tags": ""
+  },
+  {
+    "id": 3606833,
+    "title": "plock.so.gov.pl",
+    "url": "https://plock.so.gov.pl",
+    "tags": ""
+  },
+  {
+    "id": 3606834,
+    "title": "plock.sr.gov.pl",
+    "url": "https://plock.sr.gov.pl",
+    "tags": ""
+  },
+  {
+    "id": 3606835,
+    "title": "plonsk.sr.gov.pl",
+    "url": "https://plonsk.sr.gov.pl",
+    "tags": ""
+  },
+  {
+    "id": 3606836,
+    "title": "pnbt.gov.pl",
+    "url": "https://pnbt.gov.pl",
+    "tags": ""
+  },
+  {
+    "id": 3606837,
+    "title": "pngs.gov.pl",
+    "url": "https://pngs.gov.pl",
+    "tags": ""
+  },
+  {
+    "id": 3606838,
+    "title": "pnujsciewarty.gov.pl",
+    "url": "https://pnujsciewarty.gov.pl",
+    "tags": ""
+  },
+  {
+    "id": 3606839,
+    "title": "pnuw.gov.pl",
+    "url": "https://pnuw.gov.pl",
+    "tags": ""
+  },
+  {
+    "id": 3606840,
+    "title": "podatki.gov.pl",
+    "url": "https://podatki.gov.pl",
+    "tags": ""
+  },
+  {
+    "id": 3606841,
+    "title": "poiis.gov.pl",
+    "url": "https://poiis.gov.pl",
+    "tags": ""
+  },
+  {
+    "id": 3606842,
+    "title": "poir.gov.pl",
+    "url": "https://poir.gov.pl",
+    "tags": ""
+  },
+  {
+    "id": 3606843,
+    "title": "pois.gov.pl",
+    "url": "https://pois.gov.pl",
+    "tags": ""
+  },
+  {
+    "id": 3606844,
+    "title": "pokrzywdzeni.gov.pl",
+    "url": "https://pokrzywdzeni.gov.pl",
+    "tags": ""
+  },
+  {
+    "id": 3606845,
+    "title": "polandfirsttohelp.gov.pl",
+    "url": "https://polandfirsttohelp.gov.pl",
+    "tags": ""
+  },
+  {
+    "id": 3606846,
+    "title": "polishaid.gov.pl",
+    "url": "https://polishaid.gov.pl",
+    "tags": ""
+  },
+  {
+    "id": 3606847,
+    "title": "polishdefenceindustry.gov.pl",
+    "url": "https://polishdefenceindustry.gov.pl",
+    "tags": ""
+  },
+  {
+    "id": 3606848,
+    "title": "politykazakupowa.gov.pl",
+    "url": "https://politykazakupowa.gov.pl",
+    "tags": ""
+  },
+  {
+    "id": 3606849,
+    "title": "polonia.gov.pl",
+    "url": "https://polonia.gov.pl",
+    "tags": ""
+  },
+  {
+    "id": 3606850,
+    "title": "polpn.gov.pl",
+    "url": "https://polpn.gov.pl",
+    "tags": ""
+  },
+  {
+    "id": 3606851,
+    "title": "polsa.gov.pl",
+    "url": "https://polsa.gov.pl",
+    "tags": ""
+  },
+  {
+    "id": 3606852,
+    "title": "polska2050.pl",
+    "url": "https://polska2050.pl",
+    "tags": ""
+  },
+  {
+    "id": 3606853,
+    "title": "polskacyfrowa.gov.pl",
+    "url": "https://polskacyfrowa.gov.pl",
+    "tags": ""
+  },
+  {
+    "id": 3606854,
+    "title": "polskapomoc.gov.pl",
+    "url": "https://polskapomoc.gov.pl",
+    "tags": ""
+  },
+  {
+    "id": 3606855,
+    "title": "polskawschodnia.gov.pl",
+    "url": "https://polskawschodnia.gov.pl",
+    "tags": ""
+  },
+  {
+    "id": 3606856,
+    "title": "polskiemarkiturystyczne.gov.pl",
+    "url": "https://polskiemarkiturystyczne.gov.pl",
+    "tags": ""
+  },
+  {
+    "id": 3606857,
+    "title": "polskiwywiad.gov.pl",
+    "url": "https://polskiwywiad.gov.pl",
+    "tags": ""
+  },
+  {
+    "id": 3606858,
+    "title": "polubowne.gov.pl",
+    "url": "https://polubowne.gov.pl",
+    "tags": ""
+  },
+  {
+    "id": 3606859,
+    "title": "polubownie.gov.pl",
+    "url": "https://polubownie.gov.pl",
+    "tags": ""
+  },
+  {
+    "id": 3606860,
+    "title": "pomagamukrainie.gov.pl",
+    "url": "https://pomagamukrainie.gov.pl",
+    "tags": ""
+  },
+  {
+    "id": 3606861,
+    "title": "pomoctechniczna.gov.pl",
+    "url": "https://pomoctechniczna.gov.pl",
+    "tags": ""
+  },
+  {
+    "id": 3606862,
+    "title": "pomocunijna.gov.pl",
+    "url": "https://pomocunijna.gov.pl",
+    "tags": ""
+  },
+  {
+    "id": 3606863,
+    "title": "pomoczywnosciowa.gov.pl",
+    "url": "https://pomoczywnosciowa.gov.pl",
+    "tags": ""
+  },
+  {
+    "id": 3606864,
+    "title": "pomorskie.eu.samorzad",
+    "url": "https://pomorskie.eu.samorzad",
+    "tags": ""
+  },
+  {
+    "id": 3606865,
+    "title": "popc.gov.pl",
+    "url": "https://popc.gov.pl",
+    "tags": ""
+  },
+  {
+    "id": 3606866,
+    "title": "popt.gov.pl",
+    "url": "https://popt.gov.pl",
+    "tags": ""
+  },
+  {
+    "id": 3606867,
+    "title": "pot.gov.pl",
+    "url": "https://pot.gov.pl",
+    "tags": ""
+  },
+  {
+    "id": 3606868,
+    "title": "power.gov.pl",
+    "url": "https://power.gov.pl",
+    "tags": ""
+  },
+  {
+    "id": 3606869,
+    "title": "powodz2024.gov.pl",
+    "url": "https://powodz2024.gov.pl",
+    "tags": ""
+  },
+  {
+    "id": 3606870,
+    "title": "powroty.gov.pl",
+    "url": "https://powroty.gov.pl",
+    "tags": ""
+  },
+  {
+    "id": 3606871,
+    "title": "poznan.oow.gov.pl",
+    "url": "https://poznan.oow.gov.pl",
+    "tags": ""
+  },
+  {
+    "id": 3606872,
+    "title": "poznan.po.gov.pl",
+    "url": "https://poznan.po.gov.pl",
+    "tags": ""
+  },
+  {
+    "id": 3606873,
+    "title": "poznan.pr.gov.pl",
+    "url": "https://poznan.pr.gov.pl",
+    "tags": ""
+  },
+  {
+    "id": 3606874,
+    "title": "poznan.uw.gov.pl",
+    "url": "https://poznan.uw.gov.pl",
+    "tags": ""
+  },
+  {
+    "id": 3606875,
+    "title": "poznan.wif.gov.pl",
+    "url": "https://poznan.wif.gov.pl",
+    "tags": ""
+  },
+  {
+    "id": 3606876,
+    "title": "poznan.wiih.gov.pl",
+    "url": "https://poznan.wiih.gov.pl",
+    "tags": ""
+  },
+  {
+    "id": 3606877,
+    "title": "poznan.winb.gov.pl",
+    "url": "https://poznan.winb.gov.pl",
+    "tags": ""
+  },
+  {
+    "id": 3606878,
+    "title": "poznan.wios.gov.pl",
+    "url": "https://poznan.wios.gov.pl",
+    "tags": ""
+  },
+  {
+    "id": 3606879,
+    "title": "poznan.wuoz.gov.pl",
+    "url": "https://poznan.wuoz.gov.pl",
+    "tags": ""
+  },
+  {
+    "id": 3606880,
+    "title": "poznan.zp.gov.pl",
+    "url": "https://poznan.zp.gov.pl",
+    "tags": ""
+  },
+  {
+    "id": 3606881,
+    "title": "ppn.gov.pl",
+    "url": "https://ppn.gov.pl",
+    "tags": ""
+  },
+  {
+    "id": 3606882,
+    "title": "ppp.gov.pl",
+    "url": "https://ppp.gov.pl",
+    "tags": ""
+  },
+  {
+    "id": 3606883,
+    "title": "pppszkolenia.gov.pl",
+    "url": "https://pppszkolenia.gov.pl",
+    "tags": ""
+  },
+  {
+    "id": 3606884,
+    "title": "praca.gov.pl",
+    "url": "https://praca.gov.pl",
+    "tags": ""
+  },
+  {
+    "id": 3606885,
+    "title": "pracawpolsce.gov.pl",
+    "url": "https://pracawpolsce.gov.pl",
+    "tags": ""
+  },
+  {
+    "id": 3606886,
+    "title": "prawoautorskie.gov.pl",
+    "url": "https://prawoautorskie.gov.pl",
+    "tags": ""
+  },
+  {
+    "id": 3606887,
+    "title": "premier.gov.pl",
+    "url": "https://premier.gov.pl",
+    "tags": ""
+  },
+  {
+    "id": 3606888,
+    "title": "prezydentcalek.pl",
+    "url": "https://prezydentcalek.pl",
+    "tags": ""
+  },
+  {
+    "id": 3606889,
+    "title": "produktpolski.gov.pl",
+    "url": "https://produktpolski.gov.pl",
+    "tags": ""
+  },
+  {
+    "id": 3606890,
+    "title": "profilzaufany.gov.pl",
+    "url": "https://profilzaufany.gov.pl",
+    "tags": ""
+  },
+  {
+    "id": 3606891,
+    "title": "programszwajcarski.gov.pl",
+    "url": "https://programszwajcarski.gov.pl",
+    "tags": ""
+  },
+  {
+    "id": 3606892,
+    "title": "programyke.gov.pl",
+    "url": "https://programyke.gov.pl",
+    "tags": ""
+  },
+  {
+    "id": 3606893,
+    "title": "projektyue.gov.pl",
+    "url": "https://projektyue.gov.pl",
+    "tags": ""
+  },
+  {
+    "id": 3606894,
+    "title": "projektyunijne.gov.pl",
+    "url": "https://projektyunijne.gov.pl",
+    "tags": ""
+  },
+  {
+    "id": 3606895,
+    "title": "prokuratoria.gov.pl",
+    "url": "https://prokuratoria.gov.pl",
+    "tags": ""
+  },
+  {
+    "id": 3606896,
+    "title": "prokuratura.gov.pl",
+    "url": "https://prokuratura.gov.pl",
+    "tags": ""
+  },
+  {
+    "id": 3606897,
+    "title": "prop.gov.pl",
+    "url": "https://prop.gov.pl",
+    "tags": ""
+  },
+  {
+    "id": 3606898,
+    "title": "prudnik.sr.gov.pl",
+    "url": "https://prudnik.sr.gov.pl",
+    "tags": ""
+  },
+  {
+    "id": 3606899,
+    "title": "pruszczgdanski.piw.gov.pl",
+    "url": "https://pruszczgdanski.piw.gov.pl",
+    "tags": ""
+  },
+  {
+    "id": 3606900,
+    "title": "pruszkow.sr.gov.pl",
+    "url": "https://pruszkow.sr.gov.pl",
+    "tags": ""
+  },
+  {
+    "id": 3606901,
+    "title": "przasnysz.sr.gov.pl",
+    "url": "https://przasnysz.sr.gov.pl",
+    "tags": ""
+  },
+  {
+    "id": 3606902,
+    "title": "przasnysz.um.gov.pl",
+    "url": "https://przasnysz.um.gov.pl",
+    "tags": ""
+  },
+  {
+    "id": 3606903,
+    "title": "przegladlegislacyjny.gov.pl",
+    "url": "https://przegladlegislacyjny.gov.pl",
+    "tags": ""
+  },
+  {
+    "id": 3606904,
+    "title": "przemysl.kmpsp.gov.pl",
+    "url": "https://przemysl.kmpsp.gov.pl",
+    "tags": ""
+  },
+  {
+    "id": 3606905,
+    "title": "przemysl.po.gov.pl",
+    "url": "https://przemysl.po.gov.pl",
+    "tags": ""
+  },
+  {
+    "id": 3606906,
+    "title": "przemysl.sko.gov.pl",
+    "url": "https://przemysl.sko.gov.pl",
+    "tags": ""
+  },
+  {
+    "id": 3606907,
+    "title": "przemysl.so.gov.pl",
+    "url": "https://przemysl.so.gov.pl",
+    "tags": ""
+  },
+  {
+    "id": 3606908,
+    "title": "przemysl.sr.gov.pl",
+    "url": "https://przemysl.sr.gov.pl",
+    "tags": ""
+  },
+  {
+    "id": 3606909,
+    "title": "przeworsk.pinb.gov.pl",
+    "url": "https://przeworsk.pinb.gov.pl",
+    "tags": ""
+  },
+  {
+    "id": 3606910,
+    "title": "przeworsk.sr.gov.pl",
+    "url": "https://przeworsk.sr.gov.pl",
+    "tags": ""
+  },
+  {
+    "id": 3606911,
+    "title": "przeworsk.um.gov.pl",
+    "url": "https://przeworsk.um.gov.pl",
+    "tags": ""
+  },
+  {
+    "id": 3606912,
+    "title": "przysucha.sr.gov.pl",
+    "url": "https://przysucha.sr.gov.pl",
+    "tags": ""
+  },
+  {
+    "id": 3606913,
+    "title": "pszczyna.kppsp.gov.pl",
+    "url": "https://pszczyna.kppsp.gov.pl",
+    "tags": ""
+  },
+  {
+    "id": 3606914,
+    "title": "pszczyna.oow.gov.pl",
+    "url": "https://pszczyna.oow.gov.pl",
+    "tags": ""
+  },
+  {
+    "id": 3606915,
+    "title": "pszczyna.pinb.gov.pl",
+    "url": "https://pszczyna.pinb.gov.pl",
+    "tags": ""
+  },
+  {
+    "id": 3606916,
+    "title": "pszczyna.sr.gov.pl",
+    "url": "https://pszczyna.sr.gov.pl",
+    "tags": ""
+  },
+  {
+    "id": 3606917,
+    "title": "pszczyna.zpisdn.gov.pl",
+    "url": "https://pszczyna.zpisdn.gov.pl",
+    "tags": ""
+  },
+  {
+    "id": 3606918,
+    "title": "ptfe.gov.pl",
+    "url": "https://ptfe.gov.pl",
+    "tags": ""
+  },
+  {
+    "id": 3606919,
+    "title": "puesc.gov.pl",
+    "url": "https://puesc.gov.pl",
+    "tags": ""
+  },
+  {
+    "id": 3606920,
+    "title": "pulawy.sr.gov.pl",
+    "url": "https://pulawy.sr.gov.pl",
+    "tags": ""
+  },
+  {
+    "id": 3606921,
+    "title": "pultusk.sr.gov.pl",
+    "url": "https://pultusk.sr.gov.pl",
+    "tags": ""
+  },
+  {
+    "id": 3606922,
+    "title": "pyrzyce.um.gov.pl",
+    "url": "https://pyrzyce.um.gov.pl",
+    "tags": ""
+  },
+  {
+    "id": 3606923,
+    "title": "pz.gov.pl",
+    "url": "https://pz.gov.pl",
+    "tags": ""
+  },
+  {
+    "id": 3606924,
+    "title": "pzh.gov.pl",
+    "url": "https://pzh.gov.pl",
+    "tags": ""
+  },
+  {
+    "id": 3606925,
+    "title": "raciborz.sr.gov.pl",
+    "url": "https://raciborz.sr.gov.pl",
+    "tags": ""
+  },
+  {
+    "id": 3606926,
+    "title": "radaiip.gov.pl",
+    "url": "https://radaiip.gov.pl",
+    "tags": ""
+  },
+  {
+    "id": 3606927,
+    "title": "radom.po.gov.pl",
+    "url": "https://radom.po.gov.pl",
+    "tags": ""
+  },
+  {
+    "id": 3606928,
+    "title": "radom.so.gov.pl",
+    "url": "https://radom.so.gov.pl",
+    "tags": ""
+  },
+  {
+    "id": 3606929,
+    "title": "radom.sr.gov.pl",
+    "url": "https://radom.sr.gov.pl",
+    "tags": ""
+  },
+  {
+    "id": 3606930,
+    "title": "radomsko.sr.gov.pl",
+    "url": "https://radomsko.sr.gov.pl",
+    "tags": ""
+  },
+  {
+    "id": 3606931,
+    "title": "radziejow.sr.gov.pl",
+    "url": "https://radziejow.sr.gov.pl",
+    "tags": ""
+  },
+  {
+    "id": 3606932,
+    "title": "radzyn.sr.gov.pl",
+    "url": "https://radzyn.sr.gov.pl",
+    "tags": ""
+  },
+  {
+    "id": 3606933,
+    "title": "rars.gov.pl",
+    "url": "https://rars.gov.pl",
+    "tags": ""
+  },
+  {
+    "id": 3606934,
+    "title": "rawa.sr.gov.pl",
+    "url": "https://rawa.sr.gov.pl",
+    "tags": ""
+  },
+  {
+    "id": 3606935,
+    "title": "rawam.ug.gov.pl",
+    "url": "https://rawam.ug.gov.pl",
+    "tags": ""
+  },
+  {
+    "id": 3606936,
+    "title": "rcb.gov.pl",
+    "url": "https://rcb.gov.pl",
+    "tags": ""
+  },
+  {
+    "id": 3606937,
+    "title": "rcl.gov.pl",
+    "url": "https://rcl.gov.pl",
+    "tags": ""
+  },
+  {
+    "id": 3606938,
+    "title": "rds.gov.pl",
+    "url": "https://rds.gov.pl",
+    "tags": ""
+  },
+  {
+    "id": 3606939,
+    "title": "referendum.gov.pl",
+    "url": "https://referendum.gov.pl",
+    "tags": ""
+  },
+  {
+    "id": 3606940,
+    "title": "regionmorzabaltyckiego.gov.pl",
+    "url": "https://regionmorzabaltyckiego.gov.pl",
+    "tags": ""
+  },
+  {
+    "id": 3606941,
+    "title": "reja24.gov.pl",
+    "url": "https://reja24.gov.pl",
+    "tags": ""
+  },
+  {
+    "id": 3606942,
+    "title": "rejestrytx.gov.pl",
+    "url": "https://rejestrytx.gov.pl",
+    "tags": ""
+  },
+  {
+    "id": 3606943,
+    "title": "rewitalizacja.gov.pl",
+    "url": "https://rewitalizacja.gov.pl",
+    "tags": ""
+  },
+  {
+    "id": 3606944,
+    "title": "rf.gov.pl",
+    "url": "https://rf.gov.pl",
+    "tags": ""
+  },
+  {
+    "id": 3606945,
+    "title": "rio.gov.pl",
+    "url": "https://rio.gov.pl",
+    "tags": ""
+  },
+  {
+    "id": 3606946,
+    "title": "rodzinaipraca.gov.pl",
+    "url": "https://rodzinaipraca.gov.pl",
+    "tags": ""
+  },
+  {
+    "id": 3606947,
+    "title": "rogozno.ug.gov.pl",
+    "url": "https://rogozno.ug.gov.pl",
+    "tags": ""
+  },
+  {
+    "id": 3606948,
+    "title": "ropczyce.sr.gov.pl",
+    "url": "https://ropczyce.sr.gov.pl",
+    "tags": ""
+  },
+  {
+    "id": 3606949,
+    "title": "rozwojcyfrowy.gov.pl",
+    "url": "https://rozwojcyfrowy.gov.pl",
+    "tags": ""
+  },
+  {
+    "id": 3606950,
+    "title": "rozwojspoleczny.gov.pl",
+    "url": "https://rozwojspoleczny.gov.pl",
+    "tags": ""
+  },
+  {
+    "id": 3606951,
+    "title": "rpn.gov.pl",
+    "url": "https://rpn.gov.pl",
+    "tags": ""
+  },
+  {
+    "id": 3606952,
+    "title": "rpo.gov.pl",
+    "url": "https://rpo.gov.pl",
+    "tags": ""
+  },
+  {
+    "id": 3606953,
+    "title": "rpp.gov.pl",
+    "url": "https://rpp.gov.pl",
+    "tags": ""
+  },
+  {
+    "id": 3606954,
+    "title": "rspo.gov.pl",
+    "url": "https://rspo.gov.pl",
+    "tags": ""
+  },
+  {
+    "id": 3606955,
+    "title": "rybactwo.gov.pl",
+    "url": "https://rybactwo.gov.pl",
+    "tags": ""
+  },
+  {
+    "id": 3606956,
+    "title": "rybnik.pinb.gov.pl",
+    "url": "https://rybnik.pinb.gov.pl",
+    "tags": ""
+  },
+  {
+    "id": 3606957,
+    "title": "rybnik.so.gov.pl",
+    "url": "https://rybnik.so.gov.pl",
+    "tags": ""
+  },
+  {
+    "id": 3606958,
+    "title": "rybnik.sr.gov.pl",
+    "url": "https://rybnik.sr.gov.pl",
+    "tags": ""
+  },
+  {
+    "id": 3606959,
+    "title": "rybno.ug.gov.pl",
+    "url": "https://rybno.ug.gov.pl",
+    "tags": ""
+  },
+  {
+    "id": 3606960,
+    "title": "ryki.sr.gov.pl",
+    "url": "https://ryki.sr.gov.pl",
+    "tags": ""
+  },
+  {
+    "id": 3606961,
+    "title": "rypin.sr.gov.pl",
+    "url": "https://rypin.sr.gov.pl",
+    "tags": ""
+  },
+  {
+    "id": 3606962,
+    "title": "rzad.gov.pl",
+    "url": "https://rzad.gov.pl",
+    "tags": ""
+  },
+  {
+    "id": 3606963,
+    "title": "rzecznik.gov.pl",
+    "url": "https://rzecznik.gov.pl",
+    "tags": ""
+  },
+  {
+    "id": 3606964,
+    "title": "rzecznikmsp.gov.pl",
+    "url": "https://rzecznikmsp.gov.pl",
+    "tags": ""
+  },
+  {
+    "id": 3606965,
+    "title": "rzeszow.po.gov.pl",
+    "url": "https://rzeszow.po.gov.pl",
+    "tags": ""
+  },
+  {
+    "id": 3606966,
+    "title": "rzeszow.pr.gov.pl",
+    "url": "https://rzeszow.pr.gov.pl",
+    "tags": ""
+  },
+  {
+    "id": 3606967,
+    "title": "rzeszow.sa.gov.pl",
+    "url": "https://rzeszow.sa.gov.pl",
+    "tags": ""
+  },
+  {
+    "id": 3606968,
+    "title": "rzeszow.so.gov.pl",
+    "url": "https://rzeszow.so.gov.pl",
+    "tags": ""
+  },
+  {
+    "id": 3606969,
+    "title": "rzeszow.sr.gov.pl",
+    "url": "https://rzeszow.sr.gov.pl",
+    "tags": ""
+  },
+  {
+    "id": 3606970,
+    "title": "rzeszow.wif.gov.pl",
+    "url": "https://rzeszow.wif.gov.pl",
+    "tags": ""
+  },
+  {
+    "id": 3606971,
+    "title": "samorzad.gov.pl",
+    "url": "https://samorzad.gov.pl",
+    "tags": ""
+  },
+  {
+    "id": 3606972,
+    "title": "sandomierz.sr.gov.pl",
+    "url": "https://sandomierz.sr.gov.pl",
+    "tags": ""
+  },
+  {
+    "id": 3606973,
+    "title": "sanepid.gov.pl",
+    "url": "https://sanepid.gov.pl",
+    "tags": ""
+  },
+  {
+    "id": 3606974,
+    "title": "sanok.sr.gov.pl",
+    "url": "https://sanok.sr.gov.pl",
+    "tags": ""
+  },
+  {
+    "id": 3606975,
+    "title": "sar.gov.pl",
+    "url": "https://sar.gov.pl",
+    "tags": ""
+  },
+  {
+    "id": 3606976,
+    "title": "schr.gov.pl",
+    "url": "https://schr.gov.pl",
+    "tags": ""
+  },
+  {
+    "id": 3606977,
+    "title": "sdg.gov.pl",
+    "url": "https://sdg.gov.pl",
+    "tags": ""
+  },
+  {
+    "id": 3606978,
+    "title": "senior.gov.pl",
+    "url": "https://senior.gov.pl",
+    "tags": ""
+  },
+  {
+    "id": 3606979,
+    "title": "senyszyn.eu",
+    "url": "https://senyszyn.eu",
+    "tags": ""
+  },
+  {
+    "id": 3606980,
+    "title": "si2pem.gov.pl",
+    "url": "https://si2pem.gov.pl",
+    "tags": ""
+  },
+  {
+    "id": 3606981,
+    "title": "sid.gov.pl",
+    "url": "https://sid.gov.pl",
+    "tags": ""
+  },
+  {
+    "id": 3606982,
+    "title": "siedlce.po.gov.pl",
+    "url": "https://siedlce.po.gov.pl",
+    "tags": ""
+  },
+  {
+    "id": 3606983,
+    "title": "siedlce.so.gov.pl",
+    "url": "https://siedlce.so.gov.pl",
+    "tags": ""
+  },
+  {
+    "id": 3606984,
+    "title": "siedlce.sr.gov.pl",
+    "url": "https://siedlce.sr.gov.pl",
+    "tags": ""
+  },
+  {
+    "id": 3606985,
+    "title": "siemianowice.pinb.gov.pl",
+    "url": "https://siemianowice.pinb.gov.pl",
+    "tags": ""
+  },
+  {
+    "id": 3606986,
+    "title": "siemianowice.sr.gov.pl",
+    "url": "https://siemianowice.sr.gov.pl",
+    "tags": ""
+  },
+  {
+    "id": 3606987,
+    "title": "sieradz.po.gov.pl",
+    "url": "https://sieradz.po.gov.pl",
+    "tags": ""
+  },
+  {
+    "id": 3606988,
+    "title": "sieradz.so.gov.pl",
+    "url": "https://sieradz.so.gov.pl",
+    "tags": ""
+  },
+  {
+    "id": 3606989,
+    "title": "sieradz.sr.gov.pl",
+    "url": "https://sieradz.sr.gov.pl",
+    "tags": ""
+  },
+  {
+    "id": 3606990,
+    "title": "sierpc.sr.gov.pl",
+    "url": "https://sierpc.sr.gov.pl",
+    "tags": ""
+  },
+  {
+    "id": 3606991,
+    "title": "sierpc.starostwo.gov.pl",
+    "url": "https://sierpc.starostwo.gov.pl",
+    "tags": ""
+  },
+  {
+    "id": 3606992,
+    "title": "sio.gov.pl",
+    "url": "https://sio.gov.pl",
+    "tags": ""
+  },
+  {
+    "id": 3606993,
+    "title": "sipam.gov.pl",
+    "url": "https://sipam.gov.pl",
+    "tags": ""
+  },
+  {
+    "id": 3606994,
+    "title": "skaner.gov.pl",
+    "url": "https://skaner.gov.pl",
+    "tags": ""
+  },
+  {
+    "id": 3606995,
+    "title": "skarzysko.sr.gov.pl",
+    "url": "https://skarzysko.sr.gov.pl",
+    "tags": ""
+  },
+  {
+    "id": 3606996,
+    "title": "skierniewice.pinb.gov.pl",
+    "url": "https://skierniewice.pinb.gov.pl",
+    "tags": ""
+  },
+  {
+    "id": 3606997,
+    "title": "skierniewice.sr.gov.pl",
+    "url": "https://skierniewice.sr.gov.pl",
+    "tags": ""
+  },
+  {
+    "id": 3606998,
+    "title": "skoskierniewice.gov.pl",
+    "url": "https://skoskierniewice.gov.pl",
+    "tags": ""
+  },
+  {
+    "id": 3606999,
+    "title": "skw.gov.pl",
+    "url": "https://skw.gov.pl",
+    "tags": ""
+  },
+  {
+    "id": 3607000,
+    "title": "sl.gov.pl",
+    "url": "https://sl.gov.pl",
+    "tags": ""
+  },
+  {
+    "id": 3607001,
+    "title": "sl2014.gov.pl",
+    "url": "https://sl2014.gov.pl",
+    "tags": ""
+  },
+  {
+    "id": 3607002,
+    "title": "slawno.sr.gov.pl",
+    "url": "https://slawno.sr.gov.pl",
+    "tags": ""
+  },
+  {
+    "id": 3607003,
+    "title": "slubice.sr.gov.pl",
+    "url": "https://slubice.sr.gov.pl",
+    "tags": ""
+  },
+  {
+    "id": 3607004,
+    "title": "slupsk.so.gov.pl",
+    "url": "https://slupsk.so.gov.pl",
+    "tags": ""
+  },
+  {
+    "id": 3607005,
+    "title": "slupsk.sr.gov.pl",
+    "url": "https://slupsk.sr.gov.pl",
+    "tags": ""
+  },
+  {
+    "id": 3607006,
+    "title": "smart.gov.pl",
+    "url": "https://smart.gov.pl",
+    "tags": ""
+  },
+  {
+    "id": 3607007,
+    "title": "smup.gov.pl",
+    "url": "https://smup.gov.pl",
+    "tags": ""
+  },
+  {
+    "id": 3607008,
+    "title": "sochaczew.sr.gov.pl",
+    "url": "https://sochaczew.sr.gov.pl",
+    "tags": ""
+  },
+  {
+    "id": 3607009,
+    "title": "sokolka.sr.gov.pl",
+    "url": "https://sokolka.sr.gov.pl",
+    "tags": ""
+  },
+  {
+    "id": 3607010,
+    "title": "sop.gov.pl",
+    "url": "https://sop.gov.pl",
+    "tags": ""
+  },
+  {
+    "id": 3607011,
+    "title": "sopot.sr.gov.pl",
+    "url": "https://sopot.sr.gov.pl",
+    "tags": ""
+  },
+  {
+    "id": 3607012,
+    "title": "sosnowiec.kmpsp.gov.pl",
+    "url": "https://sosnowiec.kmpsp.gov.pl",
+    "tags": ""
+  },
+  {
+    "id": 3607013,
+    "title": "sosnowiec.pinb.gov.pl",
+    "url": "https://sosnowiec.pinb.gov.pl",
+    "tags": ""
+  },
+  {
+    "id": 3607014,
+    "title": "sosnowiec.po.gov.pl",
+    "url": "https://sosnowiec.po.gov.pl",
+    "tags": ""
+  },
+  {
+    "id": 3607015,
+    "title": "sosnowiec.so.gov.pl",
+    "url": "https://sosnowiec.so.gov.pl",
+    "tags": ""
+  },
+  {
+    "id": 3607016,
+    "title": "sosnowiec.sr.gov.pl",
+    "url": "https://sosnowiec.sr.gov.pl",
+    "tags": ""
+  },
+  {
+    "id": 3607017,
+    "title": "spis.gov.pl",
+    "url": "https://spis.gov.pl",
+    "tags": ""
+  },
+  {
+    "id": 3607018,
+    "title": "spisrolny.gov.pl",
+    "url": "https://spisrolny.gov.pl",
+    "tags": ""
+  },
+  {
+    "id": 3607019,
+    "title": "spn.gov.pl",
+    "url": "https://spn.gov.pl",
+    "tags": ""
+  },
+  {
+    "id": 3607020,
+    "title": "spolecznoscienergetyczne.gov.pl",
+    "url": "https://spolecznoscienergetyczne.gov.pl",
+    "tags": ""
+  },
+  {
+    "id": 3607021,
+    "title": "sportowetalenty.gov.pl",
+    "url": "https://sportowetalenty.gov.pl",
+    "tags": ""
+  },
+  {
+    "id": 3607022,
+    "title": "sppw.gov.pl",
+    "url": "https://sppw.gov.pl",
+    "tags": ""
+  },
+  {
+    "id": 3607023,
+    "title": "sprawiedliwie.gov.pl",
+    "url": "https://sprawiedliwie.gov.pl",
+    "tags": ""
+  },
+  {
+    "id": 3607024,
+    "title": "srem.sr.gov.pl",
+    "url": "https://srem.sr.gov.pl",
+    "tags": ""
+  },
+  {
+    "id": 3607025,
+    "title": "srodaslaska.sr.gov.pl",
+    "url": "https://srodaslaska.sr.gov.pl",
+    "tags": ""
+  },
+  {
+    "id": 3607026,
+    "title": "stalowawola.sr.gov.pl",
+    "url": "https://stalowawola.sr.gov.pl",
+    "tags": ""
+  },
+  {
+    "id": 3607027,
+    "title": "stanowski2025.de",
+    "url": "https://stanowski2025.de",
+    "tags": ""
+  },
+  {
+    "id": 3607028,
+    "title": "starachowice.sr.gov.pl",
+    "url": "https://starachowice.sr.gov.pl",
+    "tags": ""
+  },
+  {
+    "id": 3607029,
+    "title": "starebogaczowice.ug.gov.pl",
+    "url": "https://starebogaczowice.ug.gov.pl",
+    "tags": ""
+  },
+  {
+    "id": 3607030,
+    "title": "stargard.sr.gov.pl",
+    "url": "https://stargard.sr.gov.pl",
+    "tags": ""
+  },
+  {
+    "id": 3607031,
+    "title": "starosielec2025.pl",
+    "url": "https://starosielec2025.pl",
+    "tags": ""
+  },
+  {
+    "id": 3607032,
+    "title": "startinpoland.gov.pl",
+    "url": "https://startinpoland.gov.pl",
+    "tags": ""
+  },
+  {
+    "id": 3607033,
+    "title": "starysacz.um.gov.pl",
+    "url": "https://starysacz.um.gov.pl",
+    "tags": ""
+  },
+  {
+    "id": 3607034,
+    "title": "staszow.sr.gov.pl",
+    "url": "https://staszow.sr.gov.pl",
+    "tags": ""
+  },
+  {
+    "id": 3607035,
+    "title": "step.gov.pl",
+    "url": "https://step.gov.pl",
+    "tags": ""
+  },
+  {
+    "id": 3607036,
+    "title": "straz.gov.pl",
+    "url": "https://straz.gov.pl",
+    "tags": ""
+  },
+  {
+    "id": 3607037,
+    "title": "strefainwestycji.gov.pl",
+    "url": "https://strefainwestycji.gov.pl",
+    "tags": ""
+  },
+  {
+    "id": 3607038,
+    "title": "strzelce.sr.gov.pl",
+    "url": "https://strzelce.sr.gov.pl",
+    "tags": ""
+  },
+  {
+    "id": 3607039,
+    "title": "strzelin.sr.gov.pl",
+    "url": "https://strzelin.sr.gov.pl",
+    "tags": ""
+  },
+  {
+    "id": 3607040,
+    "title": "strzyzow.sr.gov.pl",
+    "url": "https://strzyzow.sr.gov.pl",
+    "tags": ""
+  },
+  {
+    "id": 3607041,
+    "title": "studia.gov.pl",
+    "url": "https://studia.gov.pl",
+    "tags": ""
+  },
+  {
+    "id": 3607042,
+    "title": "study.gov.pl",
+    "url": "https://study.gov.pl",
+    "tags": ""
+  },
+  {
+    "id": 3607043,
+    "title": "studzieniec.oow.gov.pl",
+    "url": "https://studzieniec.oow.gov.pl",
+    "tags": ""
+  },
+  {
+    "id": 3607044,
+    "title": "studzieniec.zp.gov.pl",
+    "url": "https://studzieniec.zp.gov.pl",
+    "tags": ""
+  },
+  {
+    "id": 3607045,
+    "title": "suchab.sr.gov.pl",
+    "url": "https://suchab.sr.gov.pl",
+    "tags": ""
+  },
+  {
+    "id": 3607046,
+    "title": "sukcesja.gov.pl",
+    "url": "https://sukcesja.gov.pl",
+    "tags": ""
+  },
+  {
+    "id": 3607047,
+    "title": "sulecin.sr.gov.pl",
+    "url": "https://sulecin.sr.gov.pl",
+    "tags": ""
+  },
+  {
+    "id": 3607048,
+    "title": "suwalki.so.gov.pl",
+    "url": "https://suwalki.so.gov.pl",
+    "tags": ""
+  },
+  {
+    "id": 3607049,
+    "title": "suwalki.sr.gov.pl",
+    "url": "https://suwalki.sr.gov.pl",
+    "tags": ""
+  },
+  {
+    "id": 3607050,
+    "title": "swidnica.so.gov.pl",
+    "url": "https://swidnica.so.gov.pl",
+    "tags": ""
+  },
+  {
+    "id": 3607051,
+    "title": "swidnica.sr.gov.pl",
+    "url": "https://swidnica.sr.gov.pl",
+    "tags": ""
+  },
+  {
+    "id": 3607052,
+    "title": "swidnica.zpisdn.gov.pl",
+    "url": "https://swidnica.zpisdn.gov.pl",
+    "tags": ""
+  },
+  {
+    "id": 3607053,
+    "title": "swiebodzin.sr.gov.pl",
+    "url": "https://swiebodzin.sr.gov.pl",
+    "tags": ""
+  },
+  {
+    "id": 3607054,
+    "title": "swiecie.zp.gov.pl",
+    "url": "https://swiecie.zp.gov.pl",
+    "tags": ""
+  },
+  {
+    "id": 3607055,
+    "title": "swietajno.ug.gov.pl",
+    "url": "https://swietajno.ug.gov.pl",
+    "tags": ""
+  },
+  {
+    "id": 3607056,
+    "title": "swinoujscie.sr.gov.pl",
+    "url": "https://swinoujscie.sr.gov.pl",
+    "tags": ""
+  },
+  {
+    "id": 3607057,
+    "title": "swisscontribution.gov.pl",
+    "url": "https://swisscontribution.gov.pl",
+    "tags": ""
+  },
+  {
+    "id": 3607058,
+    "title": "swpn.gov.pl",
+    "url": "https://swpn.gov.pl",
+    "tags": ""
+  },
+  {
+    "id": 3607059,
+    "title": "sww.gov.pl",
+    "url": "https://sww.gov.pl",
+    "tags": ""
+  },
+  {
+    "id": 3607060,
+    "title": "sygnalisci.gov.pl",
+    "url": "https://sygnalisci.gov.pl",
+    "tags": ""
+  },
+  {
+    "id": 3607061,
+    "title": "szczecin.kwpsp.gov.pl",
+    "url": "https://szczecin.kwpsp.gov.pl",
+    "tags": ""
+  },
+  {
+    "id": 3607062,
+    "title": "szczecin.oow.gov.pl",
+    "url": "https://szczecin.oow.gov.pl",
+    "tags": ""
+  },
+  {
+    "id": 3607063,
+    "title": "szczecin.po.gov.pl",
+    "url": "https://szczecin.po.gov.pl",
+    "tags": ""
+  },
+  {
+    "id": 3607064,
+    "title": "szczecin.sa.gov.pl",
+    "url": "https://szczecin.sa.gov.pl",
+    "tags": ""
+  },
+  {
+    "id": 3607065,
+    "title": "szczecin.sdn.gov.pl",
+    "url": "https://szczecin.sdn.gov.pl",
+    "tags": ""
+  },
+  {
+    "id": 3607066,
+    "title": "szczecin.so.gov.pl",
+    "url": "https://szczecin.so.gov.pl",
+    "tags": ""
+  },
+  {
+    "id": 3607067,
+    "title": "szczecin.uzs.gov.pl",
+    "url": "https://szczecin.uzs.gov.pl",
+    "tags": ""
+  },
+  {
+    "id": 3607068,
+    "title": "szczecin.wsa.gov.pl",
+    "url": "https://szczecin.wsa.gov.pl",
+    "tags": ""
+  },
+  {
+    "id": 3607069,
+    "title": "szczecinek.sr.gov.pl",
+    "url": "https://szczecinek.sr.gov.pl",
+    "tags": ""
+  },
+  {
+    "id": 3607070,
+    "title": "szczytniki.ug.gov.pl",
+    "url": "https://szczytniki.ug.gov.pl",
+    "tags": ""
+  },
+  {
+    "id": 3607071,
+    "title": "szczytno.piw.gov.pl",
+    "url": "https://szczytno.piw.gov.pl",
+    "tags": ""
+  },
+  {
+    "id": 3607072,
+    "title": "szczytno.sr.gov.pl",
+    "url": "https://szczytno.sr.gov.pl",
+    "tags": ""
+  },
+  {
+    "id": 3607073,
+    "title": "szkolazklimatem.gov.pl",
+    "url": "https://szkolazklimatem.gov.pl",
+    "tags": ""
+  },
+  {
+    "id": 3607074,
+    "title": "szkolenia.gov.pl",
+    "url": "https://szkolenia.gov.pl",
+    "tags": ""
+  },
+  {
+    "id": 3607075,
+    "title": "sztabin.ug.gov.pl",
+    "url": "https://sztabin.ug.gov.pl",
+    "tags": ""
+  },
+  {
+    "id": 3607076,
+    "title": "sztutowo.ug.gov.pl",
+    "url": "https://sztutowo.ug.gov.pl",
+    "tags": ""
+  },
+  {
+    "id": 3607077,
+    "title": "szubin.oow.gov.pl",
+    "url": "https://szubin.oow.gov.pl",
+    "tags": ""
+  },
+  {
+    "id": 3607078,
+    "title": "szukajwarchiwach.gov.pl",
+    "url": "https://szukajwarchiwach.gov.pl",
+    "tags": ""
+  },
+  {
+    "id": 3607079,
+    "title": "szydlowiec.sr.gov.pl",
+    "url": "https://szydlowiec.sr.gov.pl",
+    "tags": ""
+  },
+  {
+    "id": 3607080,
+    "title": "tanajno.pl",
+    "url": "https://tanajno.pl",
+    "tags": ""
+  },
+  {
+    "id": 3607081,
+    "title": "tarnobrzeg.po.gov.pl",
+    "url": "https://tarnobrzeg.po.gov.pl",
+    "tags": ""
+  },
+  {
+    "id": 3607082,
+    "title": "tarnobrzeg.so.gov.pl",
+    "url": "https://tarnobrzeg.so.gov.pl",
+    "tags": ""
+  },
+  {
+    "id": 3607083,
+    "title": "tarnobrzeg.sr.gov.pl",
+    "url": "https://tarnobrzeg.sr.gov.pl",
+    "tags": ""
+  },
+  {
+    "id": 3607084,
+    "title": "tarnow.so.gov.pl",
+    "url": "https://tarnow.so.gov.pl",
+    "tags": ""
+  },
+  {
+    "id": 3607085,
+    "title": "tarnow.sr.gov.pl",
+    "url": "https://tarnow.sr.gov.pl",
+    "tags": ""
+  },
+  {
+    "id": 3607086,
+    "title": "tarnow.zp.gov.pl",
+    "url": "https://tarnow.zp.gov.pl",
+    "tags": ""
+  },
+  {
+    "id": 3607087,
+    "title": "tarnowskiegory.piw.gov.pl",
+    "url": "https://tarnowskiegory.piw.gov.pl",
+    "tags": ""
+  },
+  {
+    "id": 3607088,
+    "title": "tczew.sr.gov.pl",
+    "url": "https://tczew.sr.gov.pl",
+    "tags": ""
+  },
+  {
+    "id": 3607089,
+    "title": "tdt.gov.pl",
+    "url": "https://tdt.gov.pl",
+    "tags": ""
+  },
+  {
+    "id": 3607090,
+    "title": "tgory.sr.gov.pl",
+    "url": "https://tgory.sr.gov.pl",
+    "tags": ""
+  },
+  {
+    "id": 3607091,
+    "title": "tomaszowlub.pinb.gov.pl",
+    "url": "https://tomaszowlub.pinb.gov.pl",
+    "tags": ""
+  },
+  {
+    "id": 3607092,
+    "title": "tomaszowlub.pup.gov.pl",
+    "url": "https://tomaszowlub.pup.gov.pl",
+    "tags": ""
+  },
+  {
+    "id": 3607093,
+    "title": "tomaszowlub.sr.gov.pl",
+    "url": "https://tomaszowlub.sr.gov.pl",
+    "tags": ""
+  },
+  {
+    "id": 3607094,
+    "title": "torun.psse.gov.pl",
+    "url": "https://torun.psse.gov.pl",
+    "tags": ""
+  },
+  {
+    "id": 3607095,
+    "title": "torun.so.gov.pl",
+    "url": "https://torun.so.gov.pl",
+    "tags": ""
+  },
+  {
+    "id": 3607096,
+    "title": "torun.sr.gov.pl",
+    "url": "https://torun.sr.gov.pl",
+    "tags": ""
+  },
+  {
+    "id": 3607097,
+    "title": "torun.wkz.gov.pl",
+    "url": "https://torun.wkz.gov.pl",
+    "tags": ""
+  },
+  {
+    "id": 3607098,
+    "title": "tpcoe.gov.pl",
+    "url": "https://tpcoe.gov.pl",
+    "tags": ""
+  },
+  {
+    "id": 3607099,
+    "title": "tpn.gov.pl",
+    "url": "https://tpn.gov.pl",
+    "tags": ""
+  },
+  {
+    "id": 3607100,
+    "title": "trabkiw.ug.gov.pl",
+    "url": "https://trabkiw.ug.gov.pl",
+    "tags": ""
+  },
+  {
+    "id": 3607101,
+    "title": "trade.gov.pl",
+    "url": "https://trade.gov.pl",
+    "tags": ""
+  },
+  {
+    "id": 3607102,
+    "title": "trzaskowski.pl",
+    "url": "https://trzaskowski.pl",
+    "tags": ""
+  },
+  {
+    "id": 3607103,
+    "title": "turek.starostwo.gov.pl",
+    "url": "https://turek.starostwo.gov.pl",
+    "tags": ""
+  },
+  {
+    "id": 3607104,
+    "title": "turystycznaszkola.gov.pl",
+    "url": "https://turystycznaszkola.gov.pl",
+    "tags": ""
+  },
+  {
+    "id": 3607105,
+    "title": "turystyka.gov.pl",
+    "url": "https://turystyka.gov.pl",
+    "tags": ""
+  },
+  {
+    "id": 3607106,
+    "title": "tychy.kmpsp.gov.pl",
+    "url": "https://tychy.kmpsp.gov.pl",
+    "tags": ""
+  },
+  {
+    "id": 3607107,
+    "title": "tychy.sr.gov.pl",
+    "url": "https://tychy.sr.gov.pl",
+    "tags": ""
+  },
+  {
+    "id": 3607108,
+    "title": "ua.gov.pl",
+    "url": "https://ua.gov.pl",
+    "tags": ""
+  },
+  {
+    "id": 3607109,
+    "title": "udsc.gov.pl",
+    "url": "https://udsc.gov.pl",
+    "tags": ""
+  },
+  {
+    "id": 3607110,
+    "title": "udskior.gov.pl",
+    "url": "https://udskior.gov.pl",
+    "tags": ""
+  },
+  {
+    "id": 3607111,
+    "title": "udt.gov.pl",
+    "url": "https://udt.gov.pl",
+    "tags": ""
+  },
+  {
+    "id": 3607112,
+    "title": "ukraina.gov.pl",
+    "url": "https://ukraina.gov.pl",
+    "tags": ""
+  },
+  {
+    "id": 3607113,
+    "title": "ulc.gov.pl",
+    "url": "https://ulc.gov.pl",
+    "tags": ""
+  },
+  {
+    "id": 3607114,
+    "title": "ums.gov.pl",
+    "url": "https://ums.gov.pl",
+    "tags": ""
+  },
+  {
+    "id": 3607115,
+    "title": "uokik.gov.pl/bip/php",
+    "url": "https://uokik.gov.pl/bip/php",
+    "tags": ""
+  },
+  {
+    "id": 3607116,
+    "title": "uprp.gov.pl",
+    "url": "https://uprp.gov.pl",
+    "tags": ""
+  },
+  {
+    "id": 3607117,
+    "title": "ure.gov.pl",
+    "url": "https://ure.gov.pl",
+    "tags": ""
+  },
+  {
+    "id": 3607118,
+    "title": "urpl.gov.pl",
+    "url": "https://urpl.gov.pl",
+    "tags": ""
+  },
+  {
+    "id": 3607119,
+    "title": "urzadskarbowy.gov.pl",
+    "url": "https://urzadskarbowy.gov.pl",
+    "tags": ""
+  },
+  {
+    "id": 3607120,
+    "title": "utk.gov.pl",
+    "url": "https://utk.gov.pl",
+    "tags": ""
+  },
+  {
+    "id": 3607121,
+    "title": "wabrzezno.sr.gov.pl",
+    "url": "https://wabrzezno.sr.gov.pl",
+    "tags": ""
+  },
+  {
+    "id": 3607122,
+    "title": "wadowice.sr.gov.pl",
+    "url": "https://wadowice.sr.gov.pl",
+    "tags": ""
+  },
+  {
+    "id": 3607123,
+    "title": "wakacjekredytowe.gov.pl",
+    "url": "https://wakacjekredytowe.gov.pl",
+    "tags": ""
+  },
+  {
+    "id": 3607124,
+    "title": "walbrzych.sr.gov.pl",
+    "url": "https://walbrzych.sr.gov.pl",
+    "tags": ""
+  },
+  {
+    "id": 3607125,
+    "title": "walcz.sr.gov.pl",
+    "url": "https://walcz.sr.gov.pl",
+    "tags": ""
+  },
+  {
+    "id": 3607126,
+    "title": "warszawa.oow.gov.pl",
+    "url": "https://warszawa.oow.gov.pl",
+    "tags": ""
+  },
+  {
+    "id": 3607127,
+    "title": "warszawa.sr.gov.pl",
+    "url": "https://warszawa.sr.gov.pl",
+    "tags": ""
+  },
+  {
+    "id": 3607128,
+    "title": "warszawa.wios.gov.pl",
+    "url": "https://warszawa.wios.gov.pl",
+    "tags": ""
+  },
+  {
+    "id": 3607129,
+    "title": "waw.sa.gov.pl",
+    "url": "https://waw.sa.gov.pl",
+    "tags": ""
+  },
+  {
+    "id": 3607130,
+    "title": "waw.uzs.gov.pl",
+    "url": "https://waw.uzs.gov.pl",
+    "tags": ""
+  },
+  {
+    "id": 3607131,
+    "title": "wawa.piw.gov.pl",
+    "url": "https://wawa.piw.gov.pl",
+    "tags": ""
+  },
+  {
+    "id": 3607132,
+    "title": "wegrow.sr.gov.pl",
+    "url": "https://wegrow.sr.gov.pl",
+    "tags": ""
+  },
+  {
+    "id": 3607133,
+    "title": "wejherowo.sr.gov.pl",
+    "url": "https://wejherowo.sr.gov.pl",
+    "tags": ""
+  },
+  {
+    "id": 3607134,
+    "title": "wetgiw.gov.pl",
+    "url": "https://wetgiw.gov.pl",
+    "tags": ""
+  },
+  {
+    "id": 3607135,
+    "title": "wezparagon.gov.pl",
+    "url": "https://wezparagon.gov.pl",
+    "tags": ""
+  },
+  {
+    "id": 3607136,
+    "title": "widok.gov.pl",
+    "url": "https://widok.gov.pl",
+    "tags": ""
+  },
+  {
+    "id": 3607137,
+    "title": "widzew.sr.gov.pl",
+    "url": "https://widzew.sr.gov.pl",
+    "tags": ""
+  },
+  {
+    "id": 3607138,
+    "title": "wieliczka.pinb.gov.pl",
+    "url": "https://wieliczka.pinb.gov.pl",
+    "tags": ""
+  },
+  {
+    "id": 3607139,
+    "title": "wieliczka.sr.gov.pl",
+    "url": "https://wieliczka.sr.gov.pl",
+    "tags": ""
+  },
+  {
+    "id": 3607140,
+    "title": "wielun.sr.gov.pl",
+    "url": "https://wielun.sr.gov.pl",
+    "tags": ""
+  },
+  {
+    "id": 3607141,
+    "title": "wigpn.gov.pl",
+    "url": "https://wigpn.gov.pl",
+    "tags": ""
+  },
+  {
+    "id": 3607142,
+    "title": "witkowo.oow.gov.pl",
+    "url": "https://witkowo.oow.gov.pl",
+    "tags": ""
+  },
+  {
+    "id": 3607143,
+    "title": "wloclawek.so.gov.pl",
+    "url": "https://wloclawek.so.gov.pl",
+    "tags": ""
+  },
+  {
+    "id": 3607144,
+    "title": "wloclawek.sr.gov.pl",
+    "url": "https://wloclawek.sr.gov.pl",
+    "tags": ""
+  },
+  {
+    "id": 3607145,
+    "title": "wlodawa.sr.gov.pl",
+    "url": "https://wlodawa.sr.gov.pl",
+    "tags": ""
+  },
+  {
+    "id": 3607146,
+    "title": "wloszczowa.sr.gov.pl",
+    "url": "https://wloszczowa.sr.gov.pl",
+    "tags": ""
+  },
+  {
+    "id": 3607147,
+    "title": "wody.gov.pl",
+    "url": "https://wody.gov.pl",
+    "tags": ""
+  },
+  {
+    "id": 3607148,
+    "title": "wodzislaw.sr.gov.pl",
+    "url": "https://wodzislaw.sr.gov.pl",
+    "tags": ""
+  },
+  {
+    "id": 3607149,
+    "title": "wolow.sr.gov.pl",
+    "url": "https://wolow.sr.gov.pl",
+    "tags": ""
+  },
+  {
+    "id": 3607150,
+    "title": "wolsztyn.sr.gov.pl",
+    "url": "https://wolsztyn.sr.gov.pl",
+    "tags": ""
+  },
+  {
+    "id": 3607151,
+    "title": "wopn.gov.pl",
+    "url": "https://wopn.gov.pl",
+    "tags": ""
+  },
+  {
+    "id": 3607152,
+    "title": "wpn.gov.pl",
+    "url": "https://wpn.gov.pl",
+    "tags": ""
+  },
+  {
+    "id": 3607153,
+    "title": "wroc.piw.gov.pl",
+    "url": "https://wroc.piw.gov.pl",
+    "tags": ""
+  },
+  {
+    "id": 3607154,
+    "title": "wroc.wiw.gov.pl",
+    "url": "https://wroc.wiw.gov.pl",
+    "tags": ""
+  },
+  {
+    "id": 3607155,
+    "title": "wroclaw.sa.gov.pl",
+    "url": "https://wroclaw.sa.gov.pl",
+    "tags": ""
+  },
+  {
+    "id": 3607156,
+    "title": "wroclaw.so.gov.pl",
+    "url": "https://wroclaw.so.gov.pl",
+    "tags": ""
+  },
+  {
+    "id": 3607157,
+    "title": "wroclaw.wios.gov.pl",
+    "url": "https://wroclaw.wios.gov.pl",
+    "tags": ""
+  },
+  {
+    "id": 3607158,
+    "title": "wschowa.sr.gov.pl",
+    "url": "https://wschowa.sr.gov.pl",
+    "tags": ""
+  },
+  {
+    "id": 3607159,
+    "title": "www.braun2025.pl",
+    "url": "https://www.braun2025.pl",
+    "tags": ""
+  },
+  {
+    "id": 3607160,
+    "title": "www.czk.pl",
+    "url": "https://www.czk.pl",
+    "tags": ""
+  },
+  {
+    "id": 3607161,
+    "title": "www.federacjadlarp.org",
+    "url": "https://www.federacjadlarp.org",
+    "tags": ""
+  },
+  {
+    "id": 3607162,
+    "title": "www.gov.pl",
+    "url": "https://www.gov.pl",
+    "tags": ""
+  },
+  {
+    "id": 3607163,
+    "title": "www.gov.pl/web/bip/komenda",
+    "url": "https://www.gov.pl/web/bip/komenda",
+    "tags": ""
+  },
+  {
+    "id": 3607164,
+    "title": "www.gov.pl/web/dyplomacja/wybory",
+    "url": "https://www.gov.pl/web/dyplomacja/wybory",
+    "tags": ""
+  },
+  {
+    "id": 3607165,
+    "title": "www.gov.pl/web/edukacja",
+    "url": "https://www.gov.pl/web/edukacja",
+    "tags": ""
+  },
+  {
+    "id": 3607166,
+    "title": "www.gov.pl/web/gddkia/generalna",
+    "url": "https://www.gov.pl/web/gddkia/generalna",
+    "tags": ""
+  },
+  {
+    "id": 3607167,
+    "title": "www.gov.pl/web/infrastruktura",
+    "url": "https://www.gov.pl/web/infrastruktura",
+    "tags": ""
+  },
+  {
+    "id": 3607168,
+    "title": "www.gov.pl/web/klimat",
+    "url": "https://www.gov.pl/web/klimat",
+    "tags": ""
+  },
+  {
+    "id": 3607169,
+    "title": "www.gov.pl/web/kwpsp",
+    "url": "https://www.gov.pl/web/kwpsp",
+    "tags": ""
+  },
+  {
+    "id": 3607170,
+    "title": "www.gov.pl/web/obrona",
+    "url": "https://www.gov.pl/web/obrona",
+    "tags": ""
+  },
+  {
+    "id": 3607171,
+    "title": "www.gov.pl/web/paa/panstwowa",
+    "url": "https://www.gov.pl/web/paa/panstwowa",
+    "tags": ""
+  },
+  {
+    "id": 3607172,
+    "title": "www.gov.pl/web/udsc/urzad",
+    "url": "https://www.gov.pl/web/udsc/urzad",
+    "tags": ""
+  },
+  {
+    "id": 3607173,
+    "title": "www.gov.pl/web/uw",
+    "url": "https://www.gov.pl/web/uw",
+    "tags": ""
+  },
+  {
+    "id": 3607174,
+    "title": "www.nsa.gov.pl/bip/php",
+    "url": "https://www.nsa.gov.pl/bip/php",
+    "tags": ""
+  },
+  {
+    "id": 3607175,
+    "title": "www.pap.pl/wybory",
+    "url": "https://www.pap.pl/wybory",
+    "tags": ""
+  },
+  {
+    "id": 3607176,
+    "title": "wybory.gov.pl",
+    "url": "https://wybory.gov.pl",
+    "tags": ""
+  },
+  {
+    "id": 3607177,
+    "title": "wybory.gov.pl/prezydent2025",
+    "url": "https://wybory.gov.pl/prezydent2025",
+    "tags": ""
+  },
+  {
+    "id": 3607178,
+    "title": "wysmaz.sr.gov.pl",
+    "url": "https://wysmaz.sr.gov.pl",
+    "tags": ""
+  },
+  {
+    "id": 3607179,
+    "title": "wyszkow.sr.gov.pl",
+    "url": "https://wyszkow.sr.gov.pl",
+    "tags": ""
+  },
+  {
+    "id": 3607180,
+    "title": "zabkowice.sr.gov.pl",
+    "url": "https://zabkowice.sr.gov.pl",
+    "tags": ""
+  },
+  {
+    "id": 3607181,
+    "title": "zabrze.sr.gov.pl",
+    "url": "https://zabrze.sr.gov.pl",
+    "tags": ""
+  },
+  {
+    "id": 3607182,
+    "title": "zagan.sr.gov.pl",
+    "url": "https://zagan.sr.gov.pl",
+    "tags": ""
+  },
+  {
+    "id": 3607183,
+    "title": "zakopane.sr.gov.pl",
+    "url": "https://zakopane.sr.gov.pl",
+    "tags": ""
+  },
+  {
+    "id": 3607184,
+    "title": "zambrow.sr.gov.pl",
+    "url": "https://zambrow.sr.gov.pl",
+    "tags": ""
+  },
+  {
+    "id": 3607185,
+    "title": "zamojski.pinb.gov.pl",
+    "url": "https://zamojski.pinb.gov.pl",
+    "tags": ""
+  },
+  {
+    "id": 3607186,
+    "title": "zamosc.pinb.gov.pl",
+    "url": "https://zamosc.pinb.gov.pl",
+    "tags": ""
+  },
+  {
+    "id": 3607187,
+    "title": "zamosc.so.gov.pl",
+    "url": "https://zamosc.so.gov.pl",
+    "tags": ""
+  },
+  {
+    "id": 3607188,
+    "title": "zamosc.sr.gov.pl",
+    "url": "https://zamosc.sr.gov.pl",
+    "tags": ""
+  },
+  {
+    "id": 3607189,
+    "title": "zandberg2025.pl",
+    "url": "https://zandberg2025.pl",
+    "tags": ""
+  },
+  {
+    "id": 3607190,
+    "title": "zary.sr.gov.pl",
+    "url": "https://zary.sr.gov.pl",
+    "tags": ""
+  },
+  {
+    "id": 3607191,
+    "title": "zawiercie.sr.gov.pl",
+    "url": "https://zawiercie.sr.gov.pl",
+    "tags": ""
+  },
+  {
+    "id": 3607192,
+    "title": "zawiercie.zpisdn.gov.pl",
+    "url": "https://zawiercie.zpisdn.gov.pl",
+    "tags": ""
+  },
+  {
+    "id": 3607193,
+    "title": "zbiorki.gov.pl",
+    "url": "https://zbiorki.gov.pl",
+    "tags": ""
+  },
+  {
+    "id": 3607194,
+    "title": "zdrowaja.gov.pl",
+    "url": "https://zdrowaja.gov.pl",
+    "tags": ""
+  },
+  {
+    "id": 3607195,
+    "title": "zdrowie.gov.pl",
+    "url": "https://zdrowie.gov.pl",
+    "tags": ""
+  },
+  {
+    "id": 3607196,
+    "title": "zdwola.sr.gov.pl",
+    "url": "https://zdwola.sr.gov.pl",
+    "tags": ""
+  },
+  {
+    "id": 3607197,
+    "title": "zgierz.sr.gov.pl",
+    "url": "https://zgierz.sr.gov.pl",
+    "tags": ""
+  },
+  {
+    "id": 3607198,
+    "title": "zgora.wios.gov.pl",
+    "url": "https://zgora.wios.gov.pl",
+    "tags": ""
+  },
+  {
+    "id": 3607199,
+    "title": "zgora.wiw.gov.pl",
+    "url": "https://zgora.wiw.gov.pl",
+    "tags": ""
+  },
+  {
+    "id": 3607200,
+    "title": "zgorzelec.sr.gov.pl",
+    "url": "https://zgorzelec.sr.gov.pl",
+    "tags": ""
+  },
+  {
+    "id": 3607201,
+    "title": "zielonalinia.gov.pl",
+    "url": "https://zielonalinia.gov.pl",
+    "tags": ""
+  },
+  {
+    "id": 3607202,
+    "title": "zlotoryja.sr.gov.pl",
+    "url": "https://zlotoryja.sr.gov.pl",
+    "tags": ""
+  },
+  {
+    "id": 3607203,
+    "title": "zory.sr.gov.pl",
+    "url": "https://zory.sr.gov.pl",
+    "tags": ""
+  },
+  {
+    "id": 3607204,
+    "title": "zpe.gov.pl",
+    "url": "https://zpe.gov.pl",
+    "tags": ""
+  },
+  {
+    "id": 3607205,
+    "title": "zwolen.pinb.gov.pl",
+    "url": "https://zwolen.pinb.gov.pl",
+    "tags": ""
+  },
+  {
+    "id": 3607206,
+    "title": "zwolen.sr.gov.pl",
+    "url": "https://zwolen.sr.gov.pl",
+    "tags": ""
+  },
+  {
+    "id": 3607207,
+    "title": "zyrardow.sr.gov.pl",
+    "url": "https://zyrardow.sr.gov.pl",
+    "tags": ""
+  },
+  {
+    "id": 3607208,
+    "title": "zywiec.kppsp.gov.pl",
+    "url": "https://zywiec.kppsp.gov.pl",
+    "tags": ""
+  },
+  {
+    "id": 3607209,
+    "title": "zywiec.sr.gov.pl",
+    "url": "https://zywiec.sr.gov.pl",
+    "tags": ""
+  }
+]
