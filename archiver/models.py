@@ -1,3 +1,4 @@
+import logging
 import uuid
 from pathlib import Path
 
@@ -15,6 +16,8 @@ from django.utils.timezone import is_aware
 
 from archiver.auth import get_keycloak_access_token
 from archiver.stats import CrawlDerivedMetrics, CrawlStats
+
+logger = logging.getLogger(__name__)
 
 
 class Tag(models.Model):
@@ -864,9 +867,8 @@ class Snapshot(models.Model):
             http_method=http_method,
         )
 
-        token = get_keycloak_access_token()
-
         try:
+            token = get_keycloak_access_token()  # may raise - must be inside try
             if http_method == "POST":
                 response = requests.post(
                     f'{settings.FRONTEND_API_URL}/snapshot',
@@ -1229,49 +1231,73 @@ class Task(models.Model):
             "taskResponse": self.taskResponse,
         }
 
-    def send_task_response(self) -> "TaskResponseDelivery":
+    def send_task_response(self) -> "TaskResponseDelivery | None":
         """
-        Send Task.taskResponse JSON to {settings.FRONTEND_API_URL}/task/api via PUT.
-        Stores every delivery attempt.
-        """
+        Send the Task state to {settings.FRONTEND_API_URL}/task/api via PUT.
 
+        NEVER raises. A notification problem (Keycloak down, frontend down,
+        DB problem while writing the audit row, bad settings...) must not
+        break or mask the result of the task itself. Every attempt is logged
+        in TaskResponseDelivery; failed deliveries are re-sent by
+        archiver.services.delivery_retry.retry_failed_task_deliveries.
+        """
         payload = [self._build_task_api_payload()]
-        delivery = TaskResponseDelivery.objects.create(
-            task=self,
-            payload=payload,
-            target_url=f'{settings.FRONTEND_API_URL}/task/api',
-            http_method="PUT",
-        )
+        target_url = f"{settings.FRONTEND_API_URL}/task/api"
 
-        token = get_keycloak_access_token()
+        # The audit row is best effort: a DB problem must not block the HTTP call.
+        delivery = None
+        try:
+            delivery = TaskResponseDelivery.objects.create(
+                task=self,
+                payload=payload,
+                target_url=target_url,
+                http_method="PUT",
+            )
+        except Exception:
+            logger.exception("Could not create TaskResponseDelivery for task %s", self.uid)
+
+        http_status = None
+        response_body = ""
+        success = False
+        error_message = ""
 
         try:
+            token = get_keycloak_access_token()  # may raise - must be inside try
             response = requests.put(
-                f'{settings.FRONTEND_API_URL}/task/api',
+                target_url,
                 json=payload,
-                timeout=getattr(settings, "API_RESPONSE_TIMEOUT", 10),
+                timeout=float(getattr(settings, "API_RESPONSE_TIMEOUT", 10)),
                 headers={
                     "Authorization": f"Bearer {token}",
                     "Content-Type": "application/json",
-                    # Idempotency / traceability
-                    # "X-Delivery-UUID": str(delivery.id),
                 },
             )
-
-            delivery.http_status = response.status_code
-            delivery.response_body = response.text
-            delivery.success = response.ok
-
+            http_status = response.status_code
+            response_body = response.text
+            success = response.ok
+            if not success:
+                error_message = f"HTTP {response.status_code}"
         except Exception as exc:
-            delivery.success = False
-            delivery.error_message = str(exc)
+            error_message = f"{type(exc).__name__}: {exc}"
 
-        delivery.save(update_fields=[
-            "http_status",
-            "response_body",
-            "success",
-            "error_message",
-        ])
+        if not success:
+            logger.warning("Task %s (status=%s) NOT delivered to frontend: %s",
+                           self.uid, self.status, error_message)
+
+        if delivery is not None:
+            try:
+                delivery.http_status = http_status
+                delivery.response_body = response_body
+                delivery.success = success
+                delivery.error_message = error_message
+                delivery.save(update_fields=[
+                    "http_status",
+                    "response_body",
+                    "success",
+                    "error_message",
+                ])
+            except Exception:
+                logger.exception("Could not update TaskResponseDelivery for task %s", self.uid)
         return delivery
 
     def send_quick_status_message(self, status: TaskStatus, message: str):
