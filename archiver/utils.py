@@ -1,11 +1,23 @@
 import django_rq
 import hashlib
 import functools
+import logging
 import traceback
+from django.db import close_old_connections
 from django.utils import timezone
 from django.conf import settings
 
 from archiver.models import Task, TaskStatus
+
+logger = logging.getLogger(__name__)
+
+# Once a task reaches one of these states nobody may silently overwrite it.
+TERMINAL_TASK_STATUSES = frozenset({
+    TaskStatus.SUCCESS,
+    TaskStatus.FAILED,
+    TaskStatus.CANCELLED,
+    TaskStatus.STOPPED,
+})
 
 
 def parse_pipe_array(request, name):
@@ -32,14 +44,59 @@ def calculate_sha256(file_path: str, chunk_size: int = 1024 * 1024) -> str:
     return sha256.hexdigest()
 
 
+def _finalize_task(task: Task, outcome: str, error_message: str | None) -> None:
+    """
+    Persist the final state of `task` and notify the frontend.
+
+    Order matters: the in-memory object is updated first, persistence is best
+    effort and the notification is ALWAYS attempted, even when the DB is down.
+    """
+    # A crawl can run for hours; the DB connection may have died meanwhile.
+    try:
+        close_old_connections()
+    except Exception:
+        logger.exception("close_old_connections failed for task %s", task.uid)
+
+    # The wrapped function works on its OWN Task instance and may already have
+    # stored a terminal state (FAILED / STOPPED / CANCELLED ...). Reload it so
+    # that we do not blindly overwrite it with SUCCESS.
+    try:
+        task.refresh_from_db()
+    except Exception:
+        logger.exception("refresh_from_db failed for task %s", task.uid)
+
+    if outcome == TaskStatus.FAILED or task.status not in TERMINAL_TASK_STATUSES:
+        task.status = outcome
+
+    response = dict(task.taskResponse or {})
+    response["updatedAt"] = str(timezone.now())
+    try:
+        if task.snapshot_id:
+            response["snapshotID"] = str(task.snapshot.uid)
+    except Exception:
+        logger.exception("Could not resolve snapshot for task %s", task.uid)
+    task.taskResponse = response
+
+    if error_message:
+        task.updateMessage = error_message
+    task.finishTime = task.finishTime or timezone.now()
+
+    try:
+        task.save(update_fields=["status", "taskResponse", "finishTime", "updateMessage"])
+    except Exception:
+        logger.exception("Could not persist final state of task %s", task.uid)
+
+    task.send_task_response()  # never raises
+
+
 def task_notify(func):
     """
     Decorator for task execution lifecycle:
-    - sets RUNNING + startTime
+    - sets RUNNING + startTime and notifies the frontend
     - executes task logic
-    - sets SUCCESS or FAILED
+    - sets SUCCESS or FAILED (unless the task already stored a terminal state)
     - sets finishTime
-    - sends task responses
+    - ALWAYS sends the final task response
     """
 
     @functools.wraps(func)
@@ -47,10 +104,10 @@ def task_notify(func):
         task_uid = kwargs.get("task_uid")
 
         if not task_uid:
-            print("NE MA task_uid")
+            logger.warning(
+                "task_notify: %s called without task_uid kwarg - "
+                "lifecycle is NOT tracked / reported", func.__name__)
             return func(*args, **kwargs)
-
-        print("jest task_uid")
 
         task = Task.objects.get(uid=task_uid)
 
@@ -60,35 +117,19 @@ def task_notify(func):
         task.status = TaskStatus.RUNNING
         task.startTime = timezone.now()
         task.save(update_fields=["status", "startTime"])
-        task.send_task_response()
+        task.send_task_response()  # never raises
 
+        outcome = TaskStatus.FAILED   # pessimistic default: covers BaseException too
+        error_message = None
         try:
-            # -------------------------
-            # Execute wrapped function
-            # -------------------------
             result = func(*args, **kwargs)
-
-            task.status = TaskStatus.SUCCESS
-            task.taskResponse = {'updatedAt': str(timezone.now())}
-            if task.snapshot:
-                task.taskResponse['snapshotID'] = str(task.snapshot.uid)
+            outcome = TaskStatus.SUCCESS
             return result
-
-        except Exception:
-            task.status = TaskStatus.FAILED
-            task.taskResponse = {'updatedAt': str(timezone.now())}
-            task.updateMessage = traceback.format_exc()
+        except BaseException:
+            error_message = traceback.format_exc()
             raise
-
         finally:
-            # -------------------------
-            # Task finish (always)
-            # -------------------------
-            task.finishTime = timezone.now()
-            task.save(
-                update_fields=["status", "taskResponse", "finishTime", "updateMessage"]
-            )
-            task.send_task_response()
+            _finalize_task(task, outcome, error_message)
 
     return wrapper
 
