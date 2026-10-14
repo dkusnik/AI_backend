@@ -1,3 +1,4 @@
+import logging
 import os
 import re
 import shutil
@@ -10,6 +11,7 @@ import django_rq
 import docker
 import requests
 from django.conf import settings
+from django.db import close_old_connections
 from django.db.models import Subquery
 from django.utils import timezone
 
@@ -18,6 +20,8 @@ from archiver.stats import (BrowsertrixLogParser, CDXParser,
                             CrawlMetricsCalculator, CrawlStats,
                             get_browsertrix_container_stats)
 from archiver.utils import calculate_sha256, task_notify
+
+logger = logging.getLogger(__name__)
 
 
 def update_snapshot_process_stats(container, snapshot_id: int) -> dict:
@@ -130,10 +134,66 @@ def _reindex_collection(collection_id: str, collection_dir: str | None = None,):
     return container.decode() if isinstance(container, bytes) else container
 
 
+_UNFINISHED_SNAPSHOT_STATUSES = (
+    Snapshot.STATUS_PENDING,
+    Snapshot.STATUS_CRAWLING,
+    Snapshot.STATUS_SUSPENDED,
+)
+
+
+def _abort_crawl(container, snapshot: Snapshot) -> None:
+    """
+    Best-effort cleanup when start_crawl_task dies with an exception.
+
+    Without it the Browsertrix container keeps running with nobody watching it
+    (and its fixed name `crawl_<id>` stays taken), and the Snapshot stays
+    'pending'/'crawling' forever. Never raises: it runs inside an except block.
+    """
+    try:
+        close_old_connections()
+    except Exception:
+        logger.exception("close_old_connections failed while aborting crawl")
+
+    if container is not None:
+        try:
+            container.reload()
+            if container.status == "paused":
+                container.unpause()
+            if container.status in ("running", "paused"):
+                container.stop(timeout=30)   # graceful: lets the crawler flush WARC/CDX
+        except Exception:
+            logger.exception("Could not stop crawl container %s", getattr(container, "id", None))
+        try:
+            container.remove(force=True)
+        except docker.errors.NotFound:
+            pass
+        except Exception:
+            logger.exception("Could not remove crawl container %s", getattr(container, "id", None))
+
+    # Snapshots that already reached a final state (completed/failed/stopped...)
+    # are left alone, e.g. when only the post-crawl archiving step failed.
+    if snapshot.status in _UNFINISHED_SNAPSHOT_STATUSES:
+        try:
+            snapshot.status = Snapshot.STATUS_FAILED
+            snapshot.crawlStopTimestamp = timezone.now()
+            snapshot.save(update_fields=["status", "crawlStopTimestamp"])
+        except Exception:
+            logger.exception("Could not mark snapshot %s as failed", snapshot.pk)
+
+
 @task_notify
 def start_crawl_task(snapshot_uid, task_uid):
     task = Task.objects.get(uid=task_uid)
     snapshot = Snapshot.objects.get(uid=snapshot_uid)
+    state = {"container": None}   # filled as soon as the container exists
+    try:
+        return _run_crawl(snapshot, task, state)
+    except BaseException:
+        _abort_crawl(state["container"], snapshot)
+        raise
+
+
+def _run_crawl(snapshot: Snapshot, task: Task, state: dict):
     # -------------------------------
     # Mark job as running
     # -------------------------------
@@ -152,6 +212,7 @@ def start_crawl_task(snapshot_uid, task_uid):
         snapshot, task
     )
     container = client.containers.run(**container_args)
+    state["container"] = container
 
     # store container id (NOT PID)
     snapshot.process_id = container.id
@@ -284,8 +345,11 @@ def start_crawl_task(snapshot_uid, task_uid):
                 task.save(update_fields=["status", "finishTime", "result"])
                 snapshot.save(update_fields=["status", "result", "crawlStopTimestamp"])
                 task.send_task_response()
-                # if snapshot.status == Snapshot.STATUS_COMPLETED:
-                container.remove()
+                # the "cancel" branch above already removed it with force=True
+                try:
+                    container.remove()
+                except docker.errors.APIError:
+                    pass
                 break
 
             time.sleep(5)  # TODO: check if this is not too much computation expensive
@@ -298,8 +362,10 @@ def start_crawl_task(snapshot_uid, task_uid):
     # we fail it silently, as the snapshot might be empty
     try:
         _reindex_collection(snapshot.replay_collection_id)
-    except:
-        pass
+    except Exception:
+        # silent on purpose (the snapshot might be empty), but leave a trace
+        logger.warning("Reindex of collection %s failed",
+                       snapshot.replay_collection_id, exc_info=True)
 
     # TODO: check if snapshot is okay
     if snapshot.status == Snapshot.STATUS_COMPLETED:
@@ -308,11 +374,13 @@ def start_crawl_task(snapshot_uid, task_uid):
             if snapshot.website.auto_publish:
                 move_snapshot_to_production(snapshot.uid)
         except FileNotFoundError as e:
-                task.send_quick_status_message(
-                    task.status,
-                    f"Could not send crawl control "
-                    f"[{type(e).__name__}: {e}]"
-                )
+            # The crawl itself finished but archiving did not - do not report SUCCESS.
+            task.result = TaskStatus.FAILED
+            task.send_quick_status_message(
+                TaskStatus.FAILED,
+                f"Crawl finished, but moving the snapshot to long-term/production "
+                f"storage failed [{type(e).__name__}: {e}]"
+            )
 
     # Return final result
     return {
