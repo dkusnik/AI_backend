@@ -13,8 +13,11 @@ x-worker-common: &worker-common
     - /srv/ai/:/srv/ai/:rw
   extra_hosts:
     - "host.docker.internal:host-gateway"
-  stop_grace_period: 2m
   restart: unless-stopped
+  # RQ does a warm shutdown on SIGTERM; the default 10 s grace period turns every
+  # `docker compose up -d` into a SIGKILL of running jobs. Crawls longer than this
+  # are still killed and are then picked up by the watchdog (services/watchdog.py).
+  stop_grace_period: 2m
 
 
 services:

@@ -1,4 +1,5 @@
 import re
+import uuid
 from typing import Optional
 
 import django_rq
@@ -117,20 +118,30 @@ def queue_crawl(website_id: int, task: Task = None, queue_name: str = "crawls_no
     task.status = TaskStatus.CREATED
     task.save()
 
-    # Enqueue the RQ job
-    queue = django_rq.get_queue(queue_name)
-    job = queue.enqueue(
-        start_crawl_task,
-        snapshot_uid=snapshot.uid,
-        task_uid=task.uid,
-        on_failure=crawl_job_failed,
-    )
-
-    # Attach the RQ job ID and save
-    snapshot.rq_job_id = job.id
+    # Persist the RQ job id BEFORE enqueueing: an idle worker picks the job up
+    # immediately and reads snapshot.rq_job_id for its Redis control keys
+    # (crawl:<job_id>[:control]); reading None there breaks stop/cancel.
+    job_id = str(uuid.uuid4())
+    snapshot.rq_job_id = job_id
     snapshot.publicationJustification = task.taskParameters.get('publicationJustification')
     snapshot.crawlJustification = task.taskParameters.get('crawlJustification')
     snapshot.save(update_fields=["rq_job_id", "publicationJustification", "crawlJustification"])
+
+    # Enqueue the RQ job
+    queue = django_rq.get_queue(queue_name)
+    try:
+        job = queue.enqueue(
+            start_crawl_task,
+            snapshot_uid=snapshot.uid,
+            task_uid=task.uid,
+            job_id=job_id,
+            on_failure=crawl_job_failed,
+        )
+    except Exception:
+        snapshot.status = Snapshot.STATUS_FAILED
+        snapshot.save(update_fields=["status"])
+        raise
+
     snapshot.send_create_response()
 
     return job.id

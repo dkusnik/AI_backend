@@ -249,7 +249,7 @@ PRODUCTION_VOLUME = os.environ.get("PRODUCTION_VOLUME", '/srv/ai/production_coll
 OUTBACKCDX_URL = env("OUTBACKCDX_URL")
 
 FRONTEND_API_URL = os.environ.get("FRONTEND_API_URL", 'http://192.168.50.4/')
-API_RESPONSE_TIMEOUT = os.environ.get("API_RESPONSE_TIMEOUT", 10)
+API_RESPONSE_TIMEOUT = float(os.environ.get("API_RESPONSE_TIMEOUT", 10))  # env value is a str
 
 PLATFORM_LOCK_KEY = "platform:locked"
 PLATFORM_DISABLE_ADDING_NEW_TASKS = "platform:no_new_tasks"
