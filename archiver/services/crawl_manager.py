@@ -6,6 +6,7 @@ from django.conf import settings
 from rq.job import Job
 
 from archiver.models import Snapshot, Task, TaskStatus, Website
+from archiver.services.watchdog import crawl_job_failed
 from archiver.tasks import (export_zosia_task, replay_publish_task,
                             replay_unpublish_task,
                             repopulate_snapshot_to_production_task,
@@ -118,7 +119,12 @@ def queue_crawl(website_id: int, task: Task = None, queue_name: str = "crawls_no
 
     # Enqueue the RQ job
     queue = django_rq.get_queue(queue_name)
-    job = queue.enqueue(start_crawl_task, snapshot_uid=snapshot.uid, task_uid=task.uid)
+    job = queue.enqueue(
+        start_crawl_task,
+        snapshot_uid=snapshot.uid,
+        task_uid=task.uid,
+        on_failure=crawl_job_failed,
+    )
 
     # Attach the RQ job ID and save
     snapshot.rq_job_id = job.id

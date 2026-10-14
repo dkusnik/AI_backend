@@ -13,6 +13,7 @@ x-worker-common: &worker-common
     - /srv/ai/:/srv/ai/:rw
   extra_hosts:
     - "host.docker.internal:host-gateway"
+  stop_grace_period: 2m
   restart: unless-stopped
 
 

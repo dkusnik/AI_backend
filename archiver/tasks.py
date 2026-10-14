@@ -23,6 +23,10 @@ from archiver.utils import calculate_sha256, task_notify
 
 logger = logging.getLogger(__name__)
 
+# The crawl loop touches Task.updateTime this often; the watchdog
+# (archiver/services/watchdog.py) uses it to spot crawls nobody is driving.
+HEARTBEAT_INTERVAL_SECONDS = 60
+
 
 def update_snapshot_process_stats(container, snapshot_id: int) -> dict:
     """
@@ -242,10 +246,19 @@ def _run_crawl(snapshot: Snapshot, task: Task, state: dict):
     cdx_parser = CDXParser(Path(base_path / "warc-cdx"))
     metrics_calc = CrawlMetricsCalculator(stall_threshold_seconds=60)
 
+    last_heartbeat = 0.0
     try:
         while True:
             container.reload()
             status = container.status  # running, exited, paused
+
+            # ---- heartbeat (see watchdog) ----
+            if time.monotonic() - last_heartbeat >= HEARTBEAT_INTERVAL_SECONDS:
+                try:
+                    Task.objects.filter(pk=task.pk).update(updateTime=timezone.now())
+                except Exception:
+                    logger.warning("Task heartbeat failed", exc_info=True)
+                last_heartbeat = time.monotonic()
             # update stats
 
             # -------------------------------
