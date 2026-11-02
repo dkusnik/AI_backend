@@ -7,12 +7,22 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
     libisal2 maven cargo rustc poppler-utils jq \
     && rm -rf /var/lib/apt/lists/*
 
+
+# Eclipse Temurin JDK 25 LTS
+ENV JAVA_HOME=/opt/java/openjdk
+ENV PATH="${JAVA_HOME}/bin:${PATH}"
+
+RUN mkdir -p ${JAVA_HOME} && \
+    wget -qO- "https://api.adoptium.net/v3/binary/latest/25/ga/linux/x64/jdk/hotspot/normal/eclipse" \
+    | tar -xz --strip-components=1 -C ${JAVA_HOME} && \
+    java -version
+
 # Oracle JDK 26
-RUN wget -O /tmp/jdk-26_linux-x64_bin.deb \
-    https://download.oracle.com/java/26/latest/jdk-26_linux-x64_bin.deb \
-    && apt-get update \
-    && apt-get install -y /tmp/jdk-26_linux-x64_bin.deb \
-    && rm /tmp/jdk-26_linux-x64_bin.deb
+#RUN wget -O /tmp/jdk-26_linux-x64_bin.deb \
+#    https://download.oracle.com/java/26/latest/jdk-26_linux-x64_bin.deb \
+#    && apt-get update \
+#    && apt-get install -y /tmp/jdk-26_linux-x64_bin.deb \
+#    && rm /tmp/jdk-26_linux-x64_bin.deb
 
 #ENV JAVA_HOME=/usr/lib/jvm/jdk-26.0.2.1-oracle-x64
 #ENV PATH="${JAVA_HOME}/bin:${PATH}"
